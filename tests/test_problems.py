@@ -1,12 +1,10 @@
+import jax
+import jax.numpy as jnp
 import numpy as np
+import probnum as pn
 import pytest
 
-import probnum as pn
 from source import problems
-
-import jax.numpy as jnp 
-import jax
-
 
 
 @pytest.mark.parametrize("ivp", [problems.lorenz96()])
@@ -25,7 +23,8 @@ def test_eval_numpy(ivp):
         ddf0 = ivp.ddf(ivp.t0, ivp.y0)
         assert isinstance(ddf0, np.ndarray)
 
-@pytest.mark.parametrize("ivp", [problems.lorenz96_jax()])
+
+@pytest.mark.parametrize("ivp", [problems.lorenz96_jax(), problems.lorenz96_jax_loop()])
 def test_eval_jax(ivp):
     f0 = ivp.f(ivp.t0, ivp.y0)
     assert isinstance(f0, jnp.ndarray)
@@ -56,7 +55,7 @@ def test_df0_numpy(ivp):
         )
 
 
-@pytest.mark.parametrize("ivp", [problems.lorenz96_jax()])
+@pytest.mark.parametrize("ivp", [problems.lorenz96_jax(), problems.lorenz96_jax_loop()])
 def test_df0_jax(ivp):
 
     key = jax.random.PRNGKey(0)
@@ -67,7 +66,9 @@ def test_df0_jax(ivp):
         time = ivp.t0 + 0.1 * jax.random.uniform(key=key)
         key, subkey = jax.random.split(key)
 
-        direction = step * (1.0 + 0.1 * jax.random.uniform(key=key, shape=(len(ivp.y0),)))
+        direction = step * (
+            1.0 + 0.1 * jax.random.uniform(key=key, shape=(len(ivp.y0),))
+        )
         key, subkey = jax.random.split(key)
 
         increment = step * direction
