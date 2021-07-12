@@ -59,11 +59,12 @@ def lorenz96_jax(t0=0.0, tmax=30.0, y0=None, params=(5, 8.0)):
         D = y
         return (A - B) * C - D + constant_forcing
 
-    df = jax.jacfwd(lorenz_rhs, argnums=1)
+    rhs = lorenz_rhs
+    df = jax.jacfwd(rhs, argnums=1)
     ddf = jax.jacrev(df, argnums=1)
 
     return pn.problems.InitialValueProblem(
-        f=lorenz_rhs, t0=t0, tmax=tmax, y0=y0, df=df, ddf=ddf
+        f=rhs, t0=t0, tmax=tmax, y0=y0, df=df, ddf=ddf
     )
 
 

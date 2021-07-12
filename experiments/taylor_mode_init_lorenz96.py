@@ -11,6 +11,7 @@ This might have to be fixed in jet.
 
 See also 
 https://github.com/google/jax/issues/5365
+https://github.com/google/jax/issues/2431
 
 
 With the current workaround via linear operators, the code works.
