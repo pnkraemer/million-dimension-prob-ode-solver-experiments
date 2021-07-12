@@ -26,14 +26,42 @@ import probnum.problems.zoo.diffeq as diffeq_zoo
 
 from source import problems
 
-
+from memory_profiler import profile, memory_usage
 import tracemalloc
+import timeit
+
+class FakeIBM:
+    """For Taylor-mode, we do not need the full IBM.
+
+    For high-dimensional problems, full IBM processes take up too much memory.
+    The only quantities that are accessed by initialize_odefilter_with_taylormode
+    are `ordint`, `spatialdim`, and `dimension`.
+    """
+
+    def __init__(self, ordint, spatialdim):
+        self.ordint = ordint
+        self.spatialdim = spatialdim
+
+    @property
+    def dimension(self):
+        return (self.ordint +  1)* self.spatialdim
+    
+
+
 
 def initialise(ordint, spatialdim, y0):
-    """Initialise the Lorenz96 problem for increased order."""
+    """Initialise the Lorenz96 problem for increased order.
 
-    # THe initial rv is ignored for Taylor mode init
-    ibm_transition = pn.statespace.IBM(ordint=ordint, spatialdim=spatialdim)
+    This function will be subject to multiple benchmarks 
+    (for large number of variables, the code bottleneck will be in the
+    initialization, and the remaining code overhead becomes neglectible.
+    It is left in for the sake of a simple implementation).
+    """
+
+    # The initial rv is ignored for Taylor mode init
+    # ibm_transition = pn.statespace.IBM(ordint=ordint, spatialdim=spatialdim)
+    ibm_transition = FakeIBM(ordint=ordint, spatialdim=spatialdim)
+
     ibm_initrv = pn.randvars.Normal(
         mean=np.zeros(ibm_transition.dimension), cov=np.eye(ibm_transition.dimension)
     )
@@ -49,60 +77,73 @@ def initialise(ordint, spatialdim, y0):
     return initial_state
 
 
-num_reps = 1
-all_times = []
-all_mallocs = []
 
-sizes = [64, 128, 256, 512, 1024]
-orders = [2, 3, 5, 8]
+num_reps = 2
+all_times = []
+all_memories = []
+
+sizes = ([4, 8, 16, 32, 64, 128, 256, 512])
+orders = ([2, 3, 5, 8])
 
 for order in orders:
+
     times = []
-    mallocs = []
+    memories = []
+    
     for num_variables in sizes:
 
+        # Nonzero y0 to avoid "clever" autodiff 
+        # (which might happen with zeros, for instance)
         y0 = np.arange(1, 1 + num_variables)
 
-        tracemalloc.start()
+        # Call initialisation and time
         start_time = time.time()
         for _ in range(num_reps):
             init = initialise(ordint=order, spatialdim=num_variables, y0=y0)
         end_time = time.time()
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
+        run_time = (end_time - start_time) / num_reps
 
-        top_two_mallocs = top_stats[0].size + top_stats[1].size
+        # Call initialisation and peakmem
+        mem_usage = memory_usage((initialise, (), {"ordint": order, "spatialdim": num_variables, "y0": y0}))
+        peakmem = max(mem_usage)  # in MB
 
-        times.append((end_time - start_time) / num_reps)
-        mallocs.append(top_two_mallocs)
+        # Append results
+        times.append(run_time)
+        memories.append(peakmem)
 
     all_times.append(times)
-    all_mallocs.append(mallocs)
-    print(".")
-
-fig, ax = plt.subplots(ncols=2)
-
-for q, times, mallocs in zip(orders, all_times, all_mallocs):
-    ax[0].loglog(sizes, times, label=f"$\\nu = {q}$")
-    ax[1].loglog(sizes, mallocs, label=f"$\\nu = {q}$")
-
-ax[1].axhline(7.812e+6, label="8GB")
-ax[1].axhline(2*7.812e+6, label="16GB")
-ax[1].axhline(4*7.812e+6, label="32GB")
+    all_memories.append(memories)
 
 
-ax[0].set_title("Run time")
-ax[1].set_title("Allocated memory (roughly)")
+# Plot the results
+fig, ax = plt.subplots(ncols=2, figsize=(6, 3))
 
-ax[1].legend()
+for q, times, memories in zip(orders, all_times, all_memories):
+    ax[0].loglog((sizes), (times), label=f"$\\nu = {q}$")
+    ax[1].loglog((sizes), (memories), label=f"$\\nu = {q}$")
+
+# Some reference numbers
+# ax[1].axhline(7.812e+6, label="8GB")
+# ax[1].axhline(2*7.812e+6, label="16GB")
+# ax[1].axhline(4*7.812e+6, label="32GB")
+
+# Legend
 ax[0].legend()
+ax[1].legend()
+
+# Grid
+ax[0].grid(which="minor")
+ax[1].grid(which="minor")
+
+# Title and labels
+ax[0].set_title("Run time")
+ax[1].set_title("Memory usage (roughly)")
 ax[0].set_xlabel("Number of variables")
 ax[0].set_ylabel("Time [s]")
 ax[1].set_xlabel("Number of variables")
-ax[1].set_ylabel("Memory [KiB]")
+ax[1].set_ylabel("Memory [MB]")
 
-
-ax[0].grid(which="minor")
-ax[1].grid(which="minor")
+# Save the results
+plt.tight_layout()
 plt.savefig("../figures/lorenz_taylormode_complexity.pdf")
 plt.show()
