@@ -4,6 +4,9 @@ The goal is to show that with all the changes, high-dimensional ODE solvers are 
 
 The example is taken from:
 https://gist.github.com/ChrisRackauckas/cc6ac746e2dfd285c28e0584a2bfd320
+
+
+For the moment, there is no point in running this benchmark with the probabilistic solver as well.
 """
 
 import numpy as np
