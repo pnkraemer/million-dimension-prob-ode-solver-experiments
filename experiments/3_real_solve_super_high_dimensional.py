@@ -13,7 +13,7 @@ import timeit
 
 from source import problems
 
-
+sec_to_ms = lambda t: 1000 * t
 
 N = 8
 problem = problems.advection_diffusion(N=8)
@@ -22,21 +22,41 @@ t_span = (problem.t0, problem.tmax)
 y0 = problem.y0
 
 
-for method in ["RK45", "Radau"]:
-    # return the solution once for some statistics
+results = {
+    ("RK45", 4): None,
+    ("RK45", 8): None,
+    ("RK45", 16): None,
+    ("Radau", 4): None,
+    ("Radau", 8): None,
+}
 
+for method, N in results.keys():
+
+    # Define problem
+    problem = problems.advection_diffusion(N=8)
+    f = problem.f
+    t_span = (problem.t0, problem.tmax)
+    y0 = problem.y0
+
+    # Return the solution once for some statistics
     sol = solve_ivp(f, t_span=t_span, y0=y0, rtol=1e-8, atol=1e-8, method=method)
 
     def time_func():
         solve_ivp(f, t_span=t_span, y0=y0, rtol=1e-8, atol=1e-8, method=method)
 
-    timed_solve = timeit.Timer(time_func).timeit(number=1)
-    time_per_step = timed_solve/len(sol.t)
-    sec_to_ms = lambda t: 1000 * t
+    timed_solve = timeit.Timer(time_func).timeit(number=1)  # in seconds
+    num_steps = len(sol.t)
+    time_per_step = timed_solve/num_steps
 
+    results[(method, N)] = (time_per_step, num_steps)
+
+
+# Print the results
+for method, N in results.keys():
+    time_per_step, num_steps = results[(method, N)]
     print()
-    print(f"METHOD={method}")
+    print(f"METHOD={method}, N={N} ({3*N*N}-dimensional problem)")
+    print(f"\ttime_per_step={sec_to_ms(time_per_step)} ms ({num_steps} steps)")
     print()
-    print(f"The solve for N={N} (d={problem.y0.shape[0]} ODE dimensions) took {timed_solve} s.")
-    print(f"The average time per step taken was {sec_to_ms(time_per_step)} ms ({len(sol.t)} steps)")
-    print()
+
+
