@@ -113,3 +113,66 @@ def _roll_as_matrix_jax(length, shift, axis=0):
 
     identity = jnp.eye(length)
     return jnp.roll(identity, shift=shift, axis=0)
+
+
+
+def advection_diffusion(N):
+    """Non-stiff advection-diffusion problem."""
+    a2 = 1.0
+    a3 = 1.0
+    b1 = 1.0
+    b2 = 1.0
+    b3 = 1.0
+    r1 = 1.0
+    r2 = 1.0
+    _DD = 100.0
+    g1 = 0.1
+    g2 = 0.1
+    g3 = 0.1
+
+    # Try 8, 16, 32: 8 is
+    N = 8
+
+    X = np.reshape([j + 1 for i in range(N) for j in range(N)], (N, N))
+    Y = np.reshape([i + 1 for i in range(N) for j in range(N)], (N, N))
+    a1 = 1.0 * (X >= 4 * N / 5)
+
+    Mx = np.diag([1.0 for i in range(N - 1)], -1) + np.diag(
+        [-2.0 for i in range(N)], 0) + np.diag([1.0 for i in range(N - 1)], 1)
+    My = np.diag([1.0 for i in range(N - 1)], -1) + np.diag(
+        [-2.0 for i in range(N)], 0) + np.diag([1.0 for i in range(N - 1)], 1)
+    Mx[1, 0] = 2.0
+    Mx[N - 2, N - 1] = 2.0
+    My[0, 1] = 2.0
+    My[N - 1, N - 2] = 2.0
+
+    u0 = np.ndarray.flatten(np.zeros((3, N, N)))
+
+    # Define the discretized PDE as an ODE function
+    def f(t, _u):
+        u = np.reshape(_u, (3, N, N))
+        A = u[0, :, :]
+        B = u[1, :, :]
+        C = u[2, :, :]
+
+        # MyA = My@A
+        top = -2 * A[0, :] + 2 * A[1, :]
+        bottom = 2 * A[N - 2, :] - 2 * A[N - 1, :]
+        MyA = np.vstack(
+            (top, A[0:N - 2, :] - 2 * A[1:N - 1, :] + A[2:N, :], bottom))
+
+        # AMx = A@Mx
+        left = (-2 * A[:, 0] + 2 * A[:, 1]).reshape(N, 1)
+        right = (2 * A[:, N - 2] - 2 * A[:, N - 1]).reshape(N, 1)
+        AMx = np.hstack(
+            (left, A[:, 0:N - 2] - 2 * A[:, 1:N - 1] + A[:, 2:N], right))
+
+        DA = _DD * (MyA + AMx)
+        dA = DA + a1 - b1 * A - r1 * A * B + r2 * C
+        dB = a2 - b2 * B - r1 * A * B + r2 * C
+        dC = a3 - b3 * C + r1 * A * B - r2 * C
+        return np.ndarray.flatten(np.concatenate([dA, dB, dC]))
+
+    return pn.problems.InitialValueProblem(
+        f=f, df=None, t0=0., tmax=10., y0=u0
+    )
