@@ -18,18 +18,18 @@ With the current workaround via linear operators, the code works.
 In this case, time is not an issue at all, but memory becomes crazy.
 """
 import time
+import timeit
+import tracemalloc
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import probnum as pn
 import probnum.problems.zoo.diffeq as diffeq_zoo
+from memory_profiler import memory_usage, profile
 
 from source import problems
 
-from memory_profiler import profile, memory_usage
-import tracemalloc
-import timeit
 
 class FakeIBM:
     """For Taylor-mode, we do not need the full IBM.
@@ -45,15 +45,13 @@ class FakeIBM:
 
     @property
     def dimension(self):
-        return (self.ordint +  1)* self.spatialdim
-    
-
+        return (self.ordint + 1) * self.spatialdim
 
 
 def initialise(ordint, spatialdim, y0):
     """Initialise the Lorenz96 problem for increased order.
 
-    This function will be subject to multiple benchmarks 
+    This function will be subject to multiple benchmarks
     (for large number of variables, the code bottleneck will be in the
     initialization, and the remaining code overhead becomes neglectible.
     It is left in for the sake of a simple implementation).
@@ -78,22 +76,21 @@ def initialise(ordint, spatialdim, y0):
     return initial_state
 
 
-
 num_reps = 2
 all_times = []
 all_memories = []
 
-sizes = ([4, 8, 16, 32, 64, 128, 256, 512])
-orders = ([2, 3, 5, 8])
+sizes = [4, 8, 16, 32, 64, 128, 256, 512]
+orders = [2, 3, 5, 8]
 
 for order in orders:
 
     times = []
     memories = []
-    
+
     for num_variables in sizes:
 
-        # Nonzero y0 to avoid "clever" autodiff 
+        # Nonzero y0 to avoid "clever" autodiff
         # (which might happen with zeros, for instance)
         y0 = np.arange(1, 1 + num_variables)
 
@@ -105,7 +102,9 @@ for order in orders:
         run_time = (end_time - start_time) / num_reps
 
         # Call initialisation and peakmem
-        mem_usage = memory_usage((initialise, (), {"ordint": order, "spatialdim": num_variables, "y0": y0}))
+        mem_usage = memory_usage(
+            (initialise, (), {"ordint": order, "spatialdim": num_variables, "y0": y0})
+        )
         peakmem = max(mem_usage)  # in MB
 
         # Append results
