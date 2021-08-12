@@ -26,6 +26,7 @@ results = {
     ("RK45", 4): None,
     ("RK45", 8): None,
     ("RK45", 16): None,
+    ("RK45", 32): None,
     ("Radau", 4): None,
     ("Radau", 8): None,
 }
@@ -33,7 +34,7 @@ results = {
 for method, N in results.keys():
 
     # Define problem
-    problem = problems.advection_diffusion(N=8)
+    problem = problems.advection_diffusion(N)
     f = problem.f
     t_span = (problem.t0, problem.tmax)
     y0 = problem.y0
