@@ -12,7 +12,6 @@ config.update("jax_enable_x64", True)
 __all__ = ["lorenz96", "lorenz96_jax", "lorenz96_jax_loop"]
 
 
-
 def lorenz96(t0=0.0, tmax=30.0, y0=None, params=(5, 8.0)):
     """Lorenz 96 system in standard (numpy) implementation."""
 
@@ -48,7 +47,7 @@ def lorenz96_jax(t0=0.0, tmax=30.0, y0=None, params=(5, 8.0)):
     def lorenz_rhs(t, y):
         A = roll_minus_one @ y
         B = roll_two @ y
-        C = roll_one @ y 
+        C = roll_one @ y
         D = y
         return (A - B) * C - D + constant_forcing
 
@@ -99,7 +98,6 @@ def lorenz96_jax_loop(t0=0.0, tmax=30.0, y0=None, params=(5, 8.0)):
     )
 
 
-
 def _roll_as_matrix(length, shift, axis=0):
     if axis != 0:
         raise ValueError
@@ -107,13 +105,13 @@ def _roll_as_matrix(length, shift, axis=0):
     identity = np.eye(length)
     return np.roll(identity, shift=shift, axis=0)
 
+
 def _roll_as_matrix_jax(length, shift, axis=0):
     if axis != 0:
         raise ValueError
 
     identity = jnp.eye(length)
     return jnp.roll(identity, shift=shift, axis=0)
-
 
 
 def advection_diffusion(N):
@@ -153,10 +151,16 @@ def advection_diffusion(N):
     a1 = 1.0 * (X >= 4 * N / 5)
 
     # Mass/stiffnes matrices
-    Mx = np.diag([1.0 for i in range(N - 1)], -1) + np.diag(
-        [-2.0 for i in range(N)], 0) + np.diag([1.0 for i in range(N - 1)], 1)
-    My = np.diag([1.0 for i in range(N - 1)], -1) + np.diag(
-        [-2.0 for i in range(N)], 0) + np.diag([1.0 for i in range(N - 1)], 1)
+    Mx = (
+        np.diag([1.0 for i in range(N - 1)], -1)
+        + np.diag([-2.0 for i in range(N)], 0)
+        + np.diag([1.0 for i in range(N - 1)], 1)
+    )
+    My = (
+        np.diag([1.0 for i in range(N - 1)], -1)
+        + np.diag([-2.0 for i in range(N)], 0)
+        + np.diag([1.0 for i in range(N - 1)], 1)
+    )
     Mx[1, 0] = 2.0
     Mx[N - 2, N - 1] = 2.0
     My[0, 1] = 2.0
@@ -176,13 +180,15 @@ def advection_diffusion(N):
         top = -2 * A[0, :] + 2 * A[1, :]
         bottom = 2 * A[N - 2, :] - 2 * A[N - 1, :]
         MyA = np.vstack(
-            (top, A[0:N - 2, :] - 2 * A[1:N - 1, :] + A[2:N, :], bottom))
+            (top, A[0 : N - 2, :] - 2 * A[1 : N - 1, :] + A[2:N, :], bottom)
+        )
 
         # A @ M @ x = A @ (M @ x)
         left = (-2 * A[:, 0] + 2 * A[:, 1]).reshape(N, 1)
         right = (2 * A[:, N - 2] - 2 * A[:, N - 1]).reshape(N, 1)
         AMx = np.hstack(
-            (left, A[:, 0:N - 2] - 2 * A[:, 1:N - 1] + A[:, 2:N], right))
+            (left, A[:, 0 : N - 2] - 2 * A[:, 1 : N - 1] + A[:, 2:N], right)
+        )
 
         DA = _DD * (MyA + AMx)
         dA = DA + a1 - b1 * A - r1 * A * B + r2 * C
@@ -190,6 +196,4 @@ def advection_diffusion(N):
         dC = a3 - b3 * C + r1 * A * B - r2 * C
         return np.ndarray.flatten(np.concatenate([dA, dB, dC]))
 
-    return pn.problems.InitialValueProblem(
-        f=f, df=None, t0=0., tmax=10., y0=u0
-    )
+    return pn.problems.InitialValueProblem(f=f, df=None, t0=0.0, tmax=10.0, y0=u0)
