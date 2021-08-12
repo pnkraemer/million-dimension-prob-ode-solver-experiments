@@ -4,13 +4,14 @@ The goal is to show that with all the changes, high-dimensional ODE solvers are 
 """
 
 
-import numpy as np
-from scipy.integrate import solve_ivp
 import timeit
 
-from source import problems
+import numpy as np
 from probnum.diffeq import probsolve_ivp
 from probnum.problems.zoo.diffeq import lorenz96
+from scipy.integrate import solve_ivp
+
+from source import problems
 
 sec_to_ms = lambda t: 1000 * t
 
