@@ -10,11 +10,12 @@ For the moment, there is no point in running this benchmark with the probabilist
 (I tried, it explodes for some reason on this problem. No idea why.)
 """
 
-import numpy as np
-from scipy.integrate import solve_ivp
 import timeit
 
+import numpy as np
 import tqdm
+from scipy.integrate import solve_ivp
+
 from source import problems
 
 sec_to_ms = lambda t: 1000 * t

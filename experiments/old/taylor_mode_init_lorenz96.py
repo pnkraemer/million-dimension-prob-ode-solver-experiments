@@ -31,7 +31,6 @@ from memory_profiler import memory_usage, profile
 from source import problems
 
 
-
 class FakeIBM:
     """For Taylor-mode, we do not need the full IBM.
 
