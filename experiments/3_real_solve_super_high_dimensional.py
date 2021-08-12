@@ -14,6 +14,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import timeit
 
+import tqdm
 from source import problems
 
 sec_to_ms = lambda t: 1000 * t
@@ -28,7 +29,7 @@ results = {
     ("Radau", 8): None,
 }
 
-for method, N in results.keys():
+for method, N in tqdm.tqdm(results.keys()):
 
     # Define problem
     problem = problems.advection_diffusion(N)
