@@ -18,18 +18,18 @@ With the current workaround via linear operators, the code works.
 In this case, time is not an issue at all, but memory becomes crazy.
 """
 import time
+import timeit
+import tracemalloc
 
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import numpy as np
 import probnum as pn
 import probnum.problems.zoo.diffeq as diffeq_zoo
+from memory_profiler import memory_usage, profile
 
 from source import problems
 
-from memory_profiler import profile, memory_usage
-import tracemalloc
-import timeit
 
 
 class FakeIBM:
