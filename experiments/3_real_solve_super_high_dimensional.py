@@ -12,20 +12,14 @@ For the moment, there is no point in running this benchmark with the probabilist
 
 import numpy as np
 from scipy.integrate import solve_ivp
-from probnum.diffeq import probsolve_ivp
 import timeit
 
 from source import problems
 
 sec_to_ms = lambda t: 1000 * t
 
-N = 8
-problem = problems.advection_diffusion(N=8)
-f = problem.f
-t_span = (problem.t0, problem.tmax)
-y0 = problem.y0
 
-
+# Prepare results in a dict
 results = {
     ("RK45", 4): None,
     ("RK45", 8): None,
