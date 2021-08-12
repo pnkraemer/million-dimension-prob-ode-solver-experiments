@@ -12,7 +12,6 @@ config.update("jax_enable_x64", True)
 __all__ = ["lorenz96", "lorenz96_jax", "lorenz96_jax_loop"]
 
 
-
 def lorenz96(t0=0.0, tmax=30.0, y0=None, params=(5, 8.0)):
     """Lorenz 96 system in standard (numpy) implementation."""
 
@@ -48,7 +47,7 @@ def lorenz96_jax(t0=0.0, tmax=30.0, y0=None, params=(5, 8.0)):
     def lorenz_rhs(t, y):
         A = roll_minus_one @ y
         B = roll_two @ y
-        C = roll_one @ y 
+        C = roll_one @ y
         D = y
         return (A - B) * C - D + constant_forcing
 
@@ -99,13 +98,13 @@ def lorenz96_jax_loop(t0=0.0, tmax=30.0, y0=None, params=(5, 8.0)):
     )
 
 
-
 def _roll_as_matrix(length, shift, axis=0):
     if axis != 0:
         raise ValueError
 
     identity = np.eye(length)
     return np.roll(identity, shift=shift, axis=0)
+
 
 def _roll_as_matrix_jax(length, shift, axis=0):
     if axis != 0:

@@ -31,9 +31,10 @@ results = {
 for method, d in tqdm.tqdm(results.keys()):
 
     # Define problem
-    y0 = np.arange(d) # the default y0 in probnum is an equilibrium, we dont want that here
-    problem = lorenz96(num_variables=d, y0=y0, t0=0., tmax=1.)
-
+    y0 = np.arange(
+        d
+    )  # the default y0 in probnum is an equilibrium, we dont want that here
+    problem = lorenz96(num_variables=d, y0=y0, t0=0.0, tmax=1.0)
 
     f = problem.f
     t0, tmax = problem.t0, problem.tmax
@@ -50,16 +51,34 @@ for method, d in tqdm.tqdm(results.keys()):
 
     else:
         assert method == "EK0"
-        sol = probsolve_ivp(f, t0=t0, tmax=tmax, y0=y0, rtol=1e-3, atol=1e-3, method=method, diffusion_model="dynamic", algo_order=4)
+        sol = probsolve_ivp(
+            f,
+            t0=t0,
+            tmax=tmax,
+            y0=y0,
+            rtol=1e-3,
+            atol=1e-3,
+            method=method,
+            diffusion_model="dynamic",
+            algo_order=4,
+        )
         num_steps = len(sol.locations)
 
         def time_func():
-            probsolve_ivp(f, t0=t0, tmax=tmax, y0=y0, rtol=1e-3,
-                                atol=1e-3, method=method,
-                                diffusion_model="dynamic", algo_order=4)
+            probsolve_ivp(
+                f,
+                t0=t0,
+                tmax=tmax,
+                y0=y0,
+                rtol=1e-3,
+                atol=1e-3,
+                method=method,
+                diffusion_model="dynamic",
+                algo_order=4,
+            )
 
     timed_solve = timeit.Timer(time_func).timeit(number=1)  # in seconds
-    time_per_step = timed_solve/num_steps
+    time_per_step = timed_solve / num_steps
 
     results[(method, d)] = (time_per_step, num_steps)
 
