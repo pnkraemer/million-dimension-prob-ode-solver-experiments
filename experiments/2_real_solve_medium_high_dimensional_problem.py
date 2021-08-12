@@ -9,25 +9,26 @@ from scipy.integrate import solve_ivp
 import timeit
 
 from source import problems
-
+from probnum.diffeq import probsolve_ivp
 from probnum.problems.zoo.diffeq import lorenz96
 
 sec_to_ms = lambda t: 1000 * t
 
+import tqdm
 
 # Prepare results in a dict
 # Keys are (method, ode_dim)
 results = {
+    ("EK0", 4): None,
+    ("EK0", 8): None,
     ("RK45", 4): None,
     ("RK45", 16): None,
     ("RK45", 64): None,
-    ("RK45", 256): None,
     ("Radau", 4): None,
     ("Radau", 16): None,
-    ("Radau", 64): None,
 }
 
-for method, d in results.keys():
+for method, d in tqdm.tqdm(results.keys()):
 
     # Define problem
     y0 = np.arange(d) # the default y0 in probnum is an equilibrium, we dont want that here
@@ -39,14 +40,23 @@ for method, d in results.keys():
     t_span = (t0, tmax)
     y0 = problem.y0
 
-    # Return the solution once for some statistics
-    sol = solve_ivp(f, t_span=t_span, y0=y0, rtol=1e-8, atol=1e-8, method=method)
-    num_steps = len(sol.t)
+    if method in ["RK45", "Radau"]:
+        # Return the solution once for some statistics
+        sol = solve_ivp(f, t_span=t_span, y0=y0, rtol=1e-8, atol=1e-8, method=method)
+        num_steps = len(sol.t)
 
+        def time_func():
+            solve_ivp(f, t_span=t_span, y0=y0, rtol=1e-8, atol=1e-8, method=method)
 
+    else:
+        assert method == "EK0"
+        sol = probsolve_ivp(f, t0=t0, tmax=tmax, y0=y0, rtol=1e-3, atol=1e-3, method=method, diffusion_model="dynamic", algo_order=4)
+        num_steps = len(sol.locations)
 
-    def time_func():
-        solve_ivp(f, t_span=t_span, y0=y0, rtol=1e-8, atol=1e-8, method=method)
+        def time_func():
+            probsolve_ivp(f, t0=t0, tmax=tmax, y0=y0, rtol=1e-3,
+                                atol=1e-3, method=method,
+                                diffusion_model="dynamic", algo_order=4)
 
     timed_solve = timeit.Timer(time_func).timeit(number=1)  # in seconds
     time_per_step = timed_solve/num_steps
