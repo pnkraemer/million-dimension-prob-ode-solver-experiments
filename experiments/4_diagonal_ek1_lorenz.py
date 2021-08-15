@@ -8,11 +8,10 @@ import timeit
 
 import jax.numpy as jnp
 import tornado
+import tqdm
 from scipy.integrate import solve_ivp
 
 from source import problems
-import tqdm
-
 
 dt = 0.5
 steprule = tornado.step.ConstantSteps(dt)
