@@ -1,4 +1,8 @@
-"""How good is the diagonal EK1 compared to the full EK1."""
+"""How good is the diagonal EK1 compared to the full EK1?
+
+
+This script evaluates how much faster a diagonal EK1 is than a full EK1 for increasing dimension.
+"""
 
 import jax.numpy as jnp
 from scipy.integrate import solve_ivp
@@ -7,37 +11,58 @@ import tornado
 
 import timeit
 
-num_derivatives = 4
-ode_dimension = 2
-ivp = tornado.ivp.vanderpol(t0=0.0, tmax=10.0, stiffness_constant=0.1)
-dt = 0.1
-num_steps = 1 / dt
-steps = tornado.step.ConstantSteps(dt)
+from source import problems
 
-ek1ref = tornado.ek1.ReferenceEK1(
-    num_derivatives=num_derivatives, ode_dimension=ode_dimension, steprule=steps
-)
-ek1diag = tornado.ek1.DiagonalEK1(
-    num_derivatives=num_derivatives, ode_dimension=ode_dimension, steprule=steps
-)
+print()
+for ode_dimension in [10, 20, 50, 100, 200]:
+    print()
+    print("ODE dimension:", ode_dimension)
+    print()
+    num_derivatives = 4
+    ivp = problems.lorenz96_jax(
+        params=(ode_dimension, 5.0), tmax=5.0, y0=jnp.arange(ode_dimension)
+    )
+    # ivp = tornado.ivp.vanderpol(t0=0.0, tmax=2.0, stiffness_constant=0.1)
+    dt = 0.5
+    num_steps = (ivp.tmax - ivp.t0) / dt
+    steps = tornado.step.ConstantSteps(dt)
 
+    def timing_initialize():
+        ek1 = tornado.ek1.ReferenceEK1(
+            num_derivatives=num_derivatives, ode_dimension=ode_dimension, steprule=steps
+        )
+        ek1.initialize(ivp=ivp)
 
-reference_solution = ek1ref.solution_generator(ivp=ivp)
-diagonal_solution = ek1diag.solution_generator(ivp=ivp)
+    def timing_diagonal():
+        ek1diag = tornado.ek1.DiagonalEK1(
+            num_derivatives=num_derivatives, ode_dimension=ode_dimension, steprule=steps
+        )
+        diagonal_solution = ek1diag.solution_generator(ivp=ivp)
+        for idx, state in enumerate(diagonal_solution):
+            pass
+        return ek1diag.P0 @ state.y.mean
 
+    def timing_reference():
+        ek1ref = tornado.ek1.ReferenceEK1(
+            num_derivatives=num_derivatives, ode_dimension=ode_dimension, steprule=steps
+        )
+        reference_solution = ek1ref.solution_generator(ivp=ivp)
+        for idx, state in enumerate(reference_solution):
+            pass
+        return ek1ref.P0 @ state.y.mean
 
-def timing_diagonal():
-    for idx, state in enumerate(diagonal_solution):
-        pass
+    diagonal_approx = timing_diagonal()
+    reference_approx = timing_reference()
 
+    assert jnp.allclose(diagonal_approx, reference_approx, rtol=1e-1, atol=1e-1), (
+        diagonal_approx,
+        reference_approx,
+    )
 
-def timing_reference():
-    for idx, state in enumerate(reference_solution):
-        pass
+    time_initialize = timeit.Timer(timing_initialize).timeit(number=1)
+    time_reference = timeit.Timer(timing_reference).timeit(number=1)
+    time_diagonal = timeit.Timer(timing_diagonal).timeit(number=1)
 
-
-time_reference = timeit.Timer(timing_diagonal).timeit(number=1)
-time_diagonal = timeit.Timer(timing_reference).timeit(number=1)
-
-print("Reference:", time_reference / num_steps)
-print("Diagonal:", time_diagonal / num_steps)
+    print("Reference (no init):", (time_reference - time_initialize) / num_steps)
+    print("Diagonal (no init):", (time_diagonal - time_initialize) / num_steps)
+    print()
