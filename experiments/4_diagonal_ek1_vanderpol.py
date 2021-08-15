@@ -4,12 +4,11 @@
 This script evaluates how much faster a diagonal EK1 is than a full EK1 for increasing dimension.
 """
 
-import jax.numpy as jnp
-from scipy.integrate import solve_ivp
-
-import tornado
-
 import timeit
+
+import jax.numpy as jnp
+import tornado
+from scipy.integrate import solve_ivp
 
 from source import problems
 
@@ -22,7 +21,6 @@ for ode_dimension in [10, 20, 50, 100, 200]:
     ivp = problems.lorenz96_jax(
         params=(ode_dimension, 5.0), tmax=5.0, y0=jnp.arange(ode_dimension)
     )
-    # ivp = tornado.ivp.vanderpol(t0=0.0, tmax=2.0, stiffness_constant=0.1)
     dt = 0.5
     num_steps = (ivp.tmax - ivp.t0) / dt
     steps = tornado.step.ConstantSteps(dt)
@@ -63,6 +61,7 @@ for ode_dimension in [10, 20, 50, 100, 200]:
     time_reference = timeit.Timer(timing_reference).timeit(number=1)
     time_diagonal = timeit.Timer(timing_diagonal).timeit(number=1)
 
+    print("Initialization:", time_initialize)
     print("Reference (no init):", (time_reference - time_initialize) / num_steps)
     print("Diagonal (no init):", (time_diagonal - time_initialize) / num_steps)
     print()
