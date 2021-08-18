@@ -8,6 +8,7 @@ import itertools
 import pathlib
 import timeit
 
+import jax
 import jax.numpy as jnp
 import pandas as pd
 import tornado
@@ -17,7 +18,13 @@ from source import plotting, problems
 
 class SterilisedExperiment:
     def __init__(
-        self, method, num_derivatives, ode_dimension, hyper_param_dict
+        self,
+        method,
+        num_derivatives,
+        ode_dimension,
+        hyper_param_dict,
+        jit,
+        num_repetitions,
     ) -> None:
         self.hyper_param_dict = hyper_param_dict
 
@@ -41,21 +48,42 @@ class SterilisedExperiment:
 
         self.result = dict()
 
+        # Whether the step function is jitted before timing
+        self.jit = jit
+
+        # How often each experiment is run
+        self.num_repetitions = num_repetitions
+
     def time_initialize(self):
-        def _run_initialize(self):
+        def _run_initialize():
             self.solver.initialize(self.ivp)
 
-        elapsed_time = timeit.Timer(_run_initialize).timeit(number=1)
+        if self.jit:
+            _run_initialize = jax.jit(_run_initialize)
+        _run_initialize()
+
+        elapsed_time = self.time_function(_run_initialize)
         self.result["time_initialize"] = elapsed_time
         return elapsed_time
 
     def time_attempt_step(self):
-        def _run_attempt_step(self):
-            return self.solver.attempt_step(
+        def _run_attempt_step():
+            """Manually do the repeated number of runs, because otherwise jax notices how the outputs are not reused anymore."""
+
+            state = self.solver.attempt_step(
                 state=self.init_state, dt=self.hyper_param_dict["dt"]
             )
+            for _ in range(self.num_repetitions):
+                state = self.solver.attempt_step(
+                    state=state, dt=self.hyper_param_dict["dt"]
+                )
+            return state.y.mean
 
-        elapsed_time = timeit.Timer(_run_attempt_step).timeit(number=1)
+        if self.jit:
+            _run_attempt_step = jax.jit(_run_attempt_step)
+        _run_attempt_step()
+
+        elapsed_time = self.time_function(_run_attempt_step)
         self.result["time_attempt_step"] = elapsed_time
         return elapsed_time
 
@@ -72,6 +100,7 @@ class SterilisedExperiment:
                 method=self.method,
                 d=self.ode_dimension,
                 nu=self.num_derivatives,
+                jit=self.jit,
                 **results,
             ),
         )
@@ -85,8 +114,16 @@ class SterilisedExperiment:
         s += "{\n"
         s += f"\td={self.ode_dimension}\n"
         s += f"\tnu={self.num_derivatives}\n"
+        s += f"\tjit={self.jit}\n"
         s += f"\tresults={self.result}\n"
         return s + "}"
+
+    def time_function(self, fun):
+
+        # Average time, not minimum time, because we do not want to accidentally
+        # run into some of JAX's lazy-execution-optimisation.
+        avg_time = timeit.Timer(fun).timeit(number=1) / self.num_repetitions
+        return avg_time
 
 
 # ######################################################################################
@@ -105,13 +142,54 @@ HYPER_PARAM_DICT = {
 }
 METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
 NUM_DERIVS = (8,)
-ODE_DIMS = (4, 8, 16, 64, 128, 256)
+ODE_DIMS = (4, 8, 16, 64, 128, 256, 512, 1024)
+NUM_REPETITIONS = 10
+
+# Default without jitting, for speed reasons.
+JIT = [False]
+
+EXPERIMENT_CONFIGS = list(itertools.product(METHODS, NUM_DERIVS, ODE_DIMS, JIT))
+
+# Remove slow-high-dimensional combinations
+SLOW_COMBINATIONS = [
+    ("ek0_reference", 256),
+    ("ek0_reference", 512),
+    ("ek0_reference", 1024),
+    ("ek1_reference", 256),
+    ("ek1_reference", 512),
+    ("ek1_reference", 1024),
+    ("ek1_truncated", 1024),
+]
+for (M, D), NU, J in itertools.product(SLOW_COMBINATIONS, NUM_DERIVS, JIT):
+    print(f"Removing slow combination {(M, NU, D, J)} from experiment config.")
+    EXPERIMENT_CONFIGS.remove((M, NU, D, J))
+print()
+
+# Remove jitted experiments for EK1 (see comment above)
+# To also be able to use "jit=True", we need to undo the asserts in the tornado repository.
+if True in JIT:
+    print("\nJIT-benchmarks are slow, because the initial compilation takes a while.\n")
+    NO_JIT_METHODS = ["ek1_truncated", "ek1_diagonal"]
+    for M, NU, D in itertools.product(NO_JIT_METHODS, NUM_DERIVS, ODE_DIMS):
+        try:
+            print(
+                f"Removing no-jit-combination {(M, NU, D, True)} from experiment config."
+            )
+            EXPERIMENT_CONFIGS.remove((M, NU, D, True))
+        except ValueError:
+            print(f"Combination {(M, NU, D, True)} has been removed already.")
+    print()
 
 EXPERIMENTS = [
     SterilisedExperiment(
-        method=M, num_derivatives=NU, ode_dimension=D, hyper_param_dict=HYPER_PARAM_DICT
+        method=M,
+        num_derivatives=NU,
+        ode_dimension=D,
+        hyper_param_dict=HYPER_PARAM_DICT,
+        jit=J,
+        num_repetitions=NUM_REPETITIONS,
     )
-    for (M, NU, D) in itertools.product(METHODS, NUM_DERIVS, ODE_DIMS)
+    for (M, NU, D, J) in EXPERIMENT_CONFIGS
 ]
 
 # Actual runs

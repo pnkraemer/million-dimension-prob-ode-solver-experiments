@@ -5,6 +5,7 @@ import pandas as pd
 
 
 def plot_exp_1(run_path):
+    print("The jitting is not handled well yet. Plot may be meaningless.")
     file_path = pathlib.Path(run_path)
     df = pd.read_csv(file_path, sep=";")
 
