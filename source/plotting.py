@@ -19,8 +19,7 @@ AISTATS_TEXTWIDTH_SINGLE = 3.25
 HEIGHT_WIDTH_RATIO_SINGLE = 1 / 2
 
 
-# Colourblind friendly colours
-# from Paul Tot's website: https://personal.sron.nl/~pault/
+# Colors, markers, and linestyles.
 COLOR_CYCLE = [
     "gray",
     "crimson",
@@ -52,29 +51,42 @@ LINESTYLES = [
 ]
 
 
+# Paper-readi(er) legend entries
+NICER_METHOD_NAME = {
+    "ek0_kronecker": "EK0 (Kron.)",
+    "ek0_reference": "EK0 (Trad.)",
+    "ek1_reference": "EK1 (Trad.)",
+    "ek1_diagonal": "EK1 (Diag.)",
+    "ek1_truncated": "EK1 (Trunc.)",
+}
+
+
 def plot_exp_1(run_path):
+    """Plot the results from the first experiment."""
 
     file_path = pathlib.Path(run_path)
-    df = pd.read_csv(file_path, sep=";")
+    dataframe = pd.read_csv(file_path, sep=";")
 
-    all_methods = df["method"].unique()
+    all_methods = dataframe["method"].unique()
 
-    jit_df = df.loc[df["jit"]]
-    no_jit_df = df.loc[~df["jit"]]
+    jit_dataframe = dataframe.loc[dataframe["jit"]]
+    no_jit_dataframe = dataframe.loc[~dataframe["jit"]]
 
-    def _inject_df(_ax, _df):
+    def _inject_dataframe(_ax, _dataframe):
         """Provided axes and dataframe, plot the exp 1 data into the axis."""
         for method, color, marker, ls in zip(
             all_methods, COLOR_CYCLE, MARKER_CYCLE, LINESTYLES
         ):
-            method_df = _df.loc[_df["method"] == method]
-            nus = method_df["nu"].unique()
+            method_dataframe = _dataframe.loc[_dataframe["method"] == method]
+            nus = method_dataframe["nu"].unique()
             for nu in nus:
-                res_df = method_df.loc[method_df["nu"] == nu]
-                label = f"{method}, nu={nu}"
+                res_dataframe = method_dataframe.loc[method_dataframe["nu"] == nu]
+                label_method = f"{NICER_METHOD_NAME[method]}"
+                label_order = rf"$\nu={nu}$"
+                label = label_method + ", " + label_order
                 _ax.plot(
-                    res_df["d"],
-                    res_df["time_attempt_step"],
+                    res_dataframe["d"],
+                    res_dataframe["time_attempt_step"],
                     label=label,
                     marker=marker,
                     color=color,
@@ -87,7 +99,7 @@ def plot_exp_1(run_path):
 
     # --- Plot
 
-    if not jit_df.empty:
+    if not jit_dataframe.empty:
         figure_size = (
             AISTATS_LINEWIDTH_DOUBLE,
             AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
@@ -95,15 +107,16 @@ def plot_exp_1(run_path):
 
         figure = plt.figure(figsize=figure_size, constrained_layout=True)
 
-        figure.suptitle("Time single attempt_step on Lorenz96", fontweight="bold")
+        # Only use a title for non-paper plots.
+        # figure.suptitle("Complexity of an ODE-filter step")
         ax_1 = figure.add_subplot(1, 2, 1)
         ax_2 = figure.add_subplot(1, 2, 2, sharey=ax_1)
         ax_2.grid("minor")
         ax_2.set_xscale("log")
         ax_2.set_yscale("log")
-        ax_2.set_title("With JIT")
+        ax_2.set_title("JIT-compiled Implementation")
 
-        _inject_df(ax_2, jit_df)
+        _inject_dataframe(ax_2, jit_dataframe)
 
     else:
         figure = plt.figure(figsize=(5, 5))
@@ -113,8 +126,8 @@ def plot_exp_1(run_path):
     ax_1.grid("minor")
     ax_1.set_xscale("log")
     ax_1.set_yscale("log")
-    ax_1.set_title("Without JIT")
+    ax_1.set_title("Standard Implementation")
     ax_1.set_ylabel("Runtime [sec]")
-    _inject_df(ax_1, no_jit_df)
+    _inject_dataframe(ax_1, no_jit_dataframe)
 
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
