@@ -24,7 +24,7 @@ class SterilisedExperiment:
         ode_dimension,
         hyper_param_dict,
         jit,
-        num_repetitions=10,
+        num_repetitions,
     ) -> None:
         self.hyper_param_dict = hyper_param_dict
 
@@ -143,7 +143,9 @@ HYPER_PARAM_DICT = {
 METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
 NUM_DERIVS = (8,)
 ODE_DIMS = (4, 8, 16, 64, 128, 256, 512, 1024)
+NUM_REPETITIONS = 10
 
+# Default without jitting, for speed reasons.
 JIT = [False]
 
 EXPERIMENT_CONFIGS = list(itertools.product(METHODS, NUM_DERIVS, ODE_DIMS, JIT))
@@ -161,6 +163,7 @@ SLOW_COMBINATIONS = [
 for (M, D), NU, J in itertools.product(SLOW_COMBINATIONS, NUM_DERIVS, JIT):
     print(f"Removing slow combination {(M, NU, D, J)} from experiment config.")
     EXPERIMENT_CONFIGS.remove((M, NU, D, J))
+print()
 
 # Remove jitted experiments for EK1 (see comment above)
 # To also be able to use "jit=True", we need to undo the asserts in the tornado repository.
@@ -175,6 +178,7 @@ if True in JIT:
             EXPERIMENT_CONFIGS.remove((M, NU, D, True))
         except ValueError:
             print(f"Combination {(M, NU, D, True)} has been removed already.")
+    print()
 
 EXPERIMENTS = [
     SterilisedExperiment(
@@ -183,6 +187,7 @@ EXPERIMENTS = [
         ode_dimension=D,
         hyper_param_dict=HYPER_PARAM_DICT,
         jit=J,
+        num_repetitions=NUM_REPETITIONS,
     )
     for (M, NU, D, J) in EXPERIMENT_CONFIGS
 ]
