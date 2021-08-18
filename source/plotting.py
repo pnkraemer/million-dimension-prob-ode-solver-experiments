@@ -14,7 +14,7 @@ def plot_exp_1(run_path):
     ax = figure.add_subplot()
     ax.grid()
     ax.set_xscale("log", base=2)
-    # ax.set_yscale("log")
+    ax.set_yscale("log")
     ax.set_title("Time single attempt_step on lorenz96")
     for method in all_methods:
         method_df = df.loc[df["method"] == method]

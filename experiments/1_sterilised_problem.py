@@ -7,7 +7,6 @@ This script evaluates how much faster a diagonal EK1 is than a full EK1 for incr
 import itertools
 import pathlib
 import timeit
-from datetime import datetime
 
 import jax.numpy as jnp
 import pandas as pd
@@ -42,21 +41,21 @@ class SterilisedExperiment:
 
         self.result = dict()
 
-    def _run_initialize(self):
-        self.solver.initialize(self.ivp)
-
-    def _run_attempt_step(self):
-        return self.solver.attempt_step(
-            state=self.init_state, dt=self.hyper_param_dict["dt"]
-        )
-
     def time_initialize(self):
-        elapsed_time = timeit.Timer(self._run_initialize).timeit(number=1)
+        def _run_initialize(self):
+            self.solver.initialize(self.ivp)
+
+        elapsed_time = timeit.Timer(_run_initialize).timeit(number=1)
         self.result["time_initialize"] = elapsed_time
         return elapsed_time
 
     def time_attempt_step(self):
-        elapsed_time = timeit.Timer(self._run_attempt_step).timeit(number=1)
+        def _run_attempt_step(self):
+            return self.solver.attempt_step(
+                state=self.init_state, dt=self.hyper_param_dict["dt"]
+            )
+
+        elapsed_time = timeit.Timer(_run_attempt_step).timeit(number=1)
         self.result["time_attempt_step"] = elapsed_time
         return elapsed_time
 
@@ -127,8 +126,7 @@ merged_data_frame = pd.concat(exp_data_frames, ignore_index=True)
 
 
 # Save results as CSV
-time_stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-result_file = result_dir / f"{time_stamp}_results.csv"
+result_file = result_dir / "results.csv"
 merged_data_frame.to_csv(result_file, sep=";", index=False)
 
 # Plot results
