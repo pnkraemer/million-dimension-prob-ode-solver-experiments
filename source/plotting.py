@@ -10,7 +10,6 @@ import pandas as pd
 # between the columns is .25~inches wide (1.5~picas).  The left margin is 0.88~inches (5.28~picas).
 # Use 10~point type with a vertical spacing of
 # 11~points. Please use US Letter size paper instead of A4.
-
 AISTATS_LINEWIDTH_DOUBLE = 6.75
 AISTATS_TEXTWIDTH_SINGLE = 3.25
 
@@ -19,7 +18,7 @@ AISTATS_TEXTWIDTH_SINGLE = 3.25
 HEIGHT_WIDTH_RATIO_SINGLE = 1 / 2
 
 
-# Colors, markers, and linestyles.
+# Colors, markers, and linestyles. The colors are the tufte-color-scheme (I lost the link...)
 COLOR_CYCLE = [
     "gray",
     "crimson",

@@ -143,7 +143,7 @@ NUM_REPETITIONS = 10
 METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
 NUM_DERIVS = (8,)
 ODE_DIMS = (4, 8, 16, 32, 64, 128, 256)
-JIT = (True, False)  # Default without jitting, for speed reasons.
+JIT = (False,)  # Default without jitting, for speed reasons.
 
 # Define predicate to specify experiments that are not executed later
 ignore_exp = lambda method, nu, d, is_jit: (
