@@ -119,7 +119,6 @@ class SterilisedExperiment:
         return s + "}"
 
     def time_function(self, fun):
-
         # Average time, not minimum time, because we do not want to accidentally
         # run into some of JAX's lazy-execution-optimisation.
         avg_time = timeit.Timer(fun).timeit(number=1) / self.num_repetitions
@@ -140,45 +139,22 @@ HYPER_PARAM_DICT = {
     "tmax": 3.0,
     "forcing": 5.0,
 }
+NUM_REPETITIONS = 10
 METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
 NUM_DERIVS = (8,)
 ODE_DIMS = (4, 8, 16, 64, 128, 256, 512, 1024)
-NUM_REPETITIONS = 10
+JIT = (False,)  # Default without jitting, for speed reasons.
 
-# Default without jitting, for speed reasons.
-JIT = [False]
+# Define predicate to specify experiments that are not executed later
+ignore_exp = lambda method, nu, d, is_jit: (
+    # For reference implementations, ignore too high dims
+    ("reference" in method and d > 128)
+    # For truncated EK1 implementations, ignore even higher dims
+    or (method == "ek1_truncated" and d > 512)
+    # For truncated and diagonal EK1, do not jit
+    or (is_jit and method in ["ek1_truncated", "ek1_diagonal"])
+)
 
-EXPERIMENT_CONFIGS = list(itertools.product(METHODS, NUM_DERIVS, ODE_DIMS, JIT))
-
-# Remove slow-high-dimensional combinations
-SLOW_COMBINATIONS = [
-    ("ek0_reference", 256),
-    ("ek0_reference", 512),
-    ("ek0_reference", 1024),
-    ("ek1_reference", 256),
-    ("ek1_reference", 512),
-    ("ek1_reference", 1024),
-    ("ek1_truncated", 1024),
-]
-for (M, D), NU, J in itertools.product(SLOW_COMBINATIONS, NUM_DERIVS, JIT):
-    print(f"Removing slow combination {(M, NU, D, J)} from experiment config.")
-    EXPERIMENT_CONFIGS.remove((M, NU, D, J))
-print()
-
-# Remove jitted experiments for EK1 (see comment above)
-# To also be able to use "jit=True", we need to undo the asserts in the tornado repository.
-if True in JIT:
-    print("\nJIT-benchmarks are slow, because the initial compilation takes a while.\n")
-    NO_JIT_METHODS = ["ek1_truncated", "ek1_diagonal"]
-    for M, NU, D in itertools.product(NO_JIT_METHODS, NUM_DERIVS, ODE_DIMS):
-        try:
-            print(
-                f"Removing no-jit-combination {(M, NU, D, True)} from experiment config."
-            )
-            EXPERIMENT_CONFIGS.remove((M, NU, D, True))
-        except ValueError:
-            print(f"Combination {(M, NU, D, True)} has been removed already.")
-    print()
 
 EXPERIMENTS = [
     SterilisedExperiment(
@@ -189,7 +165,8 @@ EXPERIMENTS = [
         jit=J,
         num_repetitions=NUM_REPETITIONS,
     )
-    for (M, NU, D, J) in EXPERIMENT_CONFIGS
+    for (M, NU, D, J) in itertools.product(METHODS, NUM_DERIVS, ODE_DIMS, JIT)
+    if not ignore_exp(M, NU, D, J)
 ]
 
 # Actual runs
