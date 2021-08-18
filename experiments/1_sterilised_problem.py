@@ -48,10 +48,10 @@ class SterilisedExperiment:
 
         self.result = dict()
 
-        # Should the step function be jitted?
+        # Whether the step function is jitted before timing
         self.jit = jit
 
-        # How often should each experiment be run?
+        # How often each experiment is run
         self.num_repetitions = num_repetitions
 
     def time_initialize(self):
@@ -131,18 +131,33 @@ HYPER_PARAM_DICT = {
 }
 METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
 NUM_DERIVS = (8,)
-ODE_DIMS = (4, 8, 16, 64, 128, 256, 512)
+ODE_DIMS = (4, 8, 16, 64, 128, 256, 512, 1024)
 
 JIT = [True, False]
 
 EXPERIMENT_CONFIGS = list(itertools.product(METHODS, NUM_DERIVS, ODE_DIMS, JIT))
 
 # Remove slow-high-dimensional combinations
-SLOW_METHODS = ["ek0_reference", "ek1_reference"]
-HIGH_DIMENSIONS = [256, 512]
-for M, NU, D, J in itertools.product(SLOW_METHODS, NUM_DERIVS, HIGH_DIMENSIONS, JIT):
+SLOW_COMBINATIONS = [
+    ("ek0_reference", 256),
+    ("ek0_reference", 512),
+    ("ek0_reference", 1024),
+    ("ek1_reference", 256),
+    ("ek1_reference", 512),
+    ("ek1_reference", 1024),
+    ("ek1_truncated", 1024),
+]
+for (M, D), NU, J in itertools.product(SLOW_COMBINATIONS, NUM_DERIVS, JIT):
     EXPERIMENT_CONFIGS.remove((M, NU, D, J))
 
+# Remove jitted experiments for EK1 (see comment above)
+# To also be able to use "jit=True", we need to undo the asserts in the tornado repository.
+NO_JIT_METHODS = ["ek1_truncated", "ek1_diagonal"]
+for M, NU, D in itertools.product(NO_JIT_METHODS, NUM_DERIVS, ODE_DIMS):
+    try:
+        EXPERIMENT_CONFIGS.remove((M, NU, D, True))
+    except ValueError:
+        print(f"Combination {(M, NU, D, True)} has been removed already.")
 
 EXPERIMENTS = [
     SterilisedExperiment(
