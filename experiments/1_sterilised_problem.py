@@ -17,7 +17,7 @@ from source import plotting, problems
 
 class SterilisedExperiment:
     def __init__(
-        self, method, num_derivatives, ode_dimension, hyper_param_dict
+        num_repetitions=3,
     ) -> None:
         self.hyper_param_dict = hyper_param_dict
 
@@ -41,11 +41,14 @@ class SterilisedExperiment:
 
         self.result = dict()
 
+        # How often should each experiment be run?
+        self.num_repetitions = num_repetitions
+
     def time_initialize(self):
         def _run_initialize(self):
             self.solver.initialize(self.ivp)
 
-        elapsed_time = timeit.Timer(_run_initialize).timeit(number=1)
+        elapsed_time = self.time_function(_run_initialize)
         self.result["time_initialize"] = elapsed_time
         return elapsed_time
 
@@ -55,7 +58,7 @@ class SterilisedExperiment:
                 state=self.init_state, dt=self.hyper_param_dict["dt"]
             )
 
-        elapsed_time = timeit.Timer(_run_attempt_step).timeit(number=1)
+        elapsed_time = self.time_function(_run_attempt_step)
         self.result["time_attempt_step"] = elapsed_time
         return elapsed_time
 
@@ -87,6 +90,9 @@ class SterilisedExperiment:
         s += f"\tnu={self.num_derivatives}\n"
         s += f"\tresults={self.result}\n"
         return s + "}"
+
+    def time_function(self, fun):
+        return min(timeit.Timer(fun).repeat(repeat=self.num_repetitions, number=1))
 
 
 # ######################################################################################
