@@ -13,6 +13,7 @@ import pandas as pd
 import tornado
 
 from source import plotting, problems
+import jax
 
 
 class SterilisedExperiment:
@@ -130,13 +131,28 @@ HYPER_PARAM_DICT = {
 }
 METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
 NUM_DERIVS = (8,)
-ODE_DIMS = (4, 8, 16, 64, 128, 256)
+ODE_DIMS = (4, 8, 16, 64, 128, 256, 512)
+
+JIT = [True, False]
+
+EXPERIMENT_CONFIGS = list(itertools.product(METHODS, NUM_DERIVS, ODE_DIMS, JIT))
+
+# Remove slow-high-dimensional combinations
+SLOW_METHODS = ["ek0_reference", "ek1_reference"]
+HIGH_DIMENSIONS = [256, 512]
+for M, NU, D, J in itertools.product(SLOW_METHODS, NUM_DERIVS, HIGH_DIMENSIONS, JIT):
+    EXPERIMENT_CONFIGS.remove((M, NU, D, J))
+
 
 EXPERIMENTS = [
     SterilisedExperiment(
-        method=M, num_derivatives=NU, ode_dimension=D, hyper_param_dict=HYPER_PARAM_DICT
+        method=M,
+        num_derivatives=NU,
+        ode_dimension=D,
+        hyper_param_dict=HYPER_PARAM_DICT,
+        jit=J,
     )
-    for (M, NU, D) in itertools.product(METHODS, NUM_DERIVS, ODE_DIMS)
+    for (M, NU, D, J) in EXPERIMENT_CONFIGS
 ]
 
 # Actual runs
