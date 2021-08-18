@@ -17,6 +17,12 @@ from source import plotting, problems
 
 class SterilisedExperiment:
     def __init__(
+        self,
+        method,
+        num_derivatives,
+        ode_dimension,
+        hyper_param_dict,
+        jit,
         num_repetitions=3,
     ) -> None:
         self.hyper_param_dict = hyper_param_dict
@@ -41,22 +47,33 @@ class SterilisedExperiment:
 
         self.result = dict()
 
+        # Should the step function be jitted?
+        self.jit = jit
+
         # How often should each experiment be run?
         self.num_repetitions = num_repetitions
 
     def time_initialize(self):
-        def _run_initialize(self):
+        def _run_initialize():
             self.solver.initialize(self.ivp)
+
+        if self.jit:
+            _run_initialize = jax.jit(_run_initialize)
+        _run_initialize()
 
         elapsed_time = self.time_function(_run_initialize)
         self.result["time_initialize"] = elapsed_time
         return elapsed_time
 
     def time_attempt_step(self):
-        def _run_attempt_step(self):
-            return self.solver.attempt_step(
+        def _run_attempt_step():
+            self.solver.attempt_step(
                 state=self.init_state, dt=self.hyper_param_dict["dt"]
             )
+
+        if self.jit:
+            _run_attempt_step = jax.jit(_run_attempt_step)
+        _run_attempt_step()
 
         elapsed_time = self.time_function(_run_attempt_step)
         self.result["time_attempt_step"] = elapsed_time
@@ -75,6 +92,7 @@ class SterilisedExperiment:
                 method=self.method,
                 d=self.ode_dimension,
                 nu=self.num_derivatives,
+                jit=self.jit,
                 **results,
             ),
         )
@@ -88,6 +106,7 @@ class SterilisedExperiment:
         s += "{\n"
         s += f"\td={self.ode_dimension}\n"
         s += f"\tnu={self.num_derivatives}\n"
+        s += f"\tjit={self.jit}\n"
         s += f"\tresults={self.result}\n"
         return s + "}"
 
