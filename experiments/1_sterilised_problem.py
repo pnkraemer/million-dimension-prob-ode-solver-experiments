@@ -5,15 +5,15 @@ This script evaluates how much faster a diagonal EK1 is than a full EK1 for incr
 """
 
 import itertools
-import json
 import pathlib
 import timeit
 from datetime import datetime
 
 import jax.numpy as jnp
+import pandas as pd
 import tornado
 
-from source import problems
+from source import plotting, problems
 
 
 class SterilisedExperiment:
@@ -33,7 +33,7 @@ class SterilisedExperiment:
             y0=jnp.arange(ode_dimension),
         )
 
-        self.solver = method(
+        self.solver = tornado.ivpsolve._SOLVER_REGISTRY[method](
             ode_dimension=ode_dimension,
             steprule=tornado.step.ConstantSteps(hyper_param_dict["dt"]),
             num_derivatives=num_derivatives,
@@ -60,14 +60,26 @@ class SterilisedExperiment:
         self.result["time_attempt_step"] = elapsed_time
         return elapsed_time
 
-    def pickle(self):
-        return {
-            "method": str(self.method),
-            "d": self.ode_dimension,
-            "nu": self.num_derivatives,
-            "hyperparams": self.hyper_param_dict,
-            "results": self.result,
-        }
+    def to_dataframe(self):
+        def _aslist(arg):
+            try:
+                return list(arg)
+            except TypeError:
+                return [arg]
+
+        results = {k: _aslist(v) for k, v in self.result.items()}
+        return pd.DataFrame(
+            dict(
+                method=self.method,
+                d=self.ode_dimension,
+                nu=self.num_derivatives,
+                **results,
+            ),
+        )
+
+    @property
+    def hyper_parameters(self):
+        return pd.DataFrame(self.hyper_param_dict)
 
     def __repr__(self) -> str:
         s = f"{self.method} "
@@ -92,9 +104,9 @@ HYPER_PARAM_DICT = {
     "tmax": 3.0,
     "forcing": 5.0,
 }
-METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.values())
-NUM_DERIVS = (3, 8)
-ODE_DIMS = (4, 8, 16, 64, 128)
+METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
+NUM_DERIVS = (8,)
+ODE_DIMS = (4, 8, 16, 64, 128, 256)
 
 EXPERIMENTS = [
     SterilisedExperiment(
@@ -103,17 +115,21 @@ EXPERIMENTS = [
     for (M, NU, D) in itertools.product(METHODS, NUM_DERIVS, ODE_DIMS)
 ]
 
-pickled_results = []
-
 # Actual runs
+exp_data_frames = []
 for exp in EXPERIMENTS:
-    elapsed_time = exp.time_attempt_step()
-    pickled_results.append(exp.pickle())
+    exp.time_attempt_step()
     print(exp)
+    exp_data_frames.append(exp.to_dataframe())
+
+# Merge experiments into single data frame
+merged_data_frame = pd.concat(exp_data_frames, ignore_index=True)
 
 
-# Save results
+# Save results as CSV
 time_stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-result_file = result_dir / f"{time_stamp}_results.json"
-with open(result_file, "x") as file_handle:
-    json.dump(pickled_results, file_handle, indent=4)
+result_file = result_dir / f"{time_stamp}_results.csv"
+merged_data_frame.to_csv(result_file, sep=";", index=False)
+
+# Plot results
+plotting.plot_exp_1(result_file)
