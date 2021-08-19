@@ -60,6 +60,12 @@ NICER_METHOD_NAME = {
 }
 
 
+# Linewidths
+THICK = 1.6
+MEDIUM = 0.7
+THIN = 0.2
+
+
 def plot_exp_1(run_path):
     """Plot the results from the first experiment."""
 
@@ -83,6 +89,7 @@ def plot_exp_1(run_path):
                 label_method = f"{NICER_METHOD_NAME[method]}"
                 label_order = rf"$\nu={nu}$"
                 label = label_method + ", " + label_order
+
                 _ax.plot(
                     res_dataframe["d"],
                     res_dataframe["time_attempt_step"],
@@ -90,11 +97,17 @@ def plot_exp_1(run_path):
                     marker=marker,
                     color=color,
                     linestyle=ls,
+                    linewidth=THICK,
                 )
 
         _ax.set_xlabel("ODE dimensions")
 
-        _ax.legend(fancybox=False, edgecolor="black", fontsize="small")
+        # Line widths
+        _ax.legend(
+            fancybox=False, edgecolor="black", fontsize="small"
+        ).get_frame().set_linewidth(THIN)
+        for spine in _ax.spines:
+            _ax.spines[spine].set_linewidth(MEDIUM)
 
     # --- Plot
 
@@ -110,7 +123,8 @@ def plot_exp_1(run_path):
         # figure.suptitle("Complexity of an ODE-filter step")
         ax_1 = figure.add_subplot(1, 2, 1)
         ax_2 = figure.add_subplot(1, 2, 2, sharey=ax_1)
-        ax_2.grid("minor")
+        ax_2.grid(which="both", linewidth=THIN, alpha=0.5, color="darkgray")
+        ax_2.grid(which="major", linewidth=MEDIUM, color="dimgray")
         ax_2.set_xscale("log")
         ax_2.set_yscale("log")
         ax_2.set_title("JIT-compiled Implementation")
@@ -122,7 +136,8 @@ def plot_exp_1(run_path):
         print("Found no JIT experiments")
         ax_1 = figure.add_subplot()
 
-    ax_1.grid("minor")
+    ax_1.grid(which="both", linewidth=THIN, alpha=0.5, color="darkgray")
+    ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
     ax_1.set_xscale("log")
     ax_1.set_yscale("log")
     ax_1.set_title("Standard Implementation")
