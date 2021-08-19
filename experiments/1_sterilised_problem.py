@@ -142,7 +142,7 @@ HYPER_PARAM_DICT = {
 NUM_REPETITIONS = 10
 METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
 NUM_DERIVS = (8,)
-ODE_DIMS = (4, 8, 16, 64, 128, 256, 512, 1024)
+ODE_DIMS = (4, 8, 16, 32, 64, 128, 256)
 JIT = (False,)  # Default without jitting, for speed reasons.
 
 # Define predicate to specify experiments that are not executed later
@@ -150,9 +150,9 @@ ignore_exp = lambda method, nu, d, is_jit: (
     # For reference implementations, ignore too high dims
     ("reference" in method and d > 128)
     # For truncated EK1 implementations, ignore even higher dims
-    or (method == "ek1_truncated" and d > 512)
+    or (method == "ek1_truncated" and d >= 256)
     # For truncated and diagonal EK1, do not jit
-    or (is_jit and method in ["ek1_truncated", "ek1_diagonal"])
+    # or (is_jit and method in ["ek1_truncated", "ek1_diagonal"])
 )
 
 
