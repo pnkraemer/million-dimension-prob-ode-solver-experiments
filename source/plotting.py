@@ -86,7 +86,6 @@ def plot_exp_1(run_path):
     file_path = pathlib.Path(run_path)
     dataframe = pd.read_csv(file_path, sep=";")
 
-    # all_methods = dataframe["method"].unique()
     all_methods = [
         "ek1_reference",
         "ek0_reference",
