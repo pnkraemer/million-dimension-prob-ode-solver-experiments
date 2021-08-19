@@ -15,7 +15,7 @@ AISTATS_TEXTWIDTH_SINGLE = 3.25
 
 
 # Height-width ratio for a single row
-HEIGHT_WIDTH_RATIO_SINGLE = 1 / 2
+HEIGHT_WIDTH_RATIO_SINGLE = 0.5
 
 
 # Colors, markers, and linestyles. The colors are the tufte-color-scheme (I lost the link...)
@@ -60,22 +60,47 @@ NICER_METHOD_NAME = {
 }
 
 
+# A style per method. EK0s are one color, EK1s are another
+# Reference methods have full lines, the sparse ones do not.
+# The rest is randomly assigned
+EK0_color = "goldenrod"
+EK1_color = "cadetblue"
+REF_LINESTYLE = "-"
+MATCH_STYLE = {
+    "ek0_kronecker": (EK0_color, "dotted", "o"),
+    "ek0_reference": (EK0_color, REF_LINESTYLE, "^"),
+    "ek1_reference": (EK1_color, REF_LINESTYLE, "d"),
+    "ek1_diagonal": (EK1_color, "-.", "s"),
+    "ek1_truncated": (EK1_color, "dashed", "p"),
+}
+
+# Linewidths
+THICK = 1.6
+MEDIUM = 0.7
+THIN = 0.2
+
+
 def plot_exp_1(run_path):
     """Plot the results from the first experiment."""
 
     file_path = pathlib.Path(run_path)
     dataframe = pd.read_csv(file_path, sep=";")
 
-    all_methods = dataframe["method"].unique()
+    all_methods = [
+        "ek1_reference",
+        "ek0_reference",
+        "ek1_truncated",
+        "ek0_kronecker",
+        "ek1_diagonal",
+    ]
 
     jit_dataframe = dataframe.loc[dataframe["jit"]]
     no_jit_dataframe = dataframe.loc[~dataframe["jit"]]
 
     def _inject_dataframe(_ax, _dataframe):
         """Provided axes and dataframe, plot the exp 1 data into the axis."""
-        for method, color, marker, ls in zip(
-            all_methods, COLOR_CYCLE, MARKER_CYCLE, LINESTYLES
-        ):
+        for method in all_methods:
+            color, ls, marker = MATCH_STYLE[method]
             method_dataframe = _dataframe.loc[_dataframe["method"] == method]
             nus = method_dataframe["nu"].unique()
             for nu in nus:
@@ -83,6 +108,7 @@ def plot_exp_1(run_path):
                 label_method = f"{NICER_METHOD_NAME[method]}"
                 label_order = rf"$\nu={nu}$"
                 label = label_method + ", " + label_order
+
                 _ax.plot(
                     res_dataframe["d"],
                     res_dataframe["time_attempt_step"],
@@ -90,11 +116,16 @@ def plot_exp_1(run_path):
                     marker=marker,
                     color=color,
                     linestyle=ls,
+                    linewidth=THICK,
+                    markeredgecolor="black",
+                    markeredgewidth=0.2,
                 )
 
         _ax.set_xlabel("ODE dimensions")
 
-        _ax.legend(fancybox=False, edgecolor="black", fontsize="small")
+        # Line widths
+        for spine in _ax.spines:
+            _ax.spines[spine].set_linewidth(MEDIUM)
 
     # --- Plot
 
@@ -104,17 +135,17 @@ def plot_exp_1(run_path):
             AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
         )
 
-        figure = plt.figure(figsize=figure_size, constrained_layout=True)
+        figure = plt.figure(figsize=figure_size)
 
         # Only use a title for non-paper plots.
         # figure.suptitle("Complexity of an ODE-filter step")
         ax_1 = figure.add_subplot(1, 2, 1)
         ax_2 = figure.add_subplot(1, 2, 2, sharey=ax_1)
-        ax_2.grid("minor")
+        ax_2.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+        ax_2.grid(which="major", linewidth=MEDIUM, color="dimgray")
         ax_2.set_xscale("log")
         ax_2.set_yscale("log")
-        ax_2.set_title("JIT-compiled Implementation")
-
+        ax_2.set_title("JIT-compiled implementation", fontsize="medium")
         _inject_dataframe(ax_2, jit_dataframe)
 
     else:
@@ -122,11 +153,27 @@ def plot_exp_1(run_path):
         print("Found no JIT experiments")
         ax_1 = figure.add_subplot()
 
-    ax_1.grid("minor")
+    # Axis 1 parameters
+    ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
     ax_1.set_xscale("log")
     ax_1.set_yscale("log")
-    ax_1.set_title("Standard Implementation")
+    ax_1.set_title("Standard implementation", fontsize="medium")
     ax_1.set_ylabel("Runtime [sec]")
     _inject_dataframe(ax_1, no_jit_dataframe)
 
+    # Legend
+    handles, labels = ax_2.get_legend_handles_labels()
+    figure.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        fancybox=False,
+        edgecolor="black",
+        fontsize="small",
+    ).get_frame().set_linewidth(MEDIUM)
+    figure.subplots_adjust(bottom=0.3)
+
+    # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
