@@ -9,20 +9,14 @@ Then, it will be interesting to find out at which dimensionality one should star
 """
 
 
-import tornado
-import scipy.integrate
-
-import matplotlib.pyplot as plt
-
-import jax.numpy as jnp
-
-
-from matplotlib import cm
+import time
 
 import jax
-
-
-import time
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import scipy.integrate
+import tornado
+from matplotlib import cm
 
 
 def solve(ivp, solver):
