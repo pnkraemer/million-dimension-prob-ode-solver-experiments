@@ -41,10 +41,15 @@ def solve_scipy(ivp, tolerance):
 
 # Careful with the large values here -- the benchmark will take a while
 for N in [10, 20, 50, 100]:
+
+    # Dimension of the brusselator is d=2*N
     bruss = tornado.ivp.brusselator(N=N)
+
+    # Reference solution
     t1 = time.time()
     y_ref, num_steps_ref = solve_scipy(bruss, tolerance=1e-10)
     t_ref = time.time() - t1
+
     for tol in [1e-1, 1e-3, 1e-5, 1e-7]:
 
         print(f"Results for N={N}, tol={tol}:")
@@ -62,6 +67,9 @@ for N in [10, 20, 50, 100]:
             y_pn, num_steps_pn = solve(ivp=bruss, solver=solver)
             t_pn = time.time() - t1
             error_pn = jnp.linalg.norm(y_pn - y_ref) / jnp.sqrt(y_ref.size)
+            print(
+                f"\tTruncatedEK1 (nu={n}): error={error_pn}, N={num_steps_pn}, t={t_pn} sec (t/N={t_pn/num_steps_pn} sec)"
+            )
 
             # Reference EK1
             solver_dense = tornado.ek1.ReferenceEK1(
@@ -71,10 +79,6 @@ for N in [10, 20, 50, 100]:
             y_dense, num_steps_dense = solve(ivp=bruss, solver=solver_dense)
             t_dense = time.time() - t1
             error_dense = jnp.linalg.norm(y_dense - y_ref) / jnp.sqrt(y_ref.size)
-
-            print(
-                f"\tTruncatedEK1 (nu={n}): error={error_pn}, N={num_steps_pn}, t={t_pn} sec (t/N={t_pn/num_steps_pn} sec)"
-            )
             print(
                 f"\tReferenceEK1 (nu={n}): error={error_dense}, N={num_steps_dense}, t={t_dense} sec (t/N={t_dense/num_steps_dense} sec)"
             )
@@ -84,7 +88,6 @@ for N in [10, 20, 50, 100]:
         y_scipy, num_steps_scipy = solve_scipy(bruss, tolerance=tol)
         t_scipy = time.time() - t1
         error_scipy = jnp.linalg.norm(y_scipy - y_ref) / jnp.sqrt(y_ref.size)
-
         print(
             f"\tScipy (Radau): error={error_scipy}, N={num_steps_scipy}, t={t_scipy} sec (t/N={t_scipy/num_steps_scipy} sec)"
         )
