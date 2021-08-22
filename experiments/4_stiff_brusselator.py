@@ -50,7 +50,8 @@ for N in [10, 20, 50, 100]:
         print(f"Results for N={N}, tol={tol}:")
 
         # Set up solvers
-        steps = tornado.step.AdaptiveSteps(0.1, tol, tol)
+        first_dt = tornado.step.propose_first_dt(ivp=bruss)
+        steps = tornado.step.AdaptiveSteps(first_dt, tol, tol)
 
         # Truncated EK1
         for n in [3, 8]:
