@@ -45,7 +45,7 @@ for N in [10, 20, 50, 100]:
     t1 = time.time()
     y_ref, num_steps_ref = solve_scipy(bruss, tolerance=1e-10)
     t_ref = time.time() - t1
-    for tol in [1e-1, 1e-3, 1e-5, 7]:
+    for tol in [1e-1, 1e-3, 1e-5, 1e-7]:
 
         print(f"Results for N={N}, tol={tol}:")
 
