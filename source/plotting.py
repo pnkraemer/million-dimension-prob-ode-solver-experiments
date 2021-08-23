@@ -149,7 +149,12 @@ def plot_exp_1(run_path):
         _inject_dataframe(ax_2, jit_dataframe)
 
     else:
-        figure = plt.figure(figsize=(5, 5))
+        figure_size = (
+            AISTATS_TEXTWIDTH_SINGLE,
+            AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        )
+
+        figure = plt.figure(figsize=figure_size)
         print("Found no JIT experiments")
         ax_1 = figure.add_subplot()
 
@@ -163,7 +168,7 @@ def plot_exp_1(run_path):
     _inject_dataframe(ax_1, no_jit_dataframe)
 
     # Legend
-    handles, labels = ax_2.get_legend_handles_labels()
+    handles, labels = ax_1.get_legend_handles_labels()
     figure.legend(
         handles,
         labels,
@@ -173,6 +178,86 @@ def plot_exp_1(run_path):
         edgecolor="black",
         fontsize="small",
     ).get_frame().set_linewidth(MEDIUM)
+    figure.subplots_adjust(bottom=0.3)
+
+    # Save and done.
+    figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+
+
+def plot_exp_2(run_path):
+    """Plot the results from the second experiment."""
+
+    file_path = pathlib.Path(run_path)
+    dataframe = pd.read_csv(file_path, sep=";")
+
+    all_methods = [
+        "ek1_reference",
+        "ek0_reference",
+        "ek1_truncated",
+        "ek0_kronecker",
+        "ek1_diagonal",
+    ]
+
+    def _inject_dataframe(_ax, _dataframe):
+        """Provided axes and dataframe, plot the exp 1 data into the axis."""
+        for method in all_methods:
+            color, ls, marker = MATCH_STYLE[method]
+            method_dataframe = _dataframe.loc[_dataframe["method"] == method]
+            nus = method_dataframe["nu"].unique()
+            for nu in nus:
+                res_dataframe = method_dataframe.loc[method_dataframe["nu"] == nu]
+                label_method = f"{NICER_METHOD_NAME[method]}"
+                label_order = rf"$\nu={nu}$"
+                label = label_method + ", " + label_order
+
+                _ax.plot(
+                    res_dataframe["tolerance"],
+                    res_dataframe["deviation"],
+                    label=label,
+                    marker=marker,
+                    color=color,
+                    linestyle=ls,
+                    linewidth=THICK,
+                    markeredgecolor="black",
+                    markeredgewidth=0.2,
+                )
+
+        _ax.set_xlabel("ODE dimensions")
+
+        # Line widths
+        for spine in _ax.spines:
+            _ax.spines[spine].set_linewidth(MEDIUM)
+
+    # --- Plot
+
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+    )
+
+    figure = plt.figure(figsize=figure_size)
+    ax_1 = figure.add_subplot()
+
+    # Axis 1 parameters
+    ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    ax_1.set_xscale("log")
+    ax_1.set_yscale("log")
+    ax_1.set_title("Standard implementation", fontsize="medium")
+    ax_1.set_ylabel("relative L2 deviation")
+    _inject_dataframe(ax_1, dataframe)
+
+    # Legend
+    handles, labels = ax_1.get_legend_handles_labels()
+    # figure.legend(
+    #     handles,
+    #     labels,
+    #     loc="lower center",
+    #     ncol=3,
+    #     fancybox=False,
+    #     edgecolor="black",
+    #     fontsize="small",
+    # ).get_frame().set_linewidth(MEDIUM)
     figure.subplots_adjust(bottom=0.3)
 
     # Save and done.
