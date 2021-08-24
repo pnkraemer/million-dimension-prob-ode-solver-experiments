@@ -107,7 +107,14 @@ class SterilisedExperiment:
 
     @property
     def hyper_parameters(self):
-        return pd.DataFrame(self.hyper_param_dict)
+        def _aslist(arg):
+            try:
+                return list(arg)
+            except TypeError:
+                return [arg]
+
+        hparams = {k: _aslist(v) for k, v in self.hyper_param_dict.items()}
+        return pd.DataFrame(hparams)
 
     def __repr__(self) -> str:
         s = f"{self.method} "
@@ -183,6 +190,7 @@ merged_data_frame = pd.concat(exp_data_frames, ignore_index=True)
 # Save results as CSV
 result_file = result_dir / "results.csv"
 merged_data_frame.to_csv(result_file, sep=";", index=False)
+exp.hyper_parameters.to_json(result_dir / "hparams.json", indent=2)
 
 # Plot results
 plotting.plot_exp_1(result_file)
