@@ -10,8 +10,8 @@ import pandas as pd
 # between the columns is .25~inches wide (1.5~picas).  The left margin is 0.88~inches (5.28~picas).
 # Use 10~point type with a vertical spacing of
 # 11~points. Please use US Letter size paper instead of A4.
-AISTATS_LINEWIDTH_DOUBLE = 6.75
-AISTATS_TEXTWIDTH_SINGLE = 3.25
+AISTATS_LINEWIDTH_DOUBLE = 6.75 * 2
+AISTATS_TEXTWIDTH_SINGLE = 3.25 * 2
 
 
 # Height-width ratio for a single row
@@ -211,7 +211,7 @@ def plot_exp_2(run_path):
                 label = label_method + ", " + label_order
 
                 _ax.plot(
-                    res_dataframe["tolerance"],
+                    res_dataframe["time_solve"],
                     res_dataframe["deviation"],
                     label=label,
                     marker=marker,
@@ -221,8 +221,6 @@ def plot_exp_2(run_path):
                     markeredgecolor="black",
                     markeredgewidth=0.2,
                 )
-
-        _ax.set_xlabel("ODE dimensions")
 
         # Line widths
         for spine in _ax.spines:
@@ -243,21 +241,22 @@ def plot_exp_2(run_path):
     ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
     ax_1.set_xscale("log")
     ax_1.set_yscale("log")
-    ax_1.set_title("Standard implementation", fontsize="medium")
+    ax_1.set_title("Work-precision diagram", fontsize="medium")
     ax_1.set_ylabel("relative L2 deviation")
+    ax_1.set_xlabel("Run-time [sec]")
     _inject_dataframe(ax_1, dataframe)
 
     # Legend
     handles, labels = ax_1.get_legend_handles_labels()
-    # figure.legend(
-    #     handles,
-    #     labels,
-    #     loc="lower center",
-    #     ncol=3,
-    #     fancybox=False,
-    #     edgecolor="black",
-    #     fontsize="small",
-    # ).get_frame().set_linewidth(MEDIUM)
+    figure.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        fancybox=False,
+        edgecolor="black",
+        fontsize="small",
+    ).get_frame().set_linewidth(MEDIUM)
     figure.subplots_adjust(bottom=0.3)
 
     # Save and done.

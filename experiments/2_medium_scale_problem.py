@@ -38,6 +38,8 @@ class MediumScaleExperiment:
             t_span=(hyper_param_dict["t0"], hyper_param_dict["tmax"]),
             y0=np.arange(hyper_param_dict["ode_dimension"]),
             method="LSODA",
+            atol=1e-13,
+            rtol=1e-13,
         )
         self.reference_state = reference_sol.y[:, -1]
 
@@ -57,6 +59,8 @@ class MediumScaleExperiment:
             except:
                 res = state.y.mean[0, :]
             return res
+
+        _run_solve()
 
         elapsed_time = self.time_function(_run_solve)
         end_state = _run_solve()
