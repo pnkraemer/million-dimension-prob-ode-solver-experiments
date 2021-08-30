@@ -187,10 +187,8 @@ def plot_exp_1(run_path):
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
 
 
-
-
 NICER_METHOD_NAMEb = {
-    "KroneckerEK0" : "EK0 (Kron.)",
+    "KroneckerEK0": "EK0 (Kron.)",
     "ReferenceEK0": "EK0 (Trad.)",
     "ReferenceEK1": "EK1 (Trad.)",
     "DiagonalEK1": "EK1 (Diag.)",
@@ -230,7 +228,9 @@ def plot_exp_1b(run_path):
         AISTATS_LINEWIDTH_DOUBLE,
         AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
     )
-    figure, axes = plt.subplots(ncols=len(nus), nrows=1, figsize=figure_size, sharey=True)
+    figure, axes = plt.subplots(
+        ncols=len(nus), nrows=1, figsize=figure_size, sharey=True
+    )
 
     for nu, ax in zip(nus, axes):
         ax.set_title(rf"IWP({nu})")
@@ -272,23 +272,6 @@ def plot_exp_1b(run_path):
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def plot_exp_2(run_path):
