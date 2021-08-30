@@ -3,7 +3,6 @@ import pathlib
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
 # Extract from the paper template:
 #
 # Papers are in 2 columns with the overall line width of 6.75~inches (41~picas).

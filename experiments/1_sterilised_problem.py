@@ -6,13 +6,13 @@ This script evaluates how much faster a diagonal EK1 is than a full EK1 for incr
 
 import itertools
 import pathlib
+import sys
 import timeit
 
 import jax
 import jax.numpy as jnp
 import pandas as pd
 import tornadox
-import sys
 
 from source import plotting, problems
 
