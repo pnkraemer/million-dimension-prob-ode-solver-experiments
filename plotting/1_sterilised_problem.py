@@ -4,4 +4,4 @@ import pathlib
 from source import plotting
 
 path = pathlib.Path("./results/1_sterilised_problem/results.csv")
-plotting.plot_exp_1(path)
+plotting.plot_exp_1b(path)

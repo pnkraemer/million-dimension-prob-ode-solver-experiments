@@ -98,7 +98,7 @@ class SterilisedExperiment:
         results = {k: _aslist(v) for k, v in self.result.items()}
         return pd.DataFrame(
             dict(
-                method=self.method,
+                method=self.solver.__class__.__name__,
                 d=self.ode_dimension,
                 nu=self.num_derivatives,
                 jit=self.jit,
@@ -147,29 +147,23 @@ HYPER_PARAM_DICT = {
     "tmax": 3.0,
     "forcing": 5.0,
 }
-NUM_REPETITIONS = 3
+NUM_REPETITIONS = 10
 
 key = jax.random.PRNGKey(1)
 METHODS = (
-    lambda *args, **kwargs: tornadox.enkf.EnK1(
-        *args, **kwargs, ensemble_size=10, prng_key=key
-    ),
-    lambda *args, **kwargs: tornadox.enkf.EnK1(
-        *args, **kwargs, ensemble_size=1_000, prng_key=key
-    ),
     tornadox.ek0.ReferenceEK0,
     tornadox.ek0.KroneckerEK0,
     tornadox.ek1.ReferenceEK1,
     tornadox.ek1.DiagonalEK1,
     tornadox.ek1.TruncationEK1,
     tornadox.ek1.EarlyTruncationEK1,
+    lambda *args, **kwargs: tornadox.enkf.EnK1(
+        *args, **kwargs, ensemble_size=100, prng_key=key
+    ),
 )
-NUM_DERIVS = (4,)
-ODE_DIMS = (
-    4,
-    8,
-)
-JIT = (False,)
+NUM_DERIVS = (2, 4, 8)
+ODE_DIMS = (4, 8, 16, 32, 64, 128, 256, 512, 1024)
+JIT = (True,)
 
 # Define predicate to specify experiments that are not executed later
 ignore_exp = lambda method, nu, d, is_jit: (
@@ -177,8 +171,13 @@ ignore_exp = lambda method, nu, d, is_jit: (
     (method in [tornadox.ek0.ReferenceEK0, tornadox.ek1.ReferenceEK1] and d > 128)
     # For truncated EK1 implementations, ignore even higher dims
     or (
-        method in [tornadox.ek1.TruncationEK1, tornadox.ek1.EarlyTruncationEK1]
-        and d >= 256
+        method
+        in [
+            tornadox.ek1.TruncationEK1,
+            tornadox.ek1.EarlyTruncationEK1,
+            tornadox.enkf.EnK1,
+        ]
+        and d > 256
     )
     # For truncated and diagonal EK1, do not jit
     # or (is_jit and method in ["ek1_truncated", "ek1_diagonal"])
@@ -215,4 +214,4 @@ merged_data_frame.to_csv(result_file, sep=";", index=False)
 exp.hyper_parameters.to_json(result_dir / "hparams.json", indent=2)
 
 # Plot results
-plotting.plot_exp_1(result_file)
+plotting.plot_exp_1b(result_file)
