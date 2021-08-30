@@ -16,7 +16,7 @@ AISTATS_TEXTWIDTH_SINGLE = 3.25
 
 
 # Height-width ratio for a single row
-HEIGHT_WIDTH_RATIO_SINGLE = 0.5
+HEIGHT_WIDTH_RATIO_SINGLE = 0.55
 
 
 # Colors, markers, and linestyles. The colors are the tufte-color-scheme (I lost the link...)
@@ -223,16 +223,15 @@ def plot_exp_1b(run_path):
 
     nus = dataframe["nu"].unique()
     methods = dataframe["method"].unique()
-    print(methods)
     figure_size = (
         AISTATS_LINEWIDTH_DOUBLE,
         AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
     )
     figure, axes = plt.subplots(
-        ncols=len(nus), nrows=1, figsize=figure_size, sharey=True
+        ncols=len(nus), nrows=1, figsize=figure_size, sharey=True, sharex=True
     )
 
-    for nu, ax in zip(nus, axes):
+    for nu, ax in zip(reversed(nus), axes):
         ax.set_title(rf"IWP({nu})")
         nu_dataframe = dataframe.loc[dataframe["nu"] == nu]
         for method in methods:
@@ -253,6 +252,11 @@ def plot_exp_1b(run_path):
             ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
             ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
+            ax.set_xticks((1e1, 1e2, 1e3, 1e4))
+            ax.set_xlim((0.5*1e1, 2e4))
+            # ax.set_yticks((1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1))
+            # ax.set_ylim((0.5*1e-5, 2e1))
+
         ax.set_xlabel("ODE dimension")
     axes[0].set_ylabel("Time [sec]")
 
@@ -263,12 +267,13 @@ def plot_exp_1b(run_path):
         handles,
         labels,
         loc="lower center",
-        ncol=4,
+        ncol=5,
         fancybox=False,
         edgecolor="black",
         fontsize="small",
+        handlelength=3,
     ).get_frame().set_linewidth(MEDIUM)
-    figure.subplots_adjust(bottom=0.3)
+    figure.subplots_adjust(bottom=0.2)
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
