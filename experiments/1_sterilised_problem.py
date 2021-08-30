@@ -11,7 +11,7 @@ import timeit
 import jax
 import jax.numpy as jnp
 import pandas as pd
-import tornado
+import tornadox
 
 from source import plotting, problems
 
@@ -32,17 +32,18 @@ class SterilisedExperiment:
         self.num_derivatives = num_derivatives
         self.ode_dimension = ode_dimension
 
-        self.ivp = problems.lorenz96_jax(
-            params=(ode_dimension, hyper_param_dict["forcing"]),
+        self.ivp = tornadox.ivp.lorenz96(
+            num_variables=ode_dimension,
+            forcing=hyper_param_dict["forcing"],
             t0=hyper_param_dict["t0"],
             tmax=hyper_param_dict["tmax"],
-            y0=jnp.arange(ode_dimension),
         )
-
-        self.solver = tornado.ivpsolve._SOLVER_REGISTRY[method](
-            ode_dimension=ode_dimension,
-            steprule=tornado.step.ConstantSteps(hyper_param_dict["dt"]),
+        steprule = tornadox.step.ConstantSteps(0.1)
+        init = tornadox.init.RungeKutta()
+        self.solver = method(
             num_derivatives=num_derivatives,
+            steprule=steprule,
+            initialization=init,
         )
         self.init_state = self.solver.initialize(self.ivp)
 
@@ -117,7 +118,7 @@ class SterilisedExperiment:
         return pd.DataFrame(hparams)
 
     def __repr__(self) -> str:
-        s = f"{self.method} "
+        s = f"{self.solver.__class__.__name__} "
         s += "{\n"
         s += f"\td={self.ode_dimension}\n"
         s += f"\tnu={self.num_derivatives}\n"
@@ -146,18 +147,39 @@ HYPER_PARAM_DICT = {
     "tmax": 3.0,
     "forcing": 5.0,
 }
-NUM_REPETITIONS = 10
-METHODS = tuple(tornado.ivpsolve._SOLVER_REGISTRY.keys())
-NUM_DERIVS = (8,)
-ODE_DIMS = (4, 8, 16, 32, 64, 128, 256, 512, 1024)
-JIT = (False, True)
+NUM_REPETITIONS = 3
+
+key = jax.random.PRNGKey(1)
+METHODS = (
+    lambda *args, **kwargs: tornadox.enkf.EnK1(
+        *args, **kwargs, ensemble_size=10, prng_key=key
+    ),
+    lambda *args, **kwargs: tornadox.enkf.EnK1(
+        *args, **kwargs, ensemble_size=1_000, prng_key=key
+    ),
+    tornadox.ek0.ReferenceEK0,
+    tornadox.ek0.KroneckerEK0,
+    tornadox.ek1.ReferenceEK1,
+    tornadox.ek1.DiagonalEK1,
+    tornadox.ek1.TruncationEK1,
+    tornadox.ek1.EarlyTruncationEK1,
+)
+NUM_DERIVS = (4,)
+ODE_DIMS = (
+    4,
+    8,
+)
+JIT = (False,)
 
 # Define predicate to specify experiments that are not executed later
 ignore_exp = lambda method, nu, d, is_jit: (
     # For reference implementations, ignore too high dims
-    ("reference" in method and d > 128)
+    (method in [tornadox.ek0.ReferenceEK0, tornadox.ek1.ReferenceEK1] and d > 128)
     # For truncated EK1 implementations, ignore even higher dims
-    or (method == "ek1_truncated" and d >= 256)
+    or (
+        method in [tornadox.ek1.TruncationEK1, tornadox.ek1.EarlyTruncationEK1]
+        and d >= 256
+    )
     # For truncated and diagonal EK1, do not jit
     # or (is_jit and method in ["ek1_truncated", "ek1_diagonal"])
 )
