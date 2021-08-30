@@ -33,8 +33,7 @@
 ##
 ## The font.size property is the default font size for text, given in pts.
 ## 10 pt is the standard value.
-
-
+##
 #font.family         : sans-serif
 #font.style          : normal
 #font.variant        : normal
@@ -54,6 +53,7 @@
 
 
 
+# Choose font style
 font.size           : 8.0
 font.family         : sans-serif
 font.style          : normal
@@ -61,8 +61,3 @@ font.variant        : normal
 font.weight         : normal
 font.stretch        : normal
 font.sans-serif 	: Open Sans
-
-
-
-
-
