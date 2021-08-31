@@ -15,16 +15,8 @@ import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import scipy.integrate
-import tornado
+import tornadox
 from matplotlib import cm
-
-
-def solve(ivp, solver):
-    for idx, state in enumerate(solver.solution_generator(ivp)):
-        pass
-    if isinstance(solver, tornado.ek1.ReferenceEK1):
-        return solver.P0 @ state.y.mean, idx
-    return state.y.mean[0], idx
 
 
 def solve_scipy(ivp, tolerance):
@@ -43,7 +35,7 @@ def solve_scipy(ivp, tolerance):
 for N in [10, 20, 50, 100]:
 
     # Dimension of the brusselator is d=2*N
-    bruss = tornado.ivp.brusselator(N=N)
+    bruss = tornadox.ivp.brusselator(N=N)
 
     # Reference solution
     t1 = time.time()
@@ -55,16 +47,14 @@ for N in [10, 20, 50, 100]:
         print(f"Results for N={N}, tol={tol}:")
 
         # Set up solvers
-        first_dt = tornado.step.propose_first_dt(ivp=bruss)
-        steps = tornado.step.AdaptiveSteps(first_dt, tol, tol)
+        steps = tornadox.step.AdaptiveSteps(abstol=tol, reltol=tol)
 
         # Truncated EK1
         for n in [3, 8]:
-            solver = tornado.ek1.TruncationEK1(
-                num_derivatives=n, ode_dimension=bruss.dimension, steprule=steps
-            )
+            solver = tornadox.ek1.TruncationEK1(num_derivatives=n, steprule=steps)
             t1 = time.time()
-            y_pn, num_steps_pn = solve(ivp=bruss, solver=solver)
+            solution = solver.solve(bruss)
+            y_pn, num_steps_pn = solution.mean, len(solution.t)
             t_pn = time.time() - t1
             error_pn = jnp.linalg.norm(y_pn - y_ref) / jnp.sqrt(y_ref.size)
             print(
@@ -72,11 +62,10 @@ for N in [10, 20, 50, 100]:
             )
 
             # Reference EK1
-            solver_dense = tornado.ek1.ReferenceEK1(
-                num_derivatives=n, ode_dimension=bruss.dimension, steprule=steps
-            )
+            solver_dense = tornadox.ek1.ReferenceEK1(num_derivatives=n, steprule=steps)
             t1 = time.time()
-            y_dense, num_steps_dense = solve(ivp=bruss, solver=solver_dense)
+            solution = solver.solve(bruss)
+            y_dense, num_steps_dense = solution.mean, len(solution.t)
             t_dense = time.time() - t1
             error_dense = jnp.linalg.norm(y_dense - y_ref) / jnp.sqrt(y_ref.size)
             print(
