@@ -51,11 +51,7 @@ for N in [10, 20, 50, 100]:
 
         # Truncated EK1
         for n in [3, 8]:
-            solver = tornadox.ek1.TruncationEK1(
-                num_derivatives=n,
-                # ode_dimension=bruss.dimension,
-                steprule=steps,
-            )
+            solver = tornadox.ek1.TruncationEK1(num_derivatives=n, steprule=steps)
             t1 = time.time()
             solution = solver.solve(bruss)
             y_pn, num_steps_pn = solution.mean, len(solution.t)
@@ -66,11 +62,7 @@ for N in [10, 20, 50, 100]:
             )
 
             # Reference EK1
-            solver_dense = tornadox.ek1.ReferenceEK1(
-                num_derivatives=n,
-                # ode_dimension=bruss.dimension,
-                steprule=steps,
-            )
+            solver_dense = tornadox.ek1.ReferenceEK1(num_derivatives=n, steprule=steps)
             t1 = time.time()
             solution = solver.solve(bruss)
             y_dense, num_steps_dense = solution.mean, len(solution.t)
