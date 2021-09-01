@@ -14,7 +14,7 @@ import jax.numpy as jnp
 import pandas as pd
 import tornadox
 
-from source import plotting, problems
+from source import plotting
 
 
 class SterilisedExperiment:
