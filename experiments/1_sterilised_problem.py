@@ -14,7 +14,7 @@ import jax.numpy as jnp
 import pandas as pd
 import tornadox
 
-from source import plotting
+from hose import plotting
 
 
 class SterilisedExperiment:
@@ -61,11 +61,11 @@ class SterilisedExperiment:
         def _run_attempt_step():
             """Manually do the repeated number of runs, because otherwise jax notices how the outputs are not reused anymore."""
 
-            state = self.solver.attempt_step(
+            state, _ = self.solver.attempt_step(
                 state=self.init_state, dt=self.hyper_param_dict["dt"]
             )
             for _ in range(self.num_repetitions):
-                state = self.solver.attempt_step(
+                state, _ = self.solver.attempt_step(
                     state=state, dt=self.hyper_param_dict["dt"]
                 )
             return state.y.mean

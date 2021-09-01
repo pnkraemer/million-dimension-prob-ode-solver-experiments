@@ -7,7 +7,7 @@ import numpy as np
 import probnum as pn
 import probnum.problems.zoo.diffeq as diffeq_zoo
 
-from source import problems
+from hose import problems
 
 
 def initialise(ordint):

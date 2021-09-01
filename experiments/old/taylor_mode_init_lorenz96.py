@@ -28,7 +28,7 @@ import probnum as pn
 import probnum.problems.zoo.diffeq as diffeq_zoo
 from memory_profiler import memory_usage, profile
 
-from source import problems
+from hose import problems
 
 
 class FakeIBM:
