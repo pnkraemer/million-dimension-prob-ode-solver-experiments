@@ -1,0 +1,17 @@
+### LINES AND TICKS
+
+
+# Default linewidth -- the linewidth of the curves is governed by a bunch of global parameters in plotting.py
+lines.linewidth : 0.5
+axes.linewidth : 0.5
+patch.linewidth : 0.5
+
+# Adjust tick-size to default linewidth
+xtick.major.size : 1.0
+ytick.major.size : 1.0
+xtick.minor.size : 1.0
+ytick.minor.size : 1.0
+xtick.major.width : 0.5
+ytick.major.width : 0.5
+xtick.minor.width : 0.5
+ytick.minor.width : 0.5
