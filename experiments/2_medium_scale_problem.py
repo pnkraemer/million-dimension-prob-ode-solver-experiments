@@ -8,7 +8,7 @@ import pandas as pd
 import tornado
 from scipy.integrate import solve_ivp
 
-from source import plotting, problems
+from hose import plotting, problems
 
 
 class MediumScaleExperiment:

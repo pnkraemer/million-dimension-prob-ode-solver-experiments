@@ -16,7 +16,7 @@ import numpy as np
 import tqdm
 from scipy.integrate import solve_ivp
 
-from source import problems
+from hose import problems
 
 sec_to_ms = lambda t: 1000 * t
 
