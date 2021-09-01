@@ -24,3 +24,21 @@ jobs:
       run: |
         pip install isort
         tox -e isort
+
+
+  directories:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Check file existence
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "experiments/results/"
+
+      - name: File exists
+        if: steps.check_files.outputs.files_exists == 'true'
+        # Fail if the results/ directory exists
+        run: exit 1
