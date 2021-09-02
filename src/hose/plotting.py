@@ -235,3 +235,14 @@ def plot_exp_2(run_path):
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+
+
+def plot_exp_5(run_path):
+    import plotly.express as px
+
+    file_path = pathlib.Path(run_path)
+
+    df = pd.read_csv(file_path, sep=";")
+
+    fig = px.parallel_coordinates(df, color="n_steps")
+    fig.show()

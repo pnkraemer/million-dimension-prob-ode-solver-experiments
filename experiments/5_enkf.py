@@ -65,7 +65,9 @@ for i_comb, (
     results["n_steps"].append(n_steps)
     results["success"].append(int(success))
 
-    print(f"+++++ Finished experiment {i_comb + 1}/{num_combinations}")
+    print(
+        f"+++++ {'Finished' if success else 'Interrupted'} experiment {i_comb + 1}/{num_combinations}"
+    )
 
 df = pd.DataFrame(results)
 
