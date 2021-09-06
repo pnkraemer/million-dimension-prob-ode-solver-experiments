@@ -7,10 +7,10 @@ import pandas as pd
 import plotly.express as px
 import tornadox
 
-MUS = [10.0, 100.0]  # [10.0, 100.0, 1000.0]
+MUS = [10.0, 100.0, 1000.0]  # [10.0, 100.0, 1000.0]
 NUS = [4]  # [3, 4, 5]
 TOLERANCES = [10.0 ** (-p) for p in range(3, 9)]
-ENSEMBLE_SIZES = [10 ** p for p in range(1, 6)]
+ENSEMBLE_SIZES = [10 ** p for p in range(1, 5)]
 SEEDS = [1]  # [1, 42, 54321]
 
 
@@ -70,10 +70,6 @@ for i_comb, (
     )
 
 df = pd.DataFrame(results)
-
-fig = px.parallel_coordinates(df, color="n_steps")
-fig.show()
-
 
 RESULT_DIR = pathlib.Path("./results/5_enkf")
 if not RESULT_DIR.is_dir():
