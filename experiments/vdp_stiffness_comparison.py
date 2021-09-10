@@ -11,16 +11,14 @@ import pathlib
 import time
 
 import jax
-from jax import numpy as jnp
-import scipy.integrate
 import matplotlib.pyplot as plt
 import pandas as pd
-
-from tqdm import tqdm
-
+import scipy.integrate
 import tornadox
+from jax import numpy as jnp
 from tornadox.ek0 import *
 from tornadox.ek1 import *
+from tqdm import tqdm
 
 
 def myvanderpol(t0=0.0, tmax=6.3, y0=None, stiffness_constant=1e1):
