@@ -62,7 +62,6 @@ SOLVERS = [
 
 
 def reference_solve(vdp):
-    print("Radau solve")
     radau_sol = scipy.integrate.solve_ivp(
         vdp.f,
         t_span=(vdp.t0, vdp.tmax),
@@ -71,14 +70,13 @@ def reference_solve(vdp):
         atol=1e-10,
         rtol=1e-10,
     )
-    print(f"SOLVED ({len(radau_sol.t)} steps)")
     return radau_sol
 
 
 def solve_vdp_and_save_results(
-    name, solver, vdp, reference_solution, result_dict, totry
+    name, solver, vdp, reference_solution, result_dict, totry, pbar
 ):
-    print(f"{name} start")
+    pbar.write(f"\n[START] {name}")
     if totry[name]:
         try:
             start = time.time()
@@ -86,9 +84,9 @@ def solve_vdp_and_save_results(
             seconds = time.time() - start
             nsteps = len(solution.t)
             error = jnp.linalg.norm(solution.mean[-1][0] - reference_solution.y[:, -1])
-            print(f"SOLVED ({nsteps} steps)")
+            pbar.write(f"[DONE] ({nsteps} steps)")
         except ValueError:
-            print("FAILED")
+            pbar.write("[FAILED]")
             totry[name] = False
             nsteps, error, seconds = None, None, None
     else:
@@ -106,12 +104,15 @@ def main():
         result_dict[f"{n}_errors"] = []
         result_dict[f"{n}_seconds"] = []
 
-    for mu in tqdm(MUS):
+    outer_pbar = tqdm(MUS)
+    for mu in outer_pbar:
         vdp = myvanderpol(stiffness_constant=mu)
 
         reference_solution = reference_solve(vdp)
+        outer_pbar.write(f"[REFERENCE] Radau took {len(reference_solution.t)} steps")
 
-        for name, solver in SOLVERS:
+        pbar = tqdm(SOLVERS)
+        for name, solver in pbar:
             if "EK0" in name and mu > 100:
                 result_dict[f"{name}_nsteps"].append(nsteps)
                 result_dict[f"{name}_errors"].append(error)
@@ -125,6 +126,7 @@ def main():
                 reference_solution,
                 result_dict,
                 totry,
+                pbar,
             )
 
     RESULT_DIR = pathlib.Path("./results/vdp_stiffness_comparison")
