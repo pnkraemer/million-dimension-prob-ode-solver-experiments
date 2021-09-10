@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-path = pathlib.Path("./results/ek1_stiffness/results.csv")
+path = pathlib.Path("./results/vdp_stiffness_comparison/results.csv")
 df = pd.read_csv(path, sep=";")
 
 

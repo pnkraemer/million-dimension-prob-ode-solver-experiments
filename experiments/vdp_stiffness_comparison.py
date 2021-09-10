@@ -123,7 +123,7 @@ def main():
                 totry,
             )
 
-    RESULT_DIR = pathlib.Path("./results/ek1_stiffness")
+    RESULT_DIR = pathlib.Path("./results/vdp_stiffness_comparison")
     if not RESULT_DIR.is_dir():
         RESULT_DIR.mkdir(parents=True)
     df = pd.DataFrame(result_dict)
