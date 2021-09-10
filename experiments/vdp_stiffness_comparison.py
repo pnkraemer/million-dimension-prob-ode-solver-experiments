@@ -114,9 +114,9 @@ def main():
         pbar = tqdm(SOLVERS)
         for name, solver in pbar:
             if "EK0" in name and mu > 100:
-                result_dict[f"{name}_nsteps"].append(nsteps)
-                result_dict[f"{name}_errors"].append(error)
-                result_dict[f"{name}_seconds"].append(seconds)
+                result_dict[f"{name}_nsteps"].append(None)
+                result_dict[f"{name}_errors"].append(None)
+                result_dict[f"{name}_seconds"].append(None)
                 continue
 
             solve_vdp_and_save_results(
