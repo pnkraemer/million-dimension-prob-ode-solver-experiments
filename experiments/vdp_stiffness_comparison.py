@@ -112,6 +112,12 @@ def main():
         reference_solution = reference_solve(vdp)
 
         for name, solver in SOLVERS:
+            if "EK0" in name and mu > 100:
+                result_dict[f"{name}_nsteps"].append(nsteps)
+                result_dict[f"{name}_errors"].append(error)
+                result_dict[f"{name}_seconds"].append(seconds)
+                continue
+
             solve_vdp_and_save_results(
                 name,
                 solver,
