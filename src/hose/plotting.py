@@ -163,13 +163,11 @@ def plot_exp_2(run_path):
 
     file_path = pathlib.Path(run_path)
     dataframe = pd.read_csv(file_path, sep=";")
+    print(dataframe)
 
     all_methods = [
-        "ek1_reference",
-        "ek0_reference",
-        "ek1_truncated",
-        "ek0_kronecker",
-        "ek1_diagonal",
+        "ReferenceEK1",
+        "ReferenceEK0",
     ]
 
     def _inject_dataframe(_ax, _dataframe):
@@ -184,7 +182,7 @@ def plot_exp_2(run_path):
                 label_order = rf"$\nu={nu}$"
                 label = label_method + ", " + label_order
 
-                _ax.plot(
+                _ax.loglog(
                     res_dataframe["time_solve"],
                     res_dataframe["deviation"],
                     label=label,
@@ -203,8 +201,10 @@ def plot_exp_2(run_path):
     # --- Plot
 
     figure_size = (
-        AISTATS_TEXTWIDTH_SINGLE,
-        AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        # AISTATS_TEXTWIDTH_SINGLE,
+        # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_LINEWIDTH_DOUBLE,
+        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
     )
 
     figure = plt.figure(figsize=figure_size)
@@ -213,12 +213,11 @@ def plot_exp_2(run_path):
     # Axis 1 parameters
     ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
-    ax_1.set_xscale("log")
-    ax_1.set_yscale("log")
     ax_1.set_title("Work-precision diagram", fontsize="medium")
     ax_1.set_ylabel("relative L2 deviation")
     ax_1.set_xlabel("Run-time [sec]")
     _inject_dataframe(ax_1, dataframe)
+    figure.tight_layout()
 
     # Legend
     handles, labels = ax_1.get_legend_handles_labels()
