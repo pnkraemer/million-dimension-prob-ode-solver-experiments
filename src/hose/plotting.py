@@ -40,6 +40,7 @@ LINESTYLES = ["-", "--", ":", "-.", "-", "--", ":", "-."]
 NICER_METHOD_NAME = {
     "KroneckerEK0": "EK0 (Kron.)",
     "ReferenceEK0": "EK0 (Trad.)",
+    "DiagonalEK0": "EK0 (Diag.)",
     "ReferenceEK1": "EK1 (Trad.)",
     "DiagonalEK1": "EK1 (Diag.)",
     "TruncationEK1": "EK1 (Trunc.)",
@@ -58,6 +59,7 @@ REF_LINESTYLE = "-"
 MATCH_STYLE = {
     "KroneckerEK0": (EK0_color, "dotted", "o"),
     "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^"),
+    "DiagonalEK0": (EK0_color, "-.", "s"),
     "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d"),
     "DiagonalEK1": (EK1_color, "-.", "s"),
     "TruncationEK1": (EK1_color, "dashed", "p"),
@@ -166,8 +168,11 @@ def plot_exp_2(run_path):
     print(dataframe)
 
     all_methods = [
-        "ReferenceEK1",
         "ReferenceEK0",
+        "KroneckerEK0",
+        "DiagonalEK0",
+        "ReferenceEK1",
+        "DiagonalEK1",
     ]
 
     def _inject_dataframe(_ax, _dataframe):
