@@ -235,3 +235,80 @@ def plot_exp_2(run_path):
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+
+
+def plot_vdp_stiffness_comparison(path):
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
+    df = pd.read_csv(path, sep=";")
+
+    # (key, label, color, linestyle)
+    SOLVERS_TO_PLOT = [
+        ("ReferenceEK0", "ReferenceEK0", EK0_color, "-"),
+        ("KroneckerEK0", "KroneckerEK0", EK0_color, "dotted"),
+        ("DiagonalEK0", "DiagonalEK0", EK0_color, "dashed"),
+        ("ReferenceEK1", "ReferenceEK1", EK1_color, "-"),
+        ("DiagonalEK1", "DiagonalEK1", EK1_color, "dotted"),
+        ("ETruncationEK1", "EarlyTruncationEK1", EK1_color, "dashed"),
+    ]
+
+    figure_size = (
+        AISTATS_LINEWIDTH_DOUBLE,
+        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        # AISTATS_TEXTWIDTH_SINGLE,
+        # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+    )
+
+    def plot_quantity(ax, quantity, ylabel):
+        for (s, l, c, ls) in SOLVERS_TO_PLOT:
+            ax.loglog(
+                df.mu,
+                df[f"{s}_{quantity}"],
+                label=l,
+                color=c,
+                marker="o",
+                linestyle=ls,
+                linewidth=THICK,
+                markeredgecolor="black",
+                markeredgewidth=0.3,
+            )
+        ax.set_ylabel(ylabel)
+        ax.set_xlabel("Stiffness constant")
+        plt.tight_layout()
+
+    def add_legend(ax, fig):
+        handles, labels = ax.get_legend_handles_labels()
+        fig.legend(
+            handles,
+            labels,
+            # loc="lower center", ncol=3,
+            loc="center right",
+            fancybox=False,
+            edgecolor="black",
+            fontsize="small",
+        ).get_frame().set_linewidth(MEDIUM)
+        # fig.subplots_adjust(bottom=0.28)
+        fig.subplots_adjust(right=0.82)
+
+    ####################################################################################
+    # Plot 1: Number of Steps vs Stiffness Constant
+    fig = plt.figure(figsize=figure_size)
+    ax = fig.add_subplot()
+    plot_quantity(ax, "nsteps", "Number of steps")
+    add_legend(ax, fig)
+    fig.savefig(path.parent / f"nsteps_plot.pdf")
+
+    ####################################################################################
+    # Plot 2: Error vs Stiffness Constant
+    fig = plt.figure(figsize=figure_size)
+    ax = fig.add_subplot()
+    plot_quantity(ax, "errors", "Error")
+    add_legend(ax, fig)
+    fig.savefig(path.parent / f"error_plot.pdf")
+
+    ####################################################################################
+    # Plot 3: Seconds vs Stiffness Constant
+    fig = plt.figure(figsize=figure_size)
+    ax = fig.add_subplot()
+    plot_quantity(ax, "seconds", "Seconds")
+    add_legend(ax, fig)
+    fig.savefig(path.parent / f"seconds_plot.pdf")
