@@ -188,8 +188,8 @@ def plot_exp_2(run_path):
                 label = label_method + ", " + label_order
 
                 _ax.loglog(
-                    res_dataframe["time_solve"],
                     res_dataframe["deviation"],
+                    res_dataframe["time_solve"],
                     label=label,
                     marker=marker,
                     color=color,
@@ -219,8 +219,8 @@ def plot_exp_2(run_path):
     ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
     ax_1.set_title("Work-precision diagram", fontsize="medium")
-    ax_1.set_ylabel("relative L2 deviation")
-    ax_1.set_xlabel("Run-time [sec]")
+    ax_1.set_xlabel("relative L2 deviation")
+    ax_1.set_ylabel("Run-time [sec]")
     _inject_dataframe(ax_1, dataframe)
     figure.tight_layout()
 
