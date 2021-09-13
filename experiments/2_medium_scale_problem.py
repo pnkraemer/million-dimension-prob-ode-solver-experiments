@@ -107,8 +107,8 @@ ALGS = [
     DiagonalEK1,
 ]
 
-ATOLS = 1 / 10 ** jnp.arange(6, 10)
-RTOLS = 1 / 10 ** jnp.arange(3, 7)
+ATOLS = 1 / 10 ** jnp.arange(4, 12)
+RTOLS = 1 / 10 ** jnp.arange(1, 9)
 NUM_DERIVS = (5,)
 
 EXPERIMENTS = [
