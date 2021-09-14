@@ -18,26 +18,27 @@ import matplotlib.pyplot as plt
 from hose import plotting
 
 
-
 from celluloid import Camera
 
 
 def wave_1d_gif():
     IVP = tornadox.ivp.wave_1d()
+    N = 100
+    t_eval = np.linspace(IVP.t0, IVP.tmax, N)
     reference_sol = solve_ivp(
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
+        t_eval=t_eval,
         # method="LSODA",
         # jac=IVP.df,
     )
     d = len(IVP.y0)
-    t, y = reference_sol.t, reference_sol.y[:d//2, :]
+    t, y = reference_sol.t, reference_sol.y[: d // 2, :]
     d = len(y[:, 1])
-    N = len(reference_sol.t)
     fig = plt.figure()
     camera = Camera(fig)
-    for i in range(0, N, 10):
+    for i in range(N):
         plt.plot(range(d), y[:, i], color="C0")
         plt.text(0, 1.25, f"t={t[i]:.10f}")
         plt.ylim(-1.5, 1.5)
@@ -48,19 +49,21 @@ def wave_1d_gif():
 
 def burgers_1d_gif():
     IVP = tornadox.ivp.burgers_1d()
+    N = 100
+    t_eval = np.linspace(IVP.t0, IVP.tmax, N)
     reference_sol = solve_ivp(
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
+        t_eval=t_eval,
         # method="LSODA",
         # jac=IVP.df,
     )
     d = len(IVP.y0)
     t, y = reference_sol.t, reference_sol.y
-    N = len(reference_sol.t)
     fig = plt.figure()
     camera = Camera(fig)
-    for i in range(0, N, 10):
+    for i in range(N):
         plt.plot(range(d), y[:, i], color="C0")
         plt.text(0, 1.25, f"t={t[i]:.10f}")
         plt.ylim(-1.5, 1.5)
@@ -71,48 +74,53 @@ def burgers_1d_gif():
 
 def wave_2d_gif():
     IVP = tornadox.ivp.wave_2d()
+    N = 100
+    t_eval = np.linspace(IVP.t0, IVP.tmax, N)
     reference_sol = solve_ivp(
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
+        t_eval=t_eval,
         # method="LSODA",
         # jac=IVP.df,
     )
-    d = len(IVP.y0)
-    t, y = reference_sol.t, reference_sol.y[:d//2, :]
-    d = len(y[:, 1])
-    _d = int(d ** (1/2))
+    d = len(IVP.y0) // 2
+    t, y = reference_sol.t, reference_sol.y[:d, :]
+    _d = int(d ** (1 / 2))
     N = len(reference_sol.t)
+
     fig = plt.figure()
     camera = Camera(fig)
-    for i in range(0, N, 10):
-        plt.imshow(y[:, i].reshape(_d, _d), cmap="coolwarm", vmin=-0.5, vmax=0.5)
+    for i in range(N):
+        plt.imshow(y[:, i].reshape(_d, _d), cmap="bwr", vmin=-0.5, vmax=0.5)
         plt.text(0, 2, f"t={t[i]:.10f}")
         camera.snap()
-    plt.colorbar(extend='both')
+    plt.colorbar(extend="both")
     animation = camera.animate()
     animation.save("wave_2d.gif")
 
 
 def wave_2d_gif_3d():
     IVP = tornadox.ivp.wave_2d()
+    N = 100
+    t_eval = np.linspace(IVP.t0, IVP.tmax, N)
     reference_sol = solve_ivp(
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
+        t_eval=t_eval,
         # method="LSODA",
         # jac=IVP.df,
     )
-    d = len(IVP.y0)
-    t, y = reference_sol.t, reference_sol.y[:d//2, :]
-    d = len(y[:, 1])
-    _d = int(d ** (1/2))
-    N = len(reference_sol.t)
+    d = len(IVP.y0) // 2
+    t, y = reference_sol.t, reference_sol.y[:d, :]
+    _d = int(d ** (1 / 2))
+
     fig = plt.figure()
     ax = plt.axes(projection="3d")
     _x, _y = np.meshgrid(np.arange(_d), np.arange(_d))
     camera = Camera(fig)
-    for i in range(0, N, 50):
+    for i in range(0, N, 2):
         _z = y[:, i].reshape(_d, _d)
         surf = ax.plot_surface(_x, _y, _z, cmap="coolwarm", vmin=-0.5, vmax=0.5)
         ax.text(0, 30, 1, f"t={t[i]:.10f}")
@@ -121,7 +129,6 @@ def wave_2d_gif_3d():
     fig.colorbar(surf, extend="both")
     animation = camera.animate()
     animation.save("wave_2d_3d.gif")
-
 
 
 def fhn_2d_gif():
