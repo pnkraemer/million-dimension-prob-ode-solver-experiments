@@ -132,7 +132,7 @@ def wave_2d_gif_3d():
 
 
 def fhn_2d_gif():
-    IVP = tornadox.ivp.fhn_2d(bbox=[[-1.0, -1.0], [1.0, 1.0]])
+    IVP = tornadox.ivp.fhn_2d(bbox=[[-2.0, -2.0], [2.0, 2.0]])
     N = 100
     t_eval = np.linspace(IVP.t0, IVP.tmax, N)
     reference_sol = solve_ivp(
@@ -150,10 +150,7 @@ def fhn_2d_gif():
     fig = plt.figure()
     camera = Camera(fig)
     for i in range(0, N, 2):
-        plt.imshow(
-            y[:, i].reshape(_d, _d),
-            # cmap="bwr", vmin=-1, vmax=1
-        )
+        plt.imshow(y[:, i].reshape(_d, _d), cmap="coolwarm", vmin=-1, vmax=1)
         plt.text(0, 2, f"t={t[i]:.10f}")
         camera.snap()
     plt.colorbar(extend="both")
