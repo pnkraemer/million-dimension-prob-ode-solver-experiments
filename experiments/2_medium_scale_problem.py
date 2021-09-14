@@ -12,12 +12,14 @@ from tornadox.ek1 import *
 
 from hose import plotting
 
-IVP = tornadox.ivp.pleiades()
+# IVP = tornadox.ivp.pleiades()
+IVP = tornadox.ivp.lorenz96()
 reference_sol = solve_ivp(
     fun=IVP.f,
     t_span=(IVP.t0, IVP.tmax),
     y0=IVP.y0,
     method="LSODA",
+    jac=IVP.df,
     atol=1e-13,
     rtol=1e-13,
 )
@@ -41,7 +43,10 @@ class MediumScaleExperiment:
 
     def check_solve(self):
         steprule = tornadox.step.AdaptiveSteps(abstol=self.atol, reltol=self.rtol)
-        solver = self.alg(num_derivatives=self.num_derivatives, steprule=steprule)
+        solver = self.alg(num_derivatives=self.num_derivatives,
+                          steprule=steprule,
+                          initialization=tornadox.init.RungeKutta(),
+                          )
 
         def _run_solve():
             return solver.solve(IVP)
@@ -87,7 +92,7 @@ class MediumScaleExperiment:
     def time_function(self, fun):
         # Average time, not minimum time, because we do not want to accidentally
         # run into some of JAX's lazy-execution-optimisation.
-        avg_time = timeit.Timer(fun).timeit(number=1)
+        avg_time = timeit.Timer(fun).timeit(number=2)
         return avg_time
 
 
@@ -101,14 +106,14 @@ if not result_dir.is_dir():
 
 ALGS = [
     ReferenceEK0,
-    KroneckerEK0,
+    # KroneckerEK0,
     DiagonalEK0,
     ReferenceEK1,
     DiagonalEK1,
 ]
 
-ATOLS = 1 / 10 ** jnp.arange(4, 12)
-RTOLS = 1 / 10 ** jnp.arange(1, 9)
+ATOLS = 1 / 10 ** jnp.arange(5, 11)
+RTOLS = 1 / 10 ** jnp.arange(2, 8)
 NUM_DERIVS = (5,)
 
 EXPERIMENTS = [
