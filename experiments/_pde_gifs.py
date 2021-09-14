@@ -1,22 +1,7 @@
-"""This experiment evaluates whether one can 'properly solve' a high-dimensional problem.
-
-The goal is to show that with all the changes, high-dimensional ODE solvers are *possible.*
-
-The example is taken from:
-https://gist.github.com/ChrisRackauckas/cc6ac746e2dfd285c28e0584a2bfd320
-
-
-For the moment, there is no point in running this benchmark with the probabilistic solver as well.
-(I tried, it explodes for some reason on this problem. No idea why.)
-"""
 import numpy as np
-import tqdm
 import tornadox
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
-
-from hose import plotting
-
 
 from celluloid import Camera
 
