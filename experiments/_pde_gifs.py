@@ -28,8 +28,8 @@ def wave_1d_gif():
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
-        method="LSODA",
-        jac=IVP.df,
+        # method="LSODA",
+        # jac=IVP.df,
     )
     d = len(IVP.y0)
     t, y = reference_sol.t, reference_sol.y[:d//2, :]
@@ -52,8 +52,8 @@ def burgers_1d_gif():
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
-        method="LSODA",
-        jac=IVP.df,
+        # method="LSODA",
+        # jac=IVP.df,
     )
     d = len(IVP.y0)
     t, y = reference_sol.t, reference_sol.y
@@ -75,8 +75,8 @@ def wave_2d_gif():
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
-        method="LSODA",
-        jac=IVP.df,
+        # method="LSODA",
+        # jac=IVP.df,
     )
     d = len(IVP.y0)
     t, y = reference_sol.t, reference_sol.y[:d//2, :]
@@ -100,8 +100,8 @@ def wave_2d_gif_3d():
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
-        method="LSODA",
-        jac=IVP.df,
+        # method="LSODA",
+        # jac=IVP.df,
     )
     d = len(IVP.y0)
     t, y = reference_sol.t, reference_sol.y[:d//2, :]
@@ -130,8 +130,8 @@ def fhn_2d_gif():
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
-        method="LSODA",
-        jac=IVP.df,
+        # method="LSODA",
+        # jac=IVP.df,
     )
     d = len(IVP.y0)
     t, y = reference_sol.t, reference_sol.y[:d//2, :]
