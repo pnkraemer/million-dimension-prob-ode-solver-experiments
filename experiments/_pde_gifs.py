@@ -132,28 +132,30 @@ def wave_2d_gif_3d():
 
 
 def fhn_2d_gif():
-    IVP = tornadox.ivp.fhn_2d(dx=0.01)
+    IVP = tornadox.ivp.fhn_2d(bbox=[[-1.0, -1.0], [1.0, 1.0]])
+    N = 100
+    t_eval = np.linspace(IVP.t0, IVP.tmax, N)
     reference_sol = solve_ivp(
         fun=IVP.f,
         t_span=(IVP.t0, IVP.tmax),
         y0=IVP.y0,
+        t_eval=t_eval,
         # method="LSODA",
         # jac=IVP.df,
     )
-    d = len(IVP.y0)
-    t, y = reference_sol.t, reference_sol.y[:d//2, :]
-    d = len(y[:, 1])
-    _d = int(d ** (1/2))
-    N = len(reference_sol.t)
+    d = len(IVP.y0) // 2
+    t, y = reference_sol.t, reference_sol.y[:d, :]
+    _d = int(d ** (1 / 2))
 
     fig = plt.figure()
     camera = Camera(fig)
-    for i in range(0, N, 10):
-        plt.imshow(y[:, i].reshape(_d, _d),
-                   # cmap="bwr", vmin=-1, vmax=1
-                   )
+    for i in range(0, N, 2):
+        plt.imshow(
+            y[:, i].reshape(_d, _d),
+            # cmap="bwr", vmin=-1, vmax=1
+        )
         plt.text(0, 2, f"t={t[i]:.10f}")
         camera.snap()
-    plt.colorbar(extend='both')
+    plt.colorbar(extend="both")
     animation = camera.animate()
     animation.save("fhn_2d.gif")
