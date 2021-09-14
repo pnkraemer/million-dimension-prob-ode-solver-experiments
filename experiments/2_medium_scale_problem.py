@@ -6,9 +6,9 @@ import jax.numpy as jnp
 import numpy as np
 import pandas as pd
 import tornadox
+from scipy.integrate import solve_ivp
 from tornadox.ek0 import *
 from tornadox.ek1 import *
-from scipy.integrate import solve_ivp
 
 from hose import plotting
 
