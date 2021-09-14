@@ -12,8 +12,8 @@ from tornadox.ek1 import *
 
 from hose import plotting
 
-# IVP = tornadox.ivp.pleiades()
-IVP = tornadox.ivp.lorenz96()
+IVP = tornadox.ivp.pleiades()
+# IVP = tornadox.ivp.lorenz96()
 reference_sol = solve_ivp(
     fun=IVP.f,
     t_span=(IVP.t0, IVP.tmax),
@@ -43,10 +43,11 @@ class MediumScaleExperiment:
 
     def check_solve(self):
         steprule = tornadox.step.AdaptiveSteps(abstol=self.atol, reltol=self.rtol)
-        solver = self.alg(num_derivatives=self.num_derivatives,
-                          steprule=steprule,
-                          initialization=tornadox.init.RungeKutta(),
-                          )
+        solver = self.alg(
+            num_derivatives=self.num_derivatives,
+            steprule=steprule,
+            initialization=tornadox.init.RungeKutta(),
+        )
 
         def _run_solve():
             return solver.solve(IVP)
