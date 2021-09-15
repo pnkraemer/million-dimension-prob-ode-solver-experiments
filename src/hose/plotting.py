@@ -40,6 +40,7 @@ LINESTYLES = ["-", "--", ":", "-.", "-", "--", ":", "-."]
 NICER_METHOD_NAME = {
     "KroneckerEK0": "EK0 (Kron.)",
     "ReferenceEK0": "EK0 (Trad.)",
+    "DiagonalEK0": "EK0 (Diag.)",
     "ReferenceEK1": "EK1 (Trad.)",
     "DiagonalEK1": "EK1 (Diag.)",
     "TruncationEK1": "EK1 (Trunc.)",
@@ -58,6 +59,7 @@ REF_LINESTYLE = "-"
 MATCH_STYLE = {
     "KroneckerEK0": (EK0_color, "dotted", "o"),
     "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^"),
+    "DiagonalEK0": (EK0_color, "-.", "s"),
     "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d"),
     "DiagonalEK1": (EK1_color, "-.", "s"),
     "TruncationEK1": (EK1_color, "dashed", "p"),
@@ -163,13 +165,14 @@ def plot_exp_2(run_path):
 
     file_path = pathlib.Path(run_path)
     dataframe = pd.read_csv(file_path, sep=";")
+    print(dataframe)
 
     all_methods = [
-        "ek1_reference",
-        "ek0_reference",
-        "ek1_truncated",
-        "ek0_kronecker",
-        "ek1_diagonal",
+        "ReferenceEK0",
+        "KroneckerEK0",
+        "DiagonalEK0",
+        "ReferenceEK1",
+        "DiagonalEK1",
     ]
 
     def _inject_dataframe(_ax, _dataframe):
@@ -184,9 +187,9 @@ def plot_exp_2(run_path):
                 label_order = rf"$\nu={nu}$"
                 label = label_method + ", " + label_order
 
-                _ax.plot(
-                    res_dataframe["time_solve"],
+                _ax.loglog(
                     res_dataframe["deviation"],
+                    res_dataframe["time_solve"],
                     label=label,
                     marker=marker,
                     color=color,
@@ -203,8 +206,10 @@ def plot_exp_2(run_path):
     # --- Plot
 
     figure_size = (
-        AISTATS_TEXTWIDTH_SINGLE,
-        AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        # AISTATS_TEXTWIDTH_SINGLE,
+        # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_LINEWIDTH_DOUBLE,
+        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
     )
 
     figure = plt.figure(figsize=figure_size)
@@ -213,12 +218,11 @@ def plot_exp_2(run_path):
     # Axis 1 parameters
     ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
-    ax_1.set_xscale("log")
-    ax_1.set_yscale("log")
     ax_1.set_title("Work-precision diagram", fontsize="medium")
-    ax_1.set_ylabel("relative L2 deviation")
-    ax_1.set_xlabel("Run-time [sec]")
+    ax_1.set_xlabel("relative L2 deviation")
+    ax_1.set_ylabel("Run-time [sec]")
     _inject_dataframe(ax_1, dataframe)
+    figure.tight_layout()
 
     # Legend
     handles, labels = ax_1.get_legend_handles_labels()
