@@ -50,17 +50,17 @@ class MediumScaleExperiment:
         )
 
         def _run_solve():
-            return solver.solve(IVP)
+            return solver.simulate_final_state(IVP)
 
-        solution = _run_solve()
-        end_state = solution.mean[-1, 0, :]
+        final_state, info = _run_solve()
+        end_state = final_state.y.mean
 
-        self.result["n_steps"] = len(solution.t)
+        self.result["n_steps"] = info["num_steps"]
+        self.result["nf"] = info["num_f_evaluations"]
         self.result["time_solve"] = self.time_function(_run_solve)
-        self.result["deviation"] = (
-            jnp.linalg.norm((end_state - reference_state) / reference_state)
-            / reference_state.size
-        )
+        self.result["deviation"] = jnp.linalg.norm(
+            (end_state - reference_state) / reference_state
+        ) / jnp.sqrt(reference_state.size)
         return None
 
     def to_dataframe(self):
@@ -107,7 +107,7 @@ if not result_dir.is_dir():
 
 ALGS = [
     ReferenceEK0,
-    # KroneckerEK0,
+    KroneckerEK0,
     DiagonalEK0,
     ReferenceEK1,
     DiagonalEK1,
