@@ -64,7 +64,7 @@ def plot_y(y):
 # fig.savefig("RK45.png")
 
 # Plot our solution
-fig = plot_y(means[-1][0, :])
+fig = plot_y(ys[-1])
 plt.title("KroneckerEK0")
-plt.show()
-# fig.savefig("KroneckerEK0.png")
+# plt.show()
+fig.savefig("KroneckerEK0.pdf")
