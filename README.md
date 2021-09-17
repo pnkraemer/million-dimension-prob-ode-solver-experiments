@@ -1,1 +1,3 @@
-# high-dimensional-ode-solver
+# high-dimensional-ode-solver-experiments
+
+Short: "hose".
