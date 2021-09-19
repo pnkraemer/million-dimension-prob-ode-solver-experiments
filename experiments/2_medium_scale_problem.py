@@ -101,6 +101,84 @@ class MediumScaleExperiment:
         return avg_time
 
 
+class ScipyExperiment(MediumScaleExperiment):
+    def __init__(
+        self,
+        alg,
+        atol,
+        rtol,
+    ) -> None:
+        super().__init__(alg, atol, rtol, num_derivatives=0)
+
+    def check_solve(self):
+        def _run_solve(i=10):
+            return solve_ivp(
+                fun=IVP.f,
+                y0=IVP.y0,
+                t_span=(IVP.t0, IVP.tmax),
+                method=self.alg,
+                atol=self.atol,
+                rtol=self.rtol,
+                jac=IVP.df,
+            )
+
+        sol = _run_solve(i=1)
+        end_state = sol.y[:, -1]
+
+        self.result["n_steps"] = len(sol.t)
+        self.result["nf"] = sol.nfev
+        self.result["time_solve"] = self.time_function(_run_solve)
+        self.result["deviation"] = jnp.linalg.norm(
+            (end_state - reference_state) / reference_state
+        ) / jnp.sqrt(reference_state.size)
+        return None
+
+    def to_dataframe(self):
+        def _aslist(arg):
+            try:
+                return list(arg)
+            except TypeError:
+                return [arg]
+
+        results = {k: _aslist(v) for k, v in self.result.items()}
+        return pd.DataFrame(
+            dict(
+                method=self.alg,  # line different to superclass
+                atol=self.atol,
+                rtol=self.rtol,
+                nu=self.num_derivatives,
+                **results,
+            ),
+        )
+
+
+def experiment_generator(algs, atols, rtols, num_derivs, ignore_exp):
+    """Generate all the experiments one by one."""
+
+    for (alg, (atol, rtol), nu) in itertools.product(
+        algs, zip(atols, rtols), num_derivs
+    ):
+
+        if not ignore_exp(alg, atol, rtol, nu):
+            yield MediumScaleExperiment(
+                alg=alg,
+                atol=atol,
+                rtol=rtol,
+                num_derivatives=nu,
+            )
+
+
+def experiment_generator_scipy(algs, atols, rtols):
+    """Generate all the experiments one by one."""
+
+    for (alg, (atol, rtol)) in itertools.product(algs, zip(atols, rtols)):
+        yield ScipyExperiment(
+            alg=alg,
+            atol=atol,
+            rtol=rtol,
+        )
+
+
 # ######################################################################################
 #   BEGIN EXPERIMENTS
 # ######################################################################################
@@ -110,35 +188,42 @@ if not result_dir.is_dir():
     result_dir.mkdir(parents=True)
 
 ALGS = [
-    ReferenceEK0,
     KroneckerEK0,
     DiagonalEK0,
-    # ReferenceEK1,
     DiagonalEK1,
+    ReferenceEK1,
+    ReferenceEK0,
 ]
+
+ALGS_SCIPY = ["RK45", "Radau"]
 
 ATOLS = 1 / 10 ** jnp.arange(3, 13)
 RTOLS = 1 / 10 ** jnp.arange(3, 13)
 NUM_DERIVS = (4,)
 
-EXPERIMENTS = (
-    MediumScaleExperiment(
-        alg=alg,
-        atol=atol,
-        rtol=rtol,
-        num_derivatives=nu,
-    )
-    for (alg, (atol, rtol), nu) in itertools.product(
-        ALGS, zip(ATOLS, RTOLS), NUM_DERIVS
-    )
+REF_ALGS = [ReferenceEK0, ReferenceEK1]
+
+IGNORE_EXP = lambda alg, atol, rtol, nu: (
+    # For reference implementations, ignore too low accuracies
+    (alg in REF_ALGS and (atol < 1e-10 or rtol < 1e-10))
 )
+
+EXPERIMENTS = experiment_generator(ALGS, ATOLS, RTOLS, NUM_DERIVS, IGNORE_EXP)
+
+EXPERIMENTS_SCIPY = experiment_generator_scipy(ALGS_SCIPY, ATOLS, RTOLS)
 
 # Actual runs
 exp_data_frames = []
+for exp in EXPERIMENTS_SCIPY:
+    exp.check_solve()
+    print(exp)
+    exp_data_frames.append(exp.to_dataframe())
+
 for exp in EXPERIMENTS:
     exp.check_solve()
     print(exp)
     exp_data_frames.append(exp.to_dataframe())
+
 
 # Merge experiments into single data frame
 merged_data_frame = pd.concat(exp_data_frames, ignore_index=True)
