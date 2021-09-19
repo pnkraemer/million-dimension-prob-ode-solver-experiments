@@ -168,10 +168,8 @@ def plot_exp_2(run_path):
     print(dataframe)
 
     all_methods = [
-        "ReferenceEK0",
         "KroneckerEK0",
         "DiagonalEK0",
-        "ReferenceEK1",
         "DiagonalEK1",
     ]
 
@@ -208,8 +206,8 @@ def plot_exp_2(run_path):
     figure_size = (
         # AISTATS_TEXTWIDTH_SINGLE,
         # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
-        AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE,  # * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE,  # * HEIGHT_WIDTH_RATIO_SINGLE,
     )
 
     figure = plt.figure(figsize=figure_size)
@@ -219,23 +217,26 @@ def plot_exp_2(run_path):
     ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
     ax_1.set_title("Work-precision diagram", fontsize="medium")
-    ax_1.set_xlabel("relative L2 deviation")
-    ax_1.set_ylabel("Run-time [sec]")
+    ax_1.set_xlabel("RMSE at final state")
+    ax_1.set_ylabel("Run time [s]")
     _inject_dataframe(ax_1, dataframe)
-    figure.tight_layout()
 
-    # Legend
-    handles, labels = ax_1.get_legend_handles_labels()
-    figure.legend(
-        handles,
-        labels,
-        loc="lower center",
-        ncol=3,
+    plt.legend(
         fancybox=False,
         edgecolor="black",
         fontsize="small",
     ).get_frame().set_linewidth(MEDIUM)
-    figure.subplots_adjust(bottom=0.4)
+    figure.tight_layout()
+
+    # Legend
+    # handles, labels = ax_1.get_legend_handles_labels()
+    # figure.legend(
+    #     handles,
+    #     labels,
+    #     loc="lower center",
+    #     ncol=3,
+    # )
+    # figure.subplots_adjust(bottom=0.4)
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")

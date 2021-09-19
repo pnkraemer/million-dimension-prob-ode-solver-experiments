@@ -110,15 +110,15 @@ if not result_dir.is_dir():
     result_dir.mkdir(parents=True)
 
 ALGS = [
-    # ReferenceEK0,
+    ReferenceEK0,
     KroneckerEK0,
     DiagonalEK0,
     # ReferenceEK1,
     DiagonalEK1,
 ]
 
-ATOLS = 1 / 10 ** jnp.arange(2, 13)
-RTOLS = 1 / 10 ** jnp.arange(2, 13)
+ATOLS = 1 / 10 ** jnp.arange(3, 13)
+RTOLS = 1 / 10 ** jnp.arange(3, 13)
 NUM_DERIVS = (4,)
 
 EXPERIMENTS = (
