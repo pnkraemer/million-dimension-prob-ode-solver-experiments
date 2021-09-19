@@ -12,18 +12,20 @@ from tornadox.ek1 import *
 
 from hose import plotting
 
+# IVP = tornadox.ivp.pleiades()
+IVP = tornadox.ivp.fhn_2d(bbox=[[-1.0, -1.0], [1.0, 1.0]], dx=0.5)
 IVP = tornadox.ivp.pleiades()
-# IVP = tornadox.ivp.lorenz96()
 reference_sol = solve_ivp(
     fun=IVP.f,
     t_span=(IVP.t0, IVP.tmax),
     y0=IVP.y0,
     method="LSODA",
-    jac=IVP.df,
-    atol=1e-13,
-    rtol=1e-13,
+    atol=1e-12,
+    rtol=1e-12,
 )
 reference_state = reference_sol.y[:, -1]
+
+print("Ref done")
 
 
 class MediumScaleExperiment:
@@ -46,14 +48,16 @@ class MediumScaleExperiment:
         solver = self.alg(
             num_derivatives=self.num_derivatives,
             steprule=steprule,
-            initialization=tornadox.init.RungeKutta(),
+            initialization=tornadox.init.CompiledRungeKutta(dt=0.01, use_df=True),
         )
 
-        def _run_solve():
-            return solver.simulate_final_state(IVP)
+        def _run_solve(i=10):
+            return solver.simulate_final_state(
+                IVP, compile_step=True, compile_init=False
+            )
 
-        final_state, info = _run_solve()
-        end_state = final_state.y.mean
+        final_state, info = _run_solve(i=1)
+        end_state = final_state.y.mean[0]
 
         self.result["n_steps"] = info["num_steps"]
         self.result["nf"] = info["num_f_evaluations"]
@@ -93,7 +97,7 @@ class MediumScaleExperiment:
     def time_function(self, fun):
         # Average time, not minimum time, because we do not want to accidentally
         # run into some of JAX's lazy-execution-optimisation.
-        avg_time = timeit.Timer(fun).timeit(number=2)
+        avg_time = timeit.Timer(fun).timeit(number=1)
         return avg_time
 
 
@@ -106,18 +110,18 @@ if not result_dir.is_dir():
     result_dir.mkdir(parents=True)
 
 ALGS = [
-    ReferenceEK0,
+    # ReferenceEK0,
     KroneckerEK0,
     DiagonalEK0,
-    ReferenceEK1,
+    # ReferenceEK1,
     DiagonalEK1,
 ]
 
-ATOLS = 1 / 10 ** jnp.arange(5, 11)
-RTOLS = 1 / 10 ** jnp.arange(2, 8)
-NUM_DERIVS = (5,)
+ATOLS = 1 / 10 ** jnp.arange(2, 13)
+RTOLS = 1 / 10 ** jnp.arange(2, 13)
+NUM_DERIVS = (4,)
 
-EXPERIMENTS = [
+EXPERIMENTS = (
     MediumScaleExperiment(
         alg=alg,
         atol=atol,
@@ -127,7 +131,7 @@ EXPERIMENTS = [
     for (alg, (atol, rtol), nu) in itertools.product(
         ALGS, zip(ATOLS, RTOLS), NUM_DERIVS
     )
-]
+)
 
 # Actual runs
 exp_data_frames = []
