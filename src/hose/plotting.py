@@ -216,6 +216,8 @@ def plot_exp_2(run_path):
         for spine in _ax.spines:
             _ax.spines[spine].set_linewidth(MEDIUM)
 
+        _ax.tick_params(labelsize="x-small")
+
     # --- Plot
 
     figure_size = (
@@ -232,8 +234,8 @@ def plot_exp_2(run_path):
     ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
     # ax_1.set_title("Pleiades", fontsize="medium")
-    ax_1.set_xlabel("RMSE at final state")
-    ax_1.set_ylabel("Run time [s]")
+    ax_1.set_xlabel("RMSE at final state", fontsize="small")
+    ax_1.set_ylabel("Run time [s]", fontsize="small")
     _inject_dataframe(ax_1, dataframe)
 
     # plt.legend(
