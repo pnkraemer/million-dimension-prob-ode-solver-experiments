@@ -53,7 +53,7 @@ NICER_METHOD_NAME = {
 
 
 # Custom line-widths. Used for the actual curves in the plot.
-# Thin(nish) defaults are set in ./source/lines_and_ticks.mplstyle.
+# Thin(nish) defaults are set in ./src/hose/lines_and_ticks.mplstyle.
 THICK = 1.8
 MEDIUM = 0.5
 THIN = 0.2
@@ -84,7 +84,7 @@ def plot_exp_1(run_path):
     """Plot the results from the first experiment."""
 
     # Open sans font with fontsize=8; default lines are thin.
-    plt.style.use(["./source/font.mplstyle", "./source/lines_and_ticks.mplstyle"])
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
     # Load results
     file_path = pathlib.Path(run_path)
