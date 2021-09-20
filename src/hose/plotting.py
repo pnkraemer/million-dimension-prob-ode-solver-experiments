@@ -364,7 +364,6 @@ def plot_figure1(result_dir):
         AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 1.5,
     )
 
-
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
     fig, axes = plt.subplots(
@@ -410,23 +409,24 @@ def plot_figure1(result_dir):
 
     # Left column configs
     for axes_row in axes:
-        axes_row[0].set_yticklabels((1.0, 0.5, 0.), fontsize="small")
+        axes_row[0].set_yticklabels((1.0, 0.5, 0.0), fontsize="small")
         axes_row[0].set_ylabel("$x_2$-coord.", fontsize="medium")
 
     # Bottom row
     for axis in axes[1]:
-        axis.set_xticklabels((.0, 0.5, 1.0), fontsize="small")
+        axis.set_xticklabels((0.0, 0.5, 1.0), fontsize="small")
         axis.set_xlabel("$x_1$-coord.", fontsize="medium")
-    mean_cb = fig.colorbar(mean_map, ax=axes[0, -1], extend="both", aspect=12, shrink=0.82)
+    mean_cb = fig.colorbar(
+        mean_map, ax=axes[0, -1], extend="both", aspect=12, shrink=0.82
+    )
     std_cb = fig.colorbar(std_map, ax=axes[1, -1], extend="max", aspect=12, shrink=0.82)
 
     # Format the colorbars
     mean_cb.ax.tick_params(labelsize="small")
-    mean_cb.set_ticks((-1., 0., 1.))
+    mean_cb.set_ticks((-1.0, 0.0, 1.0))
     std_cb.ax.tick_params(labelsize="small")
-    std_cb.set_ticks((0., 1e-5, 2e-5, 3e-5))
-    std_cb.set_ticklabels((0., "$10^{-5}$","$2\cdot 10^{-5}$", "$3\cdot 10^{-5}$"))
-
+    std_cb.set_ticks((0.0, 1e-5, 2e-5, 3e-5))
+    std_cb.set_ticklabels((0.0, "$10^{-5}$", "$2\cdot 10^{-5}$", "$3\cdot 10^{-5}$"))
 
     fig.savefig(result_dir / "figure1.pdf")
     plt.show()
