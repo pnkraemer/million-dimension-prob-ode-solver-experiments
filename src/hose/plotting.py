@@ -54,7 +54,7 @@ NICER_METHOD_NAME = {
 
 
 # Custom line-widths. Used for the actual curves in the plot.
-# Thin(nish) defaults are set in ./source/lines_and_ticks.mplstyle.
+# Thin(nish) defaults are set in ./src/hose/lines_and_ticks.mplstyle.
 THICK = 2.2
 MEDIUM = 0.5
 THIN = 0.2
