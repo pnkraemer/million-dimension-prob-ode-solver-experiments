@@ -2,6 +2,7 @@ import pathlib
 import tornadox
 import jax.numpy as jnp
 
+from hose import plotting
 
 # Specify the IVP
 IVP = tornadox.ivp.fhn_2d(bbox=[[-1.0, -1.0], [1.0, 1.0]], dx=0.02)
@@ -42,3 +43,6 @@ result_dir.mkdir(parents=True, exist_ok=True)
 jnp.save(result_dir / "times.npy", ts)
 jnp.save(result_dir / "means.npy", y_means)
 jnp.save(result_dir / "stddevs.npy", y_stds)
+
+# Plot the results
+plotting.plot_figure1(result_dir)
