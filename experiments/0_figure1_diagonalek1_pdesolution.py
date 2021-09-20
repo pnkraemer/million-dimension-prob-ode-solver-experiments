@@ -1,7 +1,6 @@
 import pathlib
 import tornadox
 import jax.numpy as jnp
-import matplotlib.pyplot as plt
 
 
 # Specify the IVP
@@ -43,25 +42,3 @@ result_dir.mkdir(parents=True, exist_ok=True)
 jnp.save(result_dir / "times.npy", ts)
 jnp.save(result_dir / "means.npy", y_means)
 jnp.save(result_dir / "stddevs.npy", y_stds)
-
-
-# Visualize
-d = D // 2
-_d = int(d ** (1 / 2))
-# Plot means
-for _t, _y in zip(ts, y_means):
-    fig = plt.figure()
-    cm = plt.imshow(_y[:d].reshape(_d, _d), vmin=-1, vmax=1)
-    plt.axis("off")
-    fig.colorbar(cm, extend="both")
-    fig.tight_layout()
-    fig.savefig(result_dir / f"mean_t={_t}.png")
-# Plot stddevs
-for _t, _y in zip(ts, y_stds):
-    fig = plt.figure()
-    cm = plt.imshow(_y[:d].reshape(_d, _d), vmin=0)
-    plt.axis("off")
-    fig.colorbar(cm, extend="max")
-    fig.tight_layout()
-    fig.savefig(result_dir / f"stddev_t={_t}.png")
-plt.close("all")
