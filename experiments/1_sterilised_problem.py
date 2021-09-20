@@ -184,23 +184,25 @@ NUM_REPETITIONS = 10
 # Select what is to be benchmarked.
 # Do not benchmark the truncation variants for now (because otherwise the plots become too cluttered)
 METHODS = (
+    tornadox.ek0.KroneckerEK0,
     tornadox.ek1.DiagonalEK1,
     tornadox.ek0.DiagonalEK0,
-    tornadox.ek0.KroneckerEK0,
     tornadox.ek0.ReferenceEK0,
     tornadox.ek1.ReferenceEK1,
-    # tornadox.ek1.TruncationEK1,
-    # tornadox.ek1.EarlyTruncationEK1,
-    # lambda *args, **kwargs: tornadox.enkf.EnK1(
-    #     *args, **kwargs, ensemble_size=100, prng_key=jax.random.PRNGKey(1)
-    # ),
 )
 NUM_DERIVS = (6, 4, 2)
 ODE_DIMS = (
-    # 8192*16,
-    8192*8,
-    8192*4,
-    8192*2,
+        16777216,
+    8388608,
+    4194304,
+    2097152,
+    1048576,
+    524288,
+    262144,
+    131072,
+    65536,
+    32768,
+    16384,
     8192,
     2048,
     512,
