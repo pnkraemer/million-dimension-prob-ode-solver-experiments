@@ -20,7 +20,7 @@ for _t, _y in zip(ts, y_means):
     plt.axis("off")
     fig.colorbar(cm, extend="both")
     fig.tight_layout()
-    fig.savefig(result_dir / f"mean_t={_t}.png")
+    fig.savefig(result_dir / f"mean_t={_t}.pdf")
 # Plot stddevs
 for _t, _y in zip(ts, y_stds):
     fig = plt.figure()
@@ -28,5 +28,5 @@ for _t, _y in zip(ts, y_stds):
     plt.axis("off")
     fig.colorbar(cm, extend="max")
     fig.tight_layout()
-    fig.savefig(result_dir / f"stddev_t={_t}.png")
+    fig.savefig(result_dir / f"stddev_t={_t}.pdf")
 plt.close("all")
