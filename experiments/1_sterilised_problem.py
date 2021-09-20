@@ -46,13 +46,13 @@ class SterilisedExperiment:
 
         # Set up solver and compute initial state
         steprule = tornadox.step.ConstantSteps(0.1)
-        init = tornadox.init.RungeKutta(use_df=False)
+        init = tornadox.init.CompiledRungeKutta(dt=0.001, use_df=False)
         self.solver = method(
             num_derivatives=num_derivatives,
             steprule=steprule,
             initialization=init,
         )
-        self.init_state = self.solver.initialize(self.ivp)
+        self.init_state = self.solver.initialize(*self.ivp)
 
         # Prepare results
         self.result = dict()
@@ -62,11 +62,11 @@ class SterilisedExperiment:
             """Manually do the repeated number of runs, because otherwise jax notices how the outputs are not reused anymore."""
 
             state, _ = self.solver.attempt_step(
-                state=self.init_state, dt=self.hyper_param_dict["dt"]
+                self.init_state, self.hyper_param_dict["dt"], *self.ivp
             )
             for _ in range(self.num_repetitions):
                 state, _ = self.solver.attempt_step(
-                    state=state, dt=self.hyper_param_dict["dt"]
+                    state, self.hyper_param_dict["dt"], *self.ivp
                 )
             return state.y.mean
 
@@ -184,18 +184,23 @@ NUM_REPETITIONS = 10
 # Select what is to be benchmarked.
 # Do not benchmark the truncation variants for now (because otherwise the plots become too cluttered)
 METHODS = (
-    tornadox.ek0.ReferenceEK0,
-    tornadox.ek0.KroneckerEK0,
-    tornadox.ek1.ReferenceEK1,
     tornadox.ek1.DiagonalEK1,
+    tornadox.ek0.DiagonalEK0,
+    tornadox.ek0.KroneckerEK0,
+    tornadox.ek0.ReferenceEK0,
+    tornadox.ek1.ReferenceEK1,
     # tornadox.ek1.TruncationEK1,
     # tornadox.ek1.EarlyTruncationEK1,
-    lambda *args, **kwargs: tornadox.enkf.EnK1(
-        *args, **kwargs, ensemble_size=100, prng_key=jax.random.PRNGKey(1)
-    ),
+    # lambda *args, **kwargs: tornadox.enkf.EnK1(
+    #     *args, **kwargs, ensemble_size=100, prng_key=jax.random.PRNGKey(1)
+    # ),
 )
-NUM_DERIVS = (8, 4, 2)
+NUM_DERIVS = (6, 4, 2)
 ODE_DIMS = (
+    # 8192*16,
+    8192*8,
+    8192*4,
+    8192*2,
     8192,
     2048,
     512,
@@ -203,7 +208,7 @@ ODE_DIMS = (
     32,
     8,
 )
-JIT = (True,)
+JIT = (False,)
 
 
 # Ignore specific, super costly combinations
@@ -219,7 +224,7 @@ IGNORE_EXP = lambda method, nu, d, is_jit: (
     # For truncated EK1 implementations, ignore even higher dims
     or (method in _CUBIC_METHODS and d > 256)
     # Use only the KroneckerEK0 in high dimensions
-    or (method != tornadox.ek0.KroneckerEK0 and d > 1024)
+    or (method != tornadox.ek0.KroneckerEK0 and d > 8192*4)
 )
 
 
@@ -241,4 +246,4 @@ MERGED_DATA_FRAME.to_csv(RESULT_FILE, sep=";", index=False)
 dict_to_dataframe(HYPER_PARAM_DICT).to_json(RESULT_DIR / "hparams.json", indent=2)
 
 # Plot results
-plotting.plot_exp_1b(RESULT_FILE)
+plotting.plot_exp_1(RESULT_FILE)

@@ -82,20 +82,26 @@ MATCH_STYLE = {
 
 def plot_exp_1(run_path):
     """Plot the results from the first experiment."""
-
     # Open sans font with fontsize=8; default lines are thin.
-    plt.style.use(["./source/font.mplstyle", "./source/lines_and_ticks.mplstyle"])
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
     # Load results
     file_path = pathlib.Path(run_path)
     dataframe_complete = pd.read_csv(file_path, sep=";")
     dataframe = dataframe_complete.loc[
-        dataframe_complete["jit"]
-    ]  # Ignore the non-jit experiments
+        ~dataframe_complete["jit"]
+    ]
 
     # Read derivative and method parameters
     nus = dataframe["nu"].unique()
-    methods = dataframe["method"].unique()
+    methods =  [
+        "ReferenceEK1",
+        "DiagonalEK1",
+        "ReferenceEK0",
+        "KroneckerEK0",
+        "DiagonalEK0",
+    ]
+
 
     # Create figure
     figure_size = (
@@ -103,7 +109,7 @@ def plot_exp_1(run_path):
         AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
     )
     figure, axes = plt.subplots(
-        ncols=len(nus), nrows=1, figsize=figure_size, sharey=True, sharex=True
+        ncols=3, nrows=1, figsize=figure_size, sharey=True, sharex=True, dpi=300
     )
 
     # One prior per figure
@@ -139,8 +145,8 @@ def plot_exp_1(run_path):
             ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
             # Unify the x-ticks for all plots
-            ax.set_xticks((1e1, 1e2, 1e3, 1e4))
-            ax.set_xlim((0.5 * 1e1, 2e4))
+            ax.set_xticks((1e1, 1e2, 1e3, 1e4, 1e5))
+            # ax.set_xlim((0.5 * 1e1, 2e4))
 
     # The leftmost plot gets a y-label -- the others share the y-axis-description
     axes[0].set_ylabel("Wall time [sec]")
@@ -159,13 +165,13 @@ def plot_exp_1(run_path):
         fancybox=False,
         edgecolor="black",
         fontsize="medium",
-        handlelength=5,
+        handlelength=4,
     ).get_frame().set_linewidth(MEDIUM)
     figure.subplots_adjust(bottom=0.28)
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
-
+    plt.show()
 
 def plot_exp_2(run_path):
     """Plot the results from the second experiment."""
