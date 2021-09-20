@@ -54,15 +54,15 @@ NICER_METHOD_NAME = {
 
 # Custom line-widths. Used for the actual curves in the plot.
 # Thin(nish) defaults are set in ./source/lines_and_ticks.mplstyle.
-THICK = 1.8
+THICK = 2.2
 MEDIUM = 0.5
 THIN = 0.2
 
 # A style per method. EK0s are one color, EK1s are another, EnKX are different as well.
 # Reference methods have full lines, the "sparse" ones do not.
 # The rest is randomly assigned
-EK0_color = "goldenrod"
-EK1_color = "cadetblue"
+EK0_color = "cadetblue"
+EK1_color = "goldenrod"
 EnK_color = "indianred"
 scipy_color = "gray"
 REF_LINESTYLE = "-"
@@ -88,20 +88,17 @@ def plot_exp_1(run_path):
     # Load results
     file_path = pathlib.Path(run_path)
     dataframe_complete = pd.read_csv(file_path, sep=";")
-    dataframe = dataframe_complete.loc[
-        ~dataframe_complete["jit"]
-    ]
+    dataframe = dataframe_complete.loc[~dataframe_complete["jit"]]
 
     # Read derivative and method parameters
     nus = dataframe["nu"].unique()
-    methods =  [
+    methods = [
         "ReferenceEK1",
         "DiagonalEK1",
         "ReferenceEK0",
         "KroneckerEK0",
         "DiagonalEK0",
     ]
-
 
     # Create figure
     figure_size = (
@@ -113,13 +110,14 @@ def plot_exp_1(run_path):
     )
 
     # One prior per figure
-    for nu, ax in zip(reversed(nus), axes):
+    for nu, ax, letter in zip(reversed(nus), axes, ["a", "b", "c"]):
 
         # Extract data for given nu
         nu_dataframe = dataframe.loc[dataframe["nu"] == nu]
 
         # Description for the figure
-        ax.set_title(rf"IWP({nu})")
+        # ax.set_title(r"$\bf a.$" + "  ",  fontweight="bold", ha="right")
+        ax.set_title(rf"$\bf {letter}.$" + rf"IWP({nu})",loc="left", fontsize="medium")
         ax.set_xlabel("ODE dimension")
 
         # One line/curve per method
@@ -145,7 +143,7 @@ def plot_exp_1(run_path):
             ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
             # Unify the x-ticks for all plots
-            ax.set_xticks((1e1, 1e2, 1e3, 1e4, 1e5))
+            ax.set_xticks((1e1, 1e3, 1e5, 1e7))
             # ax.set_xlim((0.5 * 1e1, 2e4))
 
     # The leftmost plot gets a y-label -- the others share the y-axis-description
@@ -172,6 +170,7 @@ def plot_exp_1(run_path):
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
     plt.show()
+
 
 def plot_exp_2(run_path):
     """Plot the results from the second experiment."""

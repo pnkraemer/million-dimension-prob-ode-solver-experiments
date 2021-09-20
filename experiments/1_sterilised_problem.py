@@ -192,7 +192,7 @@ METHODS = (
 )
 NUM_DERIVS = (6, 4, 2)
 ODE_DIMS = (
-        16777216,
+    16777216,
     8388608,
     4194304,
     2097152,
@@ -226,7 +226,7 @@ IGNORE_EXP = lambda method, nu, d, is_jit: (
     # For truncated EK1 implementations, ignore even higher dims
     or (method in _CUBIC_METHODS and d > 256)
     # Use only the KroneckerEK0 in high dimensions
-    or (method != tornadox.ek0.KroneckerEK0 and d > 8192*4)
+    or (method != tornadox.ek0.KroneckerEK0 and d > 8192 * 4)
 )
 
 
