@@ -19,6 +19,7 @@ AISTATS_TEXTWIDTH_SINGLE = 3.25
 # Currently optimised for three columns.
 # Check the plot for experiment 1 if this parameter is changed.
 HEIGHT_WIDTH_RATIO_SINGLE = 0.35
+HEIGHT_WIDTH_RATIO_NEW = 0.45
 
 
 # Colors, markers, and linestyles. The colors are the tufte-color-scheme (I lost the link...)
@@ -47,8 +48,16 @@ NICER_METHOD_NAME = {
     "TruncationEK1": "EK1 (Trunc.)",
     "EarlyTruncationEK1": "EK1 (early Trunc.)",
     "EnK1": "EnK1",  # Can we get the ensemble size in here somehow?
+    "RK45": "RK45 (SciPy)",
+    "Radau": "Radau (SciPy)",
 }
 
+
+# Custom line-widths. Used for the actual curves in the plot.
+# Thin(nish) defaults are set in ./src/hose/lines_and_ticks.mplstyle.
+THICK = 1.8
+MEDIUM = 0.5
+THIN = 0.2
 
 # A style per method. EK0s are one color, EK1s are another, EnKX are different as well.
 # Reference methods have full lines, the "sparse" ones do not.
@@ -56,30 +65,27 @@ NICER_METHOD_NAME = {
 EK0_color = "goldenrod"
 EK1_color = "cadetblue"
 EnK_color = "indianred"
+scipy_color = "gray"
 REF_LINESTYLE = "-"
 MATCH_STYLE = {
-    "KroneckerEK0": (EK0_color, "dotted", "o"),
-    "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^"),
-    "DiagonalEK0": (EK0_color, "-.", "s"),
-    "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d"),
-    "DiagonalEK1": (EK1_color, "-.", "s"),
-    "TruncationEK1": (EK1_color, "dashed", "p"),
-    "EarlyTruncationEK1": (EK1_color, "dotted", "^"),
-    "EnK1": (EnK_color, "dashed", "s"),
+    "KroneckerEK0": (EK0_color, "dotted", "o", 0.9, THICK),
+    "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^", 0.9, THICK),
+    "DiagonalEK0": (EK0_color, "-.", "s", 0.9, THICK),
+    "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d", 0.9, THICK),
+    "DiagonalEK1": (EK1_color, "-.", "s", 0.9, THICK),
+    "TruncationEK1": (EK1_color, "dashed", "p", 0.9, THICK),
+    "EarlyTruncationEK1": (EK1_color, "dotted", "^", 0.9, THICK),
+    "EnK1": (EnK_color, "dashed", "s", 0.9, THICK),
+    "RK45": (scipy_color, "dashed", "P", 0.5, 2 * THICK),
+    "Radau": (scipy_color, "dashed", "X", 0.5, 2 * THICK),
 }
-
-# Custom line-widths. Used for the actual curves in the plot.
-# Thin(nish) defaults are set in ./source/lines_and_ticks.mplstyle.
-THICK = 1.8
-MEDIUM = 0.5
-THIN = 0.2
 
 
 def plot_exp_1(run_path):
     """Plot the results from the first experiment."""
 
     # Open sans font with fontsize=8; default lines are thin.
-    plt.style.use(["./source/font.mplstyle", "./source/lines_and_ticks.mplstyle"])
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
     # Load results
     file_path = pathlib.Path(run_path)
@@ -114,7 +120,7 @@ def plot_exp_1(run_path):
         # One line/curve per method
         for method in methods:
             res_dataframe = nu_dataframe.loc[nu_dataframe["method"] == method]
-            color, ls, marker = MATCH_STYLE[method]
+            color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
             ax.loglog(
                 res_dataframe["d"],
                 res_dataframe["time_attempt_step"],
@@ -123,7 +129,8 @@ def plot_exp_1(run_path):
                 markersize=5,
                 color=color,
                 linestyle=ls,
-                linewidth=THICK,
+                linewidth=linewidth,
+                alpha=alpha,
                 markeredgecolor="black",
                 markeredgewidth=0.3,
             )
@@ -169,33 +176,39 @@ def plot_exp_2(run_path):
     print(dataframe)
 
     all_methods = [
+        "ReferenceEK1",
         "ReferenceEK0",
         "KroneckerEK0",
         "DiagonalEK0",
-        "ReferenceEK1",
         "DiagonalEK1",
+        "RK45",
+        "Radau",
     ]
 
     def _inject_dataframe(_ax, _dataframe):
         """Provided axes and dataframe, plot the exp 1 data into the axis."""
         for method in all_methods:
-            color, ls, marker = MATCH_STYLE[method]
+            color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
             method_dataframe = _dataframe.loc[_dataframe["method"] == method]
             nus = method_dataframe["nu"].unique()
             for nu in nus:
                 res_dataframe = method_dataframe.loc[method_dataframe["nu"] == nu]
                 label_method = f"{NICER_METHOD_NAME[method]}"
                 label_order = rf"$\nu={nu}$"
-                label = label_method + ", " + label_order
+                if method in ["Radau", "RK45"]:
+                    label = label_method
+                else:
+                    label = label_method + ", " + label_order
 
                 _ax.loglog(
                     res_dataframe["deviation"],
                     res_dataframe["time_solve"],
-                    label=label,
+                    label=label_method,
                     marker=marker,
                     color=color,
                     linestyle=ls,
-                    linewidth=THICK,
+                    linewidth=linewidth,
+                    alpha=alpha,
                     markeredgecolor="black",
                     markeredgewidth=0.2,
                 )
@@ -204,13 +217,15 @@ def plot_exp_2(run_path):
         for spine in _ax.spines:
             _ax.spines[spine].set_linewidth(MEDIUM)
 
+        _ax.tick_params(labelsize="x-small")
+
     # --- Plot
 
     figure_size = (
         # AISTATS_TEXTWIDTH_SINGLE,
         # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
-        AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.7,
     )
 
     figure = plt.figure(figsize=figure_size)
@@ -219,24 +234,28 @@ def plot_exp_2(run_path):
     # Axis 1 parameters
     ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
-    ax_1.set_title("Work-precision diagram", fontsize="medium")
-    ax_1.set_xlabel("relative L2 deviation")
-    ax_1.set_ylabel("Run-time [sec]")
+    # ax_1.set_title("Pleiades", fontsize="medium")
+    ax_1.set_xlabel("RMSE at final state", fontsize="small")
+    ax_1.set_ylabel("Run time [s]", fontsize="small")
     _inject_dataframe(ax_1, dataframe)
-    figure.tight_layout()
+
+    # plt.legend(
+    #     fancybox=False,
+    #     edgecolor="black",
+    #     fontsize="small",
+    # ).get_frame().set_linewidth(MEDIUM)
 
     # Legend
-    handles, labels = ax_1.get_legend_handles_labels()
-    figure.legend(
-        handles,
-        labels,
-        loc="lower center",
-        ncol=3,
+    # handles, labels = ax_1.get_legend_handles_labels()
+    plt.legend(
+        loc="center left",
+        bbox_to_anchor=(1, 0.5),
         fancybox=False,
         edgecolor="black",
-        fontsize="small",
+        fontsize="xx-small",
     ).get_frame().set_linewidth(MEDIUM)
-    figure.subplots_adjust(bottom=0.4)
+    # figure.subplots_adjust(right=0.4)
+    figure.tight_layout()
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
