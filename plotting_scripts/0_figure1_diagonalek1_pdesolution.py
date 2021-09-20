@@ -16,7 +16,9 @@ _d = int(d ** (1 / 2))
 # Plot means
 for _t, _y in zip(ts, y_means):
     fig = plt.figure()
-    cm = plt.imshow(_y[:d].reshape(_d, _d), cmap=cmap_means, vmin=-1, vmax=1)
+    cm = plt.imshow(
+        _y[:d].reshape(_d, _d), cmap=cmap_means, vmin=-1, vmax=1, interpolation="none"
+    )
     plt.axis("off")
     fig.colorbar(cm, extend="both")
     fig.tight_layout()
@@ -24,7 +26,9 @@ for _t, _y in zip(ts, y_means):
 # Plot stddevs
 for _t, _y in zip(ts, y_stds):
     fig = plt.figure()
-    cm = plt.imshow(_y[:d].reshape(_d, _d), cmap=cmap_stds, vmin=0)
+    cm = plt.imshow(
+        _y[:d].reshape(_d, _d), cmap=cmap_stds, vmin=0, interpolation="none"
+    )
     plt.axis("off")
     fig.colorbar(cm, extend="max")
     fig.tight_layout()
