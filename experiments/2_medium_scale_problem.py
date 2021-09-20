@@ -20,6 +20,7 @@ reference_sol = solve_ivp(
     t_span=(IVP.t0, IVP.tmax),
     y0=IVP.y0,
     method="LSODA",
+    jac=IVP.df,
     atol=1e-12,
     rtol=1e-12,
 )
