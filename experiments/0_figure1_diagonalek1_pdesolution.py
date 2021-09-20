@@ -1,6 +1,7 @@
 import pathlib
-import tornadox
+
 import jax.numpy as jnp
+import tornadox
 
 from hose import plotting
 
