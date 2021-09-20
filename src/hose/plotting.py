@@ -325,7 +325,7 @@ def plot_figure1(result_dir):
     y_means = jnp.load(result_dir / "means.npy")
     y_stds = jnp.load(result_dir / "stddevs.npy")
 
-    cmap_means, cmap_stds = "coolwarm", "Purples"
+    cmap_means, cmap_stds = "ocean", "Greens_r"
 
     # Visualize
     D = len(y_means[0])
@@ -349,10 +349,51 @@ def plot_figure1(result_dir):
     for _t, _y in zip(ts, y_stds):
         fig = plt.figure()
         cm = plt.imshow(
-            _y[:d].reshape(_d, _d), cmap=cmap_stds, vmin=0, interpolation="none"
+            _y[:d].reshape(_d, _d),
+            cmap=cmap_stds,
+            vmin=0,
+            interpolation="none",
+            vmax=3e-5,
         )
         plt.axis("off")
         fig.colorbar(cm, extend="max")
         fig.tight_layout()
         fig.savefig(result_dir / f"stddev_t={_t}.pdf")
+    plt.close("all")
+
+    idxs = [0, 1, 2, 4]
+    _ts = ts[idxs]  # _ts = [2, 5, 10, 20]
+
+    figure_size = (
+        AISTATS_LINEWIDTH_DOUBLE,
+        AISTATS_LINEWIDTH_DOUBLE * 1.3 * HEIGHT_WIDTH_RATIO_SINGLE,
+    )
+
+    fig, axes = plt.subplots(
+        2, len(idxs), figsize=figure_size, sharex="all", sharey="all"
+    )
+    for ax, i, t in zip(axes[0], idxs, _ts):
+        cm1 = ax.imshow(
+            y_means[i][:d].reshape(_d, _d),
+            cmap=cmap_means,
+            vmin=-1,
+            vmax=1,
+            interpolation="none",
+            extent=(-1, 1, -1, 1),
+        )
+        ax.set_title(f"t={t}")
+    for ax, i in zip(axes[1], idxs):
+        cm2 = ax.imshow(
+            y_stds[i][:d].reshape(_d, _d),
+            cmap=cmap_stds,
+            vmin=0,
+            vmax=3e-5,
+            interpolation="none",
+            extent=(-1, 1, -1, 1),
+        )
+    ax.set_yticks([-1, 0, 1])
+    fig.colorbar(cm1, extend="both", ax=axes[0, -1])
+    fig.colorbar(cm2, extend="max", ax=axes[1, -1])
+    fig.tight_layout()
+    fig.savefig(result_dir / "figure1.pdf")
     plt.close("all")
