@@ -1,12 +1,16 @@
 import pathlib
 
 import jax.numpy as jnp
+import jax.random
 import tornadox
 
 from hose import plotting
 
 # Specify the IVP
-IVP = tornadox.ivp.fhn_2d(bbox=[[-1.0, -1.0], [1.0, 1.0]], dx=0.02)
+key = jax.random.PRNGKey(seed=2)
+IVP = tornadox.ivp.fhn_2d(
+    bbox=[[0.0, 0.0], [0.5, 0.5]], dx=0.025, tmax=20.0, prng_key=key
+)
 D = len(IVP.y0)
 print(f"Dimension: {D}")
 
@@ -21,7 +25,7 @@ solver = tornadox.ek1.DiagonalEK1(
 
 
 # Solve the problem
-saveat = [2, 5, 10, 15, 20]
+saveat = [0.0, 4.0, 8.0, 16.0, 20.0]
 ts, y_means, y_vars = [], [], []
 for state, info in solver.solution_generator(IVP, stop_at=saveat, progressbar=True):
     if state.t in saveat:
