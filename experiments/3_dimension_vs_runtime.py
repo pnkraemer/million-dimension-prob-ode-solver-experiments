@@ -16,7 +16,8 @@ from hose import plotting
 TMAX = 20
 
 # dxs = [0.1, 0.05, 0.02, 0.01, 0.005, 0.002, 0.001]
-dxs = [0.1, 0.05, 0.02, 0.01, 0.005]
+# 0.005 takes 40 hours already! So for now let's do all the ones larger than that
+dxs = [0.01, 0.02, 0.05, 0.1]
 
 methods, methodnames = zip(
     *[
@@ -49,20 +50,22 @@ for dx in dxs:
     results["dimensions"].append(len(IVP.y0))
     print(f"\ndx={dx}; dimension={len(IVP.y0)}")
 
-    print(f"Start: RK45")
-    start = time.time()
-    reference_sol = solve_ivp(
-        fun=IVP.f,
-        t_span=(IVP.t0, IVP.tmax),
-        y0=IVP.y0,
-        method="RK45",
-        atol=1e-13,
-        rtol=1e-13,
-    )
-    elapsed = time.time() - start
-    reference_state = reference_sol.y[:, -1]
-    results["RK45_runtime"].append(elapsed)
-    print(f"Done in {elapsed}")
+    # print(f"Start: DOP853")
+    # start = time.time()
+    # reference_sol = solve_ivp(
+    #     fun=IVP.f,
+    #     t_span=(IVP.t0, IVP.tmax),
+    #     y0=IVP.y0,
+    #     # method="RK45",
+    #     method="DOP853",
+    #     atol=1e-13,
+    #     rtol=1e-13,
+    #     t_eval=[TMAX],
+    # )
+    # elapsed = time.time() - start
+    # reference_state = reference_sol.y[:, -1]
+    # results["DOP853_runtime"].append(elapsed)
+    # print(f"Done in {elapsed}")
 
     for solver in solvers:
         solvername = solver.__class__.__name__
@@ -81,11 +84,10 @@ for dx in dxs:
         results[f"{solvername}_runtime"].append(elapsed)
         print(f"Done in {elapsed}")
         # error = jnp.linalg.norm(state.y.mean[0] - reference_state)
-        rmse = jnp.linalg.norm(
-            (state.y.mean[0] - reference_state) / reference_state
-        ) / jnp.sqrt(reference_state.size)
-
-        results[f"{solvername}_errors"].append(rmse)
+        # rmse = jnp.linalg.norm(
+        #     (state.y.mean[0] - reference_state) / reference_state
+        # ) / jnp.sqrt(reference_state.size)
+        # results[f"{solvername}_errors"].append(rmse)
 
 
 result_dir = pathlib.Path("./results/3_dimension_vs_runtime")
