@@ -276,7 +276,7 @@ def plot_exp_3(run_path):
     )
     fig, ax = plt.subplots(figsize=figure_size)
     for method in methods:
-        color, ls, marker = MATCH_STYLE[method]
+        color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
         ax.loglog(
             df["dimensions"],
             df[f"{method}_runtime"],
@@ -311,25 +311,25 @@ def plot_exp_3(run_path):
     plt.close("all")
 
     # Plot the errors, just to be able to check that the results were reasonable
-    fig, ax = plt.subplots(figsize=figure_size)
-    for method in methods:
-        color, ls, marker = MATCH_STYLE[method]
-        ax.loglog(
-            df["dimensions"],
-            df[f"{method}_errors"],
-            label=NICER_METHOD_NAME[method],
-            color=color,
-            linestyle=ls,
-            marker=marker,
-            linewidth=THICK,
-            markeredgecolor="black",
-            markeredgewidth=0.3,
-        )
-    ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
-    ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
-    ax.set_xlabel("Dimension")
-    ax.set_ylabel("Error")
-    fig.tight_layout()
+    # fig, ax = plt.subplots(figsize=figure_size)
+    # for method in methods:
+    #     color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+    #     ax.loglog(
+    #         df["dimensions"],
+    #         df[f"{method}_errors"],
+    #         label=NICER_METHOD_NAME[method],
+    #         color=color,
+    #         linestyle=ls,
+    #         marker=marker,
+    #         linewidth=THICK,
+    #         markeredgecolor="black",
+    #         markeredgewidth=0.3,
+    #     )
+    # ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    # ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    # ax.set_xlabel("Dimension")
+    # ax.set_ylabel("Error")
+    # fig.tight_layout()
 
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(
@@ -345,6 +345,43 @@ def plot_exp_3(run_path):
     fig.subplots_adjust(bottom=0.31)
 
     fig.savefig(run_path.parent / "errors.pdf")
+    plt.close("all")
+
+    # Plot the #steps, just to be able to check that the results were reasonable
+    fig, ax = plt.subplots(figsize=figure_size)
+    for method in methods:
+        color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+        ax.loglog(
+            df["dimensions"],
+            df[f"{method}_nsteps"],
+            label=NICER_METHOD_NAME[method],
+            color=color,
+            linestyle=ls,
+            marker=marker,
+            linewidth=THICK,
+            markeredgecolor="black",
+            markeredgewidth=0.3,
+        )
+    ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    ax.set_xlabel("Dimension")
+    ax.set_ylabel("#steps")
+    fig.tight_layout()
+
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        fancybox=False,
+        edgecolor="black",
+        fontsize="x-small",
+        # handlelength=5,
+    ).get_frame().set_linewidth(MEDIUM)
+    fig.subplots_adjust(bottom=0.31)
+
+    fig.savefig(run_path.parent / "nsteps.pdf")
     plt.close("all")
 
 

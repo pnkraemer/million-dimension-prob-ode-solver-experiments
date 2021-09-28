@@ -15,17 +15,14 @@ from hose import plotting
 
 TMAX = 20
 
-# dxs = [0.1, 0.05, 0.02, 0.01, 0.005, 0.002, 0.001]
-# 0.005 takes 40 hours already! So for now let's do all the ones larger than that
-dxs = [0.01, 0.02, 0.05, 0.1]
+# widths = [50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1]  # For the GPU KroneckerEK0
+widths = [10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1]  # CPU
 
-methods, methodnames = zip(
-    *[
-        (tornadox.ek0.KroneckerEK0, "kroneckerek0"),
-        (tornadox.ek0.DiagonalEK0, "diagonalek0"),
-        (tornadox.ek1.DiagonalEK1, "diagonalek1"),
-    ]
-)
+methods = [
+    tornadox.ek0.KroneckerEK0,
+    tornadox.ek0.DiagonalEK0,
+    tornadox.ek1.DiagonalEK1,
+]
 steprule = tornadox.step.AdaptiveSteps(abstol=1e-3, reltol=1e-1)
 solvers = [
     method(
@@ -40,15 +37,22 @@ results = defaultdict(list)
 # Precompile
 for solver in solvers:
     state = solver.simulate_final_state(
-        tornadox.ivp.fhn_2d(dx=0.1, tmax=0.01), compile_step=False
+        tornadox.ivp.fhn_2d(dx=0.1, tmax=0.01),
     )
 
 # Perform the experiment
-for dx in dxs:
-    IVP = tornadox.ivp.fhn_2d(bbox=[[-2.0, -2.0], [2.0, 2.0]], dx=dx, tmax=TMAX)
-    results["dxs"].append(dx)
-    results["dimensions"].append(len(IVP.y0))
-    print(f"\ndx={dx}; dimension={len(IVP.y0)}")
+# for dx in dxs:
+for width in widths:
+    IVP = tornadox.ivp.fhn_2d(
+        # bbox=[[-2.0, -2.0], [2.0, 2.0]], dx=dx,
+        bbox=[[0.0, 0.0], [width, width]],
+        tmax=TMAX,
+    )
+    # results["dxs"].append(dx)
+    results["width"].append(width)
+    dim = len(IVP.y0)
+    results["dimensions"].append(dim)
+    print(f"\nwidth={width}; dimension={len(IVP.y0)}")
 
     # print(f"Start: DOP853")
     # start = time.time()
@@ -69,7 +73,8 @@ for dx in dxs:
 
     for solver in solvers:
         solvername = solver.__class__.__name__
-        if dx < 0.02 and not isinstance(solver, tornadox.ek0.KroneckerEK0):
+        # if dx < 0.02 and not isinstance(solver, tornadox.ek0.KroneckerEK0):
+        if dim > 10 ** 5 and not isinstance(solver, tornadox.ek0.KroneckerEK0):
             print(f"Skipping: {solver}")
             results[f"{solvername}_runtime"].append(None)
             results[f"{solvername}_errors"].append(None)
@@ -77,11 +82,11 @@ for dx in dxs:
 
         print(f"Start: {solvername}")
         start = time.time()
-        state, info = solver.simulate_final_state(
-            IVP, compile_step=False, progressbar=True
-        )
+        state, info = solver.simulate_final_state(IVP, progressbar=True)
         elapsed = time.time() - start
         results[f"{solvername}_runtime"].append(elapsed)
+        results[f"{solvername}_nsteps"].append(info["num_steps"])
+        results[f"{solvername}_nf"].append(info["num_f_evaluations"])
         print(f"Done in {elapsed}")
         # error = jnp.linalg.norm(state.y.mean[0] - reference_state)
         # rmse = jnp.linalg.norm(
