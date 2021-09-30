@@ -3,6 +3,7 @@ import pathlib
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.colors import LogNorm
 
 # Extract from the paper template:
 #
@@ -356,7 +357,7 @@ def plot_figure1(result_dir):
     num_x_points = int(num_pts ** (1 / 2))
 
     # Choose colormaps
-    cmap_means, cmap_stds = "ocean", "Greens_r"
+    cmap_means, cmap_stds = "copper", "copper"
 
     # Create 2x3 image
     figure_size = (
@@ -370,30 +371,34 @@ def plot_figure1(result_dir):
         figsize=figure_size,
         nrows=2,
         ncols=4,
-        dpi=300,
+        dpi=200,
         sharex=True,
         sharey=True,
         constrained_layout=True,
     )
 
     # First row: plot means
-    for (t, y, ax) in zip(ts, y_means, axes[0]):
+    for (t, y, ax) in zip(ts[1:], y_means[1:], axes[0]):
+        mean = y[:num_pts].reshape(num_x_points, num_x_points)
+
+        # Plot the interior
         mean_map = ax.imshow(
-            jnp.flip(y[:num_pts].reshape(num_x_points, num_x_points), axis=0),
+            mean,
             cmap=cmap_means,
             vmin=-1,
             vmax=1,
-            interpolation="none",
+            interpolation="bilinear",
         )
 
     # Second row: plot standard deviations
     for (t, s, ax) in zip(ts, y_stds, axes[1]):
+        std = s[:num_pts].reshape(num_x_points, num_x_points)
         std_map = ax.imshow(
-            jnp.flip(s[:num_pts].reshape(num_x_points, num_x_points), axis=0),
+            std,
             cmap=cmap_stds,
             vmin=0,
-            vmax=3e-5,
-            interpolation="none",
+            vmax=3e-3,
+            interpolation="bilinear",
         )
 
     # Set the titles
@@ -401,11 +406,11 @@ def plot_figure1(result_dir):
         ax.set_title(f"$t={t}$", fontsize="medium")
 
     # Some global configs
-    for axes_row in axes:
-        for ax in axes_row:
-            ax.set_xticks((0, num_x_points // 2, num_x_points))
-            ax.set_yticks((0, num_x_points // 2, num_x_points))
-            ax.set_aspect("equal")
+    for ax, letter in zip(axes.flatten(), ["a", "b", "c", "d", "e", "f", "g", "h"]):
+        ax.set_xticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
+        ax.set_yticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
+        ax.set_aspect("equal")
+        ax.set_title(rf"$\bf {letter}.$", loc="left", fontsize="small", ha="right")
 
     # Left column configs
     for axes_row in axes:
