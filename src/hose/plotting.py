@@ -55,7 +55,7 @@ NICER_METHOD_NAME = {
 
 # Custom line-widths. Used for the actual curves in the plot.
 # Thin(nish) defaults are set in ./src/hose/lines_and_ticks.mplstyle.
-THICK = 1.8
+THICK = 2.2
 MEDIUM = 0.5
 THIN = 0.2
 
@@ -83,20 +83,23 @@ MATCH_STYLE = {
 
 def plot_exp_1(run_path):
     """Plot the results from the first experiment."""
-
     # Open sans font with fontsize=8; default lines are thin.
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
     # Load results
     file_path = pathlib.Path(run_path)
     dataframe_complete = pd.read_csv(file_path, sep=";")
-    dataframe = dataframe_complete.loc[
-        dataframe_complete["jit"]
-    ]  # Ignore the non-jit experiments
+    dataframe = dataframe_complete.loc[~dataframe_complete["jit"]]
 
     # Read derivative and method parameters
     nus = dataframe["nu"].unique()
-    methods = dataframe["method"].unique()
+    methods = [
+        "ReferenceEK1",
+        "DiagonalEK1",
+        "ReferenceEK0",
+        "KroneckerEK0",
+        "DiagonalEK0",
+    ]
 
     # Create figure
     figure_size = (
@@ -104,17 +107,18 @@ def plot_exp_1(run_path):
         AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
     )
     figure, axes = plt.subplots(
-        ncols=len(nus), nrows=1, figsize=figure_size, sharey=True, sharex=True
+        ncols=3, nrows=1, figsize=figure_size, sharey=True, sharex=True, dpi=300
     )
 
     # One prior per figure
-    for nu, ax in zip(reversed(nus), axes):
+    for nu, ax, letter in zip(reversed(nus), axes, ["a", "b", "c"]):
 
         # Extract data for given nu
         nu_dataframe = dataframe.loc[dataframe["nu"] == nu]
 
         # Description for the figure
-        ax.set_title(rf"IWP({nu})")
+        # ax.set_title(r"$\bf a.$" + "  ",  fontweight="bold", ha="right")
+        ax.set_title(rf"$\bf {letter}.$" + rf"IWP({nu})", loc="left", fontsize="medium")
         ax.set_xlabel("ODE dimension")
 
         # One line/curve per method
@@ -140,8 +144,8 @@ def plot_exp_1(run_path):
             ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
             # Unify the x-ticks for all plots
-            ax.set_xticks((1e1, 1e2, 1e3, 1e4))
-            ax.set_xlim((0.5 * 1e1, 2e4))
+            ax.set_xticks((1e1, 1e3, 1e5, 1e7))
+            # ax.set_xlim((0.5 * 1e1, 2e4))
 
     # The leftmost plot gets a y-label -- the others share the y-axis-description
     axes[0].set_ylabel("Wall time [sec]")
@@ -160,12 +164,13 @@ def plot_exp_1(run_path):
         fancybox=False,
         edgecolor="black",
         fontsize="medium",
-        handlelength=5,
+        handlelength=4,
     ).get_frame().set_linewidth(MEDIUM)
     figure.subplots_adjust(bottom=0.28)
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+    plt.show()
 
 
 def plot_exp_2(run_path):
@@ -340,79 +345,88 @@ def plot_vdp_stiffness_comparison(path):
 
 def plot_figure1(result_dir):
 
+    # Load data
     ts = jnp.load(result_dir / "times.npy")
     y_means = jnp.load(result_dir / "means.npy")
     y_stds = jnp.load(result_dir / "stddevs.npy")
 
+    # Read off some useful quantities
+    D = len(y_means[0])
+    num_pts = D // 2
+    num_x_points = int(num_pts ** (1 / 2))
+
+    # Choose colormaps
     cmap_means, cmap_stds = "ocean", "Greens_r"
 
-    # Visualize
-    D = len(y_means[0])
-    d = D // 2
-    _d = int(d ** (1 / 2))
-    # Plot means
-    for _t, _y in zip(ts, y_means):
-        fig = plt.figure()
-        cm = plt.imshow(
-            _y[:d].reshape(_d, _d),
-            cmap=cmap_means,
-            vmin=-1,
-            vmax=1,
-            interpolation="none",
-        )
-        plt.axis("off")
-        fig.colorbar(cm, extend="both")
-        fig.tight_layout()
-        fig.savefig(result_dir / f"mean_t={_t}.pdf")
-    # Plot stddevs
-    for _t, _y in zip(ts, y_stds):
-        fig = plt.figure()
-        cm = plt.imshow(
-            _y[:d].reshape(_d, _d),
-            cmap=cmap_stds,
-            vmin=0,
-            interpolation="none",
-            vmax=3e-5,
-        )
-        plt.axis("off")
-        fig.colorbar(cm, extend="max")
-        fig.tight_layout()
-        fig.savefig(result_dir / f"stddev_t={_t}.pdf")
-    plt.close("all")
-
-    idxs = [0, 1, 2, 4]
-    _ts = ts[idxs]  # _ts = [2, 5, 10, 20]
-
+    # Create 2x3 image
     figure_size = (
         AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE * 1.3 * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 1.5,
     )
 
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
+
     fig, axes = plt.subplots(
-        2, len(idxs), figsize=figure_size, sharex="all", sharey="all"
+        figsize=figure_size,
+        nrows=2,
+        ncols=4,
+        dpi=300,
+        sharex=True,
+        sharey=True,
+        constrained_layout=True,
     )
-    for ax, i, t in zip(axes[0], idxs, _ts):
-        cm1 = ax.imshow(
-            y_means[i][:d].reshape(_d, _d),
+
+    # First row: plot means
+    for (t, y, ax) in zip(ts, y_means, axes[0]):
+        mean_map = ax.imshow(
+            jnp.flip(y[:num_pts].reshape(num_x_points, num_x_points), axis=0),
             cmap=cmap_means,
             vmin=-1,
             vmax=1,
             interpolation="none",
-            extent=(-1, 1, -1, 1),
         )
-        ax.set_title(f"t={t}")
-    for ax, i in zip(axes[1], idxs):
-        cm2 = ax.imshow(
-            y_stds[i][:d].reshape(_d, _d),
+
+    # Second row: plot standard deviations
+    for (t, s, ax) in zip(ts, y_stds, axes[1]):
+        std_map = ax.imshow(
+            jnp.flip(s[:num_pts].reshape(num_x_points, num_x_points), axis=0),
             cmap=cmap_stds,
             vmin=0,
             vmax=3e-5,
             interpolation="none",
-            extent=(-1, 1, -1, 1),
         )
-    ax.set_yticks([-1, 0, 1])
-    fig.colorbar(cm1, extend="both", ax=axes[0, -1])
-    fig.colorbar(cm2, extend="max", ax=axes[1, -1])
-    fig.tight_layout()
+
+    # Set the titles
+    for (t, y, ax) in zip(ts, y_means, axes[0]):
+        ax.set_title(f"$t={t}$", fontsize="medium")
+
+    # Some global configs
+    for axes_row in axes:
+        for ax in axes_row:
+            ax.set_xticks((0, num_x_points // 2, num_x_points))
+            ax.set_yticks((0, num_x_points // 2, num_x_points))
+            ax.set_aspect("equal")
+
+    # Left column configs
+    for axes_row in axes:
+        axes_row[0].set_yticklabels((1.0, 0.5, 0.0), fontsize="small")
+        axes_row[0].set_ylabel("$x_2$-coord.", fontsize="medium")
+
+    # Bottom row
+    for axis in axes[1]:
+        axis.set_xticklabels((0.0, 0.5, 1.0), fontsize="small")
+        axis.set_xlabel("$x_1$-coord.", fontsize="medium")
+    mean_cb = fig.colorbar(
+        mean_map, ax=axes[0, -1], extend="both", aspect=12, shrink=0.82
+    )
+    std_cb = fig.colorbar(std_map, ax=axes[1, -1], extend="max", aspect=12, shrink=0.82)
+
+    # Format the colorbars
+    mean_cb.ax.tick_params(labelsize="small")
+    mean_cb.set_ticks((-1.0, 0.0, 1.0))
+    std_cb.ax.tick_params(labelsize="small")
+    std_cb.set_ticks((0.0, 1e-5, 2e-5, 3e-5))
+    std_cb.set_ticklabels((0.0, "$10^{-5}$", "$2\cdot 10^{-5}$", "$3\cdot 10^{-5}$"))
+
     fig.savefig(result_dir / "figure1.pdf")
-    plt.close("all")
+    plt.show()

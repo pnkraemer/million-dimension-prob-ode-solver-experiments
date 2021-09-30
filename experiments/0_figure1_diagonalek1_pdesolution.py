@@ -25,7 +25,6 @@ saveat = [2, 5, 10, 15, 20]
 ts, y_means, y_vars = [], [], []
 for state, info in solver.solution_generator(IVP, stop_at=saveat, progressbar=True):
     if state.t in saveat:
-        print(f"saving! t={state.t}")
         ts.append(state.t)
         y_means.append(state.y.mean[0, :])
         y_vars.append(state.y.cov[:, 0, 0])
