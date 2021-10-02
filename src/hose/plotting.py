@@ -41,7 +41,7 @@ LINESTYLES = ["-", "--", ":", "-.", "-", "--", ":", "-."]
 # Paper-readi(er) legend entries. The paper should not read like code?!
 NICER_METHOD_NAME = {
     "KroneckerEK0": "EK0 (Kron.)",
-    "GPUKroneckerEK0": "EK0 (Kron. & GPU)",
+    "GPUKroneckerEK0": "EK0 (Kron.) (GPU)",
     "ReferenceEK0": "EK0 (Trad.)",
     "DiagonalEK0": "EK0 (Diag.)",
     "ReferenceEK1": "EK1 (Trad.)",
@@ -70,7 +70,7 @@ scipy_color = "gray"
 REF_LINESTYLE = "-"
 MATCH_STYLE = {
     "KroneckerEK0": (EK0_color, "dotted", "o", 0.9, THICK),
-    "GPUKroneckerEK0": (EnK_color, "dashed", "o", 0.9, THICK),
+    "GPUKroneckerEK0": (EK0_color, "dashed", "v", 0.9, THICK),
     "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^", 0.9, THICK),
     "DiagonalEK0": (EK0_color, "-.", "s", 0.9, THICK),
     "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d", 0.9, THICK),
@@ -271,7 +271,7 @@ def plot_exp_3(run_path):
     df = pd.read_csv(file_path, sep=";")
     print(df)
 
-    methods = ["KroneckerEK0", "DiagonalEK0", "DiagonalEK1", "GPUKroneckerEK0"]
+    methods = ["DiagonalEK0", "DiagonalEK1", "KroneckerEK0", "GPUKroneckerEK0"]
 
     figure_size = (
         AISTATS_TEXTWIDTH_SINGLE,
@@ -302,13 +302,13 @@ def plot_exp_3(run_path):
         handles,
         labels,
         loc="lower center",
-        ncol=3,
+        ncol=2,
         fancybox=False,
         edgecolor="black",
         fontsize="x-small",
         # handlelength=5,
     ).get_frame().set_linewidth(MEDIUM)
-    fig.subplots_adjust(bottom=0.31)
+    fig.subplots_adjust(bottom=0.41)
 
     fig.savefig(run_path.parent / "plot.pdf")
     plt.close("all")
