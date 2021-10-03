@@ -1,9 +1,9 @@
 import itertools
-from collections import defaultdict
-import time
 import pathlib
 import sys
+import time
 import timeit
+from collections import defaultdict
 
 import jax
 import jax.numpy as jnp

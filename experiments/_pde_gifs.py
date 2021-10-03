@@ -1,9 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import tornadox
-from scipy.integrate import solve_ivp
-import matplotlib.pyplot as plt
-
 from celluloid import Camera
+from scipy.integrate import solve_ivp
 
 
 def wave_1d_gif():
