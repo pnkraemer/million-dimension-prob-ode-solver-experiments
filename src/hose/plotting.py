@@ -51,7 +51,7 @@ NICER_METHOD_NAME = {
     "EarlyTruncationEK1": "EK1 (early Trunc.)",
     "EnK1": "EnK1",  # Can we get the ensemble size in here somehow?
     "RK45": "RK45 (SciPy)",
-    "DOP853": "DOP853 (SciPy)",
+    "DOP853": "DOP853\n (SciPy)",
     "Radau": "Radau (SciPy)",
 }
 
@@ -279,8 +279,13 @@ def plot_exp_3(run_path):
     df = pd.read_csv(file_path, sep=";")
     print(df)
 
-    # methods = ["DiagonalEK0", "DiagonalEK1", "KroneckerEK0", "GPUKroneckerEK0"]
-    methods = ["DOP853"]
+    methods = [
+        "DiagonalEK0",
+        "DiagonalEK1",
+        "KroneckerEK0",
+        "GPUKroneckerEK0",
+        "DOP853",
+    ]
 
     figure_size = (
         AISTATS_TEXTWIDTH_SINGLE,
@@ -312,7 +317,7 @@ def plot_exp_3(run_path):
         handles,
         labels,
         loc="lower center",
-        ncol=2,
+        ncol=3,
         fancybox=False,
         edgecolor="black",
         fontsize="x-small",
