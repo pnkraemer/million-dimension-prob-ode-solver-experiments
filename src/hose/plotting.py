@@ -42,6 +42,7 @@ LINESTYLES = ["-", "--", ":", "-.", "-", "--", ":", "-."]
 # Paper-readi(er) legend entries. The paper should not read like code?!
 NICER_METHOD_NAME = {
     "KroneckerEK0": "EK0 (Kron.)",
+    "GPUKroneckerEK0": "EK0 (Kron.) (GPU)",
     "ReferenceEK0": "EK0 (Trad.)",
     "DiagonalEK0": "EK0 (Diag.)",
     "ReferenceEK1": "EK1 (Trad.)",
@@ -70,6 +71,7 @@ scipy_color = "gray"
 REF_LINESTYLE = "-"
 MATCH_STYLE = {
     "KroneckerEK0": (EK0_color, "dotted", "o", 0.9, THICK),
+    "GPUKroneckerEK0": (EK0_color, "dashed", "v", 0.9, THICK),
     "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^", 0.9, THICK),
     "DiagonalEK0": (EK0_color, "-.", "s", 0.9, THICK),
     "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d", 0.9, THICK),
@@ -265,6 +267,131 @@ def plot_exp_2(run_path):
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+
+
+def plot_exp_3(run_path):
+    """Plot the results from the first experiment."""
+
+    # Load results
+    file_path = pathlib.Path(run_path)
+    df = pd.read_csv(file_path, sep=";")
+    print(df)
+
+    methods = ["DiagonalEK0", "DiagonalEK1", "KroneckerEK0", "GPUKroneckerEK0"]
+
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 2 * HEIGHT_WIDTH_RATIO_SINGLE,
+    )
+    fig, ax = plt.subplots(figsize=figure_size)
+    for method in methods:
+        color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+        ax.loglog(
+            df["dimensions"],
+            df[f"{method}_runtime"],
+            label=NICER_METHOD_NAME[method],
+            color=color,
+            linestyle=ls,
+            marker=marker,
+            linewidth=THICK,
+            markeredgecolor="black",
+            markeredgewidth=0.3,
+        )
+    ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    ax.set_xlabel("Dimension")
+    ax.set_ylabel("Run time [sec]")
+    fig.tight_layout()
+
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=2,
+        fancybox=False,
+        edgecolor="black",
+        fontsize="x-small",
+        # handlelength=5,
+    ).get_frame().set_linewidth(MEDIUM)
+    fig.subplots_adjust(bottom=0.41)
+
+    fig.savefig(run_path.parent / "plot.pdf")
+    plt.close("all")
+
+    # Plot the errors, just to be able to check that the results were reasonable
+    # fig, ax = plt.subplots(figsize=figure_size)
+    # for method in methods:
+    #     color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+    #     ax.loglog(
+    #         df["dimensions"],
+    #         df[f"{method}_errors"],
+    #         label=NICER_METHOD_NAME[method],
+    #         color=color,
+    #         linestyle=ls,
+    #         marker=marker,
+    #         linewidth=THICK,
+    #         markeredgecolor="black",
+    #         markeredgewidth=0.3,
+    #     )
+    # ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    # ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    # ax.set_xlabel("Dimension")
+    # ax.set_ylabel("Error")
+    # fig.tight_layout()
+
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        fancybox=False,
+        edgecolor="black",
+        fontsize="x-small",
+        # handlelength=5,
+    ).get_frame().set_linewidth(MEDIUM)
+    fig.subplots_adjust(bottom=0.31)
+
+    fig.savefig(run_path.parent / "errors.pdf")
+    plt.close("all")
+
+    # Plot the #steps, just to be able to check that the results were reasonable
+    fig, ax = plt.subplots(figsize=figure_size)
+    for method in methods:
+        color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+        ax.loglog(
+            df["dimensions"],
+            df[f"{method}_nsteps"],
+            label=NICER_METHOD_NAME[method],
+            color=color,
+            linestyle=ls,
+            marker=marker,
+            linewidth=THICK,
+            markeredgecolor="black",
+            markeredgewidth=0.3,
+        )
+    ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    ax.set_xlabel("Dimension")
+    ax.set_ylabel("#steps")
+    fig.tight_layout()
+
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        loc="lower center",
+        ncol=3,
+        fancybox=False,
+        edgecolor="black",
+        fontsize="x-small",
+        # handlelength=5,
+    ).get_frame().set_linewidth(MEDIUM)
+    fig.subplots_adjust(bottom=0.31)
+
+    fig.savefig(run_path.parent / "nsteps.pdf")
+    plt.close("all")
 
 
 def plot_vdp_stiffness_comparison(path):
