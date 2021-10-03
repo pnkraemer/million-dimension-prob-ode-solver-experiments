@@ -65,10 +65,11 @@ for width in widths:
         method="DOP853",
         rtol=1e-3,
         atol=1e-6,
-        t_eval=[TMAX],
+        # t_eval=[TMAX],
     )
     elapsed = time.time() - start
     results[f"{scipy_solver}_runtime"].append(elapsed)
+    results[f"{scipy_solver}_nsteps"].append(len(reference_sol.t))
     # reference_state = reference_sol.y[:, -1]
     # results["DOP853_runtime"].append(elapsed)
     # print(f"Done in {elapsed}")
