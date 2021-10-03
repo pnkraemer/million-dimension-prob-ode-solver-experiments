@@ -15,13 +15,13 @@ from hose import plotting
 
 TMAX = 20
 
-# widths = [50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1]  # For the GPU KroneckerEK0
-widths = [10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1]  # CPU
+widths = [50.0, 20.0, 10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1]  # For the GPU KroneckerEK0
+# widths = [10.0, 5.0, 2.0, 1.0, 0.5, 0.2, 0.1]  # CPU
 
 methods = [
-    tornadox.ek0.KroneckerEK0,
-    tornadox.ek0.DiagonalEK0,
-    tornadox.ek1.DiagonalEK1,
+    # tornadox.ek0.KroneckerEK0,
+    # tornadox.ek0.DiagonalEK0,
+    # tornadox.ek1.DiagonalEK1,
 ]
 steprule = tornadox.step.AdaptiveSteps(abstol=1e-3, reltol=1e-1)
 solvers = [
@@ -54,19 +54,21 @@ for width in widths:
     results["dimensions"].append(dim)
     print(f"\nwidth={width}; dimension={len(IVP.y0)}")
 
-    # print(f"Start: DOP853")
-    # start = time.time()
-    # reference_sol = solve_ivp(
-    #     fun=IVP.f,
-    #     t_span=(IVP.t0, IVP.tmax),
-    #     y0=IVP.y0,
-    #     # method="RK45",
-    #     method="DOP853",
-    #     atol=1e-13,
-    #     rtol=1e-13,
-    #     t_eval=[TMAX],
-    # )
-    # elapsed = time.time() - start
+    scipy_solver = "DOP853"
+    print(f"Start: {scipy_solver}")
+    start = time.time()
+    reference_sol = solve_ivp(
+        fun=IVP.f,
+        t_span=(IVP.t0, IVP.tmax),
+        y0=IVP.y0,
+        # method="RK45",
+        method="DOP853",
+        rtol=1e-3,
+        atol=1e-6,
+        t_eval=[TMAX],
+    )
+    elapsed = time.time() - start
+    results[f"{scipy_solver}_runtime"].append(elapsed)
     # reference_state = reference_sol.y[:, -1]
     # results["DOP853_runtime"].append(elapsed)
     # print(f"Done in {elapsed}")

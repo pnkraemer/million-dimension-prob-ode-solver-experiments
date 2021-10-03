@@ -51,6 +51,7 @@ NICER_METHOD_NAME = {
     "EarlyTruncationEK1": "EK1 (early Trunc.)",
     "EnK1": "EnK1",  # Can we get the ensemble size in here somehow?
     "RK45": "RK45 (SciPy)",
+    "DOP853": "DOP853 (SciPy)",
     "Radau": "Radau (SciPy)",
 }
 
@@ -80,6 +81,7 @@ MATCH_STYLE = {
     "EarlyTruncationEK1": (EK1_color, "dotted", "^", 0.9, THICK),
     "EnK1": (EnK_color, "dashed", "s", 0.9, THICK),
     "RK45": (scipy_color, "dashed", "P", 0.5, 2 * THICK),
+    "DOP853": (scipy_color, "dashed", "P", 0.5, 2 * THICK),
     "Radau": (scipy_color, "dashed", "X", 0.5, 2 * THICK),
 }
 
@@ -277,7 +279,8 @@ def plot_exp_3(run_path):
     df = pd.read_csv(file_path, sep=";")
     print(df)
 
-    methods = ["DiagonalEK0", "DiagonalEK1", "KroneckerEK0", "GPUKroneckerEK0"]
+    # methods = ["DiagonalEK0", "DiagonalEK1", "KroneckerEK0", "GPUKroneckerEK0"]
+    methods = ["DOP853"]
 
     figure_size = (
         AISTATS_TEXTWIDTH_SINGLE,
@@ -318,43 +321,7 @@ def plot_exp_3(run_path):
 
     fig.savefig(run_path.parent / "plot.pdf")
     plt.close("all")
-
-    # Plot the errors, just to be able to check that the results were reasonable
-    # fig, ax = plt.subplots(figsize=figure_size)
-    # for method in methods:
-    #     color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
-    #     ax.loglog(
-    #         df["dimensions"],
-    #         df[f"{method}_errors"],
-    #         label=NICER_METHOD_NAME[method],
-    #         color=color,
-    #         linestyle=ls,
-    #         marker=marker,
-    #         linewidth=THICK,
-    #         markeredgecolor="black",
-    #         markeredgewidth=0.3,
-    #     )
-    # ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
-    # ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
-    # ax.set_xlabel("Dimension")
-    # ax.set_ylabel("Error")
-    # fig.tight_layout()
-
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(
-        handles,
-        labels,
-        loc="lower center",
-        ncol=3,
-        fancybox=False,
-        edgecolor="black",
-        fontsize="x-small",
-        # handlelength=5,
-    ).get_frame().set_linewidth(MEDIUM)
-    fig.subplots_adjust(bottom=0.31)
-
-    fig.savefig(run_path.parent / "errors.pdf")
-    plt.close("all")
+    return
 
     # Plot the #steps, just to be able to check that the results were reasonable
     fig, ax = plt.subplots(figsize=figure_size)
