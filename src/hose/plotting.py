@@ -296,9 +296,10 @@ def plot_exp_3(run_path):
             color=color,
             linestyle=ls,
             marker=marker,
-            linewidth=THICK,
+            linewidth=linewidth,
             markeredgecolor="black",
             markeredgewidth=0.3,
+            alpha=alpha,
         )
     ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
@@ -334,9 +335,10 @@ def plot_exp_3(run_path):
             color=color,
             linestyle=ls,
             marker=marker,
-            linewidth=THICK,
+            linewidth=linewidth,
             markeredgecolor="black",
             markeredgewidth=0.3,
+            alpha=alpha,
         )
     ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
