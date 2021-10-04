@@ -9,7 +9,7 @@ from hose import plotting
 # Specify the IVP
 key = jax.random.PRNGKey(seed=2)
 IVP = tornadox.ivp.fhn_2d(
-    bbox=[[0.0, 0.0], [0.5, 0.5]], dx=0.025, tmax=20.0, prng_key=key
+    bbox=[[-1.25, -1.25], [1.25, 1.25]], dx=0.01, tmax=20.0, prng_key=key
 )
 D = len(IVP.y0)
 print(f"Dimension: {D}")
