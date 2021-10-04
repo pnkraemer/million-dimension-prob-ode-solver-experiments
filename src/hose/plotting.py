@@ -276,7 +276,7 @@ def plot_exp_3(run_path):
 
     # Load results
     file_path = pathlib.Path(run_path)
-    df = pd.read_csv(file_path, sep=";")
+    df = pd.read_csv(file_path, sep=";", index_col=False)
     print(df)
 
     methods = [
@@ -327,7 +327,6 @@ def plot_exp_3(run_path):
 
     fig.savefig(run_path.parent / "plot.pdf")
     plt.close("all")
-    return
 
     # Plot the #steps, just to be able to check that the results were reasonable
     fig, ax = plt.subplots(figsize=figure_size)
@@ -335,7 +334,7 @@ def plot_exp_3(run_path):
         color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
         ax.loglog(
             df["dimensions"],
-            df[f"{method}_nsteps"],
+            df[f"{method}_nf"],
             label=NICER_METHOD_NAME[method],
             color=color,
             linestyle=ls,
@@ -348,7 +347,7 @@ def plot_exp_3(run_path):
     ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
     ax.set_xlabel("Dimension")
-    ax.set_ylabel("#steps")
+    ax.set_ylabel("#fevals")
     fig.tight_layout()
 
     handles, labels = ax.get_legend_handles_labels()
@@ -364,7 +363,7 @@ def plot_exp_3(run_path):
     ).get_frame().set_linewidth(MEDIUM)
     fig.subplots_adjust(bottom=0.31)
 
-    fig.savefig(run_path.parent / "nsteps.pdf")
+    fig.savefig(run_path.parent / "nf.pdf")
     plt.close("all")
 
 
