@@ -470,7 +470,7 @@ def plot_figure1(result_dir):
     fig, axes = plt.subplots(
         figsize=figure_size,
         nrows=2,
-        ncols=4,
+        ncols=5,
         dpi=200,
         sharex=True,
         sharey=True,
@@ -487,7 +487,7 @@ def plot_figure1(result_dir):
             cmap=cmap_means,
             vmin=-1,
             vmax=1,
-            interpolation="bilinear",
+            interpolation=None,
         )
 
     # Second row: plot standard deviations
@@ -497,8 +497,8 @@ def plot_figure1(result_dir):
             std,
             cmap=cmap_stds,
             vmin=0,
-            vmax=3e-3,
-            interpolation="bilinear",
+            vmax=1e-5,
+            interpolation=None,
         )
 
     # Set the titles
@@ -530,8 +530,9 @@ def plot_figure1(result_dir):
     mean_cb.ax.tick_params(labelsize="small")
     mean_cb.set_ticks((-1.0, 0.0, 1.0))
     std_cb.ax.tick_params(labelsize="small")
-    std_cb.set_ticks((0.0, 1e-5, 2e-5, 3e-5))
-    std_cb.set_ticklabels((0.0, "$10^{-5}$", "$2\cdot 10^{-5}$", "$3\cdot 10^{-5}$"))
+    # std_cb.set_ticks((0.0, 1e-5, 2e-5, 3e-5))
+    std_cb.set_ticks((0.0, 1e-5, 5e-6))
+    std_cb.set_ticklabels((0.0, "$10^{-5}$", "$5\cdot 10^{-6}$"))
 
     fig.savefig(result_dir / "figure1.pdf")
     plt.show()
