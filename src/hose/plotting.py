@@ -462,7 +462,7 @@ def plot_figure1(result_dir):
     # Create 2x3 image
     figure_size = (
         AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 1.5,
+        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 1.2,
     )
 
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
@@ -506,7 +506,9 @@ def plot_figure1(result_dir):
         ax.set_title(f"$t={t}$", fontsize="medium")
 
     # Some global configs
-    for ax, letter in zip(axes.flatten(), ["a", "b", "c", "d", "e", "f", "g", "h"]):
+    for ax, letter in zip(
+        axes.flatten(), ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
+    ):
         ax.set_xticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
         ax.set_yticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
         ax.set_aspect("equal")
@@ -522,9 +524,9 @@ def plot_figure1(result_dir):
         axis.set_xticklabels((0.0, 0.5, 1.0), fontsize="small")
         axis.set_xlabel("$x_1$-coord.", fontsize="medium")
     mean_cb = fig.colorbar(
-        mean_map, ax=axes[0, -1], extend="both", aspect=12, shrink=0.82
+        mean_map, ax=axes[0, -1], extend="both", aspect=10, shrink=0.9
     )
-    std_cb = fig.colorbar(std_map, ax=axes[1, -1], extend="max", aspect=12, shrink=0.82)
+    std_cb = fig.colorbar(std_map, ax=axes[1, -1], extend="max", aspect=10, shrink=0.9)
 
     # Format the colorbars
     mean_cb.ax.tick_params(labelsize="small")
