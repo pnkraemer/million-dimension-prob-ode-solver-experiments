@@ -1,6 +1,7 @@
 import pathlib
 
 import jax.numpy as jnp
+import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.colors import LogNorm
@@ -249,59 +250,41 @@ def plot_exp_2(run_path):
         "Radau",
     ]
 
-    def _inject_dataframe(_ax, _dataframe):
-        """Provided axes and dataframe, plot the exp 1 data into the axis."""
-        for method in all_methods:
-            color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
-            method_dataframe = _dataframe.loc[_dataframe["method"] == method]
-            nus = method_dataframe["nu"].unique()
-            for nu in nus:
-                res_dataframe = method_dataframe.loc[method_dataframe["nu"] == nu]
-                label_method = f"{NICER_METHOD_NAME[method]}"
-                label_order = rf"$\nu={nu}$"
-                if method in ["Radau", "RK45"]:
-                    label = label_method
-                else:
-                    label = label_method + ", " + label_order
-
-                _ax.loglog(
-                    res_dataframe["deviation"],
-                    res_dataframe["time_solve"],
-                    label=label_method,
-                    marker=marker,
-                    color=color,
-                    linestyle=ls,
-                    linewidth=linewidth,
-                    alpha=alpha,
-                    markeredgecolor="black",
-                    markeredgewidth=0.2,
-                )
-
-        # Line widths
-        for spine in _ax.spines:
-            _ax.spines[spine].set_linewidth(MEDIUM)
-
-        _ax.tick_params(labelsize="x-small")
-
     # --- Plot
 
     figure_size = (
         # AISTATS_TEXTWIDTH_SINGLE,
         # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE,
-        AISTATS_TEXTWIDTH_SINGLE * 0.7,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
-    figure = plt.figure(figsize=figure_size)
-    ax_1 = figure.add_subplot()
+    fig = plt.figure(figsize=figure_size, constrained_layout=True, dpi=300)
+    spec = gridspec.GridSpec(ncols=4, nrows=3, figure=fig)
+    ax_results = fig.add_subplot(spec[:, :3])
+    ax_odesol = fig.add_subplot(spec[0, -1])
+    ax_legend = fig.add_subplot(spec[1:3, -1])
 
-    # Axis 1 parameters
-    ax_1.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
-    ax_1.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    for ax in [ax_results, ax_odesol]:
+        # Axis 1 parameters
+        ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+        ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+
     # ax_1.set_title("Pleiades", fontsize="medium")
-    ax_1.set_xlabel("RMSE at final state", fontsize="small")
-    ax_1.set_ylabel("Run time [s]", fontsize="small")
-    _inject_dataframe(ax_1, dataframe)
+    ax_results.set_xlabel("RMSE at final state", fontsize="small")
+    ax_results.set_ylabel("Run time [s]", fontsize="small")
+    _inject_dataframe_exp_2(ax_results, dataframe, all_methods=all_methods)
+    _inject_dataframe_exp_2(ax_odesol, dataframe, all_methods=all_methods)
+
+    h, l = ax.get_legend_handles_labels()
+    ax_legend.legend(
+        h,
+        l,
+        loc="center right",
+        fancybox=False,
+        edgecolor="black",
+        fontsize="xx-small",
+    ).get_frame().set_linewidth(MEDIUM)
 
     # plt.legend(
     #     fancybox=False,
@@ -311,18 +294,45 @@ def plot_exp_2(run_path):
 
     # Legend
     # handles, labels = ax_1.get_legend_handles_labels()
-    plt.legend(
-        loc="center left",
-        bbox_to_anchor=(1, 0.5),
-        fancybox=False,
-        edgecolor="black",
-        fontsize="xx-small",
-    ).get_frame().set_linewidth(MEDIUM)
-    # figure.subplots_adjust(right=0.4)
-    figure.tight_layout()
 
     # Save and done.
-    figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+    fig.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+    plt.show()
+
+
+def _inject_dataframe_exp_2(_ax, _dataframe, all_methods):
+    """Provided axes and dataframe, plot the exp 1 data into the axis."""
+    for method in all_methods:
+        color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+        method_dataframe = _dataframe.loc[_dataframe["method"] == method]
+        nus = method_dataframe["nu"].unique()
+        for nu in nus:
+            res_dataframe = method_dataframe.loc[method_dataframe["nu"] == nu]
+            label_method = f"{NICER_METHOD_NAME[method]}"
+            label_order = rf"$\nu={nu}$"
+            if method in ["Radau", "RK45"]:
+                label = label_method
+            else:
+                label = label_method + ", " + label_order
+
+            _ax.loglog(
+                res_dataframe["deviation"],
+                res_dataframe["time_solve"],
+                label=label_method,
+                marker=marker,
+                color=color,
+                linestyle=ls,
+                linewidth=linewidth,
+                alpha=alpha,
+                markeredgecolor="black",
+                markeredgewidth=0.2,
+            )
+
+    # Line widths
+    for spine in _ax.spines:
+        _ax.spines[spine].set_linewidth(MEDIUM)
+
+    _ax.tick_params(labelsize="x-small")
 
 
 def plot_exp_3(run_path):
