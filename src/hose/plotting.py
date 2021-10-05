@@ -444,7 +444,7 @@ def plot_vdp_stiffness_comparison(path):
         ("DiagonalEK0", "DiagonalEK0", EK0_color, "dashed"),
         ("ReferenceEK1", "ReferenceEK1", EK1_color, "-"),
         ("DiagonalEK1", "DiagonalEK1", EK1_color, "dotted"),
-        ("ETruncationEK1", "EarlyTruncationEK1", EK1_color, "dashed"),
+        # ("ETruncationEK1", "EarlyTruncationEK1", EK1_color, "dashed"),
     ]
 
     figure_size = (
@@ -490,6 +490,7 @@ def plot_vdp_stiffness_comparison(path):
     plot_quantity(ax, "nsteps", "Number of steps")
     add_legend(ax, fig)
     ax.grid(which="both", linewidth=THIN, alpha=0.3, color="darkgray")
+    ax.set_ylim(top=1e6)
 
     ax1 = ax.inset_axes([0.05, 0.6, 0.22, 0.3])
     ax1.plot(y[0], y[1], linewidth=1.0, color="black")
