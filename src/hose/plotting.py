@@ -240,6 +240,10 @@ def plot_exp_2(run_path):
     dataframe = pd.read_csv(file_path, sep=";")
     print(dataframe)
 
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
+
+    Y = jnp.load("./results/2_medium_scale_problem/Y.npy")
+
     all_methods = [
         "ReferenceEK1",
         "ReferenceEK0",
@@ -259,32 +263,65 @@ def plot_exp_2(run_path):
         AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
-    fig = plt.figure(figsize=figure_size, constrained_layout=True, dpi=300)
-    spec = gridspec.GridSpec(ncols=4, nrows=3, figure=fig)
-    ax_results = fig.add_subplot(spec[:, :3])
-    ax_odesol = fig.add_subplot(spec[0, -1])
-    ax_legend = fig.add_subplot(spec[1:3, -1])
+    fig, ax_results = plt.subplots(
+        figsize=figure_size, constrained_layout=True, dpi=300
+    )
+    # spec = gridspec.GridSpec(ncols=4, nrows=4, figure=fig)
+    # ax_results = fig.add_subplot(spec[:, :3])
+    # ax_odesol = fig.add_subplot(spec[:2, -1])
+    # ax_legend = fig.add_subplot(spec[2:, -1])
 
-    for ax in [ax_results, ax_odesol]:
-        # Axis 1 parameters
-        ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
-        ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    # Axis 1 parameters
+    ax_results.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    ax_results.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
     # ax_1.set_title("Pleiades", fontsize="medium")
     ax_results.set_xlabel("RMSE at final state", fontsize="small")
     ax_results.set_ylabel("Run time [s]", fontsize="small")
     _inject_dataframe_exp_2(ax_results, dataframe, all_methods=all_methods)
-    _inject_dataframe_exp_2(ax_odesol, dataframe, all_methods=all_methods)
 
-    h, l = ax.get_legend_handles_labels()
-    ax_legend.legend(
-        h,
-        l,
-        loc="center right",
+    ax_results.set_xlim((1e-10, 1e4))
+
+    ax_odesol = ax_results.inset_axes([0.6825, 0.51, 0.3035, 0.4])
+
+    for i, color in enumerate(
+        ["black", "black", "black", "black", "black", "black", "black"]
+    ):
+        ax_odesol.plot(Y.T[:, i], Y.T[:, i + 7], alpha=0.75, color=color)
+        ax_odesol.plot(
+            Y.T[-1, i],
+            Y.T[-1, i + 7],
+            marker="*",
+            markersize=3,
+            color=color,
+            alpha=0.75,
+        )
+        ax_odesol.plot(
+            Y.T[0, i], Y.T[0, i + 7], marker=".", markersize=2, color=color, alpha=0.75
+        )
+
+    ax_odesol.set_xlim((-4.0, 4.0))
+    ax_odesol.set_ylim((-6.0, 6.0))
+    ax_odesol.set_yticklabels(())
+    ax_odesol.set_xticklabels(())
+
+    ax_results.legend(
+        bbox_to_anchor=(1.0, 0.06),
+        loc="lower right",
         fancybox=False,
         edgecolor="black",
-        fontsize="xx-small",
+        fontsize="x-small",
+        handlelength=3,
     ).get_frame().set_linewidth(MEDIUM)
+
+    ax_results.set_title(
+        rf"$\bf a.$" + rf"Run time vs. RMSE at final state",
+        loc="left",
+        fontsize="medium",
+    )
+    ax_odesol.set_title(
+        rf"$\bf b.$" + rf"Pleiades", loc="left", fontsize="small", pad=4
+    )
 
     # plt.legend(
     #     fancybox=False,
@@ -296,8 +333,8 @@ def plot_exp_2(run_path):
     # handles, labels = ax_1.get_legend_handles_labels()
 
     # Save and done.
-    fig.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
     plt.show()
+    fig.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
 
 
 def _inject_dataframe_exp_2(_ax, _dataframe, all_methods):
