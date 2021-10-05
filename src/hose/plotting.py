@@ -264,7 +264,7 @@ def plot_exp_2(run_path):
     )
 
     fig, ax_results = plt.subplots(
-        figsize=figure_size, constrained_layout=True, dpi=300
+        figsize=figure_size, constrained_layout=True, dpi=200
     )
     # spec = gridspec.GridSpec(ncols=4, nrows=4, figure=fig)
     # ax_results = fig.add_subplot(spec[:, :3])
@@ -282,7 +282,7 @@ def plot_exp_2(run_path):
 
     ax_results.set_xlim((1e-10, 1e4))
 
-    ax_odesol = ax_results.inset_axes([0.6825, 0.51, 0.3035, 0.4])
+    ax_odesol = ax_results.inset_axes([0.6825, 0.53, 0.3035, 0.38])
 
     for i, color in enumerate(
         ["black", "black", "black", "black", "black", "black", "black"]
@@ -333,7 +333,6 @@ def plot_exp_2(run_path):
     # handles, labels = ax_1.get_legend_handles_labels()
 
     # Save and done.
-    plt.show()
     fig.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
 
 
