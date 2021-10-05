@@ -81,9 +81,9 @@ MATCH_STYLE = {
     "TruncationEK1": (EK1_color, "dashed", "p", 0.8, THICK),
     "EarlyTruncationEK1": (EK1_color, "dotted", "^", 0.8, THICK),
     "EnK1": (EnK_color, "dashed", "s", 0.8, THICK),
-    "RK45": (scipy_color, "dashed", "P", 0.5, 2 * THICK),
-    "DOP853": (scipy_color, "dashed", "P", 0.5, 2 * THICK),
-    "Radau": (scipy_color, "dashed", "X", 0.5, 2 * THICK),
+    "RK45": (scipy_color, "solid", "P", 0.5, 2 * THICK),
+    "DOP853": (scipy_color, "solid", "P", 0.5, 2 * THICK),
+    "Radau": (scipy_color, "solid", "X", 0.5, 2 * THICK),
 }
 
 
@@ -282,7 +282,7 @@ def plot_exp_2(run_path):
 
     ax_results.set_xlim((1e-10, 1e4))
 
-    ax_odesol = ax_results.inset_axes([0.6825, 0.53, 0.3035, 0.38])
+    ax_odesol = ax_results.inset_axes([0.669, 0.54, 0.315, 0.38])
 
     for i, color in enumerate(
         ["black", "black", "black", "black", "black", "black", "black"]
@@ -311,7 +311,7 @@ def plot_exp_2(run_path):
         fancybox=False,
         edgecolor="black",
         fontsize="x-small",
-        handlelength=3,
+        handlelength=2,
     ).get_frame().set_linewidth(MEDIUM)
 
     ax_results.set_title(
@@ -320,7 +320,7 @@ def plot_exp_2(run_path):
         fontsize="medium",
     )
     ax_odesol.set_title(
-        rf"$\bf b.$" + rf"Pleiades", loc="left", fontsize="small", pad=4
+        rf"$\bf b.$" + rf"Pleiades", loc="left", fontsize="small", pad=3
     )
 
     # plt.legend(
@@ -526,15 +526,18 @@ def plot_vdp_stiffness_comparison(path):
     plot_quantity(ax, "nsteps", "Number of steps")
     add_legend(ax, fig)
     ax.grid(which="both", linewidth=THIN, alpha=0.3, color="darkgray")
-    ax.set_ylim(top=1e6)
+    # ax.set_xlim((1e0, 1e7))
+    ax.set_ylim((0.2 * 1e1, 5 * 1e6))
 
-    ax1 = ax.inset_axes([0.05, 0.6, 0.22, 0.3])
+    ax1 = ax.inset_axes([0.025, 0.6, 0.22, 0.3])
     ax1.plot(y[0], y[1], linewidth=1.0, color="black")
     ax1.set_xticklabels(())
     ax1.set_yticklabels(())
 
-    ax.set_title(rf"$\bf a.$ Some title", loc="left", fontsize="medium")
-    ax1.set_title(rf"$\bf b.$ Van der Pol", loc="left", fontsize="small")
+    ax.set_title(
+        rf"$\bf a.$ Number of steps vs. stiffness", loc="left", fontsize="medium"
+    )
+    ax1.set_title(rf"$\bf b.$ VdP", loc="left", fontsize="small", pad=4)
 
     fig.savefig(path.parent / f"nsteps_plot.pdf")
 
@@ -605,13 +608,14 @@ def plot_figure1(result_dir):
         )
 
     # Second row: plot standard deviations
+    vmin, vmax = 0.0, 8e-6
     for (t, s, ax) in zip(ts, y_stds, axes[1]):
         std = s[:num_pts].reshape(num_x_points, num_x_points)
         std_map = ax.imshow(
             std,
             cmap=cmap_stds,
-            vmin=0,
-            vmax=1e-5,
+            vmin=vmin,
+            vmax=vmax,
             interpolation=None,
         )
 
@@ -647,8 +651,8 @@ def plot_figure1(result_dir):
     mean_cb.set_ticks((-1.0, 0.0, 1.0))
     std_cb.ax.tick_params(labelsize="small")
     # std_cb.set_ticks((0.0, 1e-5, 2e-5, 3e-5))
-    std_cb.set_ticks((0.0, 1e-5, 5e-6))
-    std_cb.set_ticklabels((0.0, "$10^{-5}$", "$5\cdot 10^{-6}$"))
+    std_cb.set_ticks((0.0, 4e-6, 8e-6))
+    std_cb.set_ticklabels((0.0, r"$4 \cdot 10^{-5}$", r"$8 \cdot 10^{-6}$"))
 
     fig.savefig(result_dir / "figure1.pdf")
     plt.show()
