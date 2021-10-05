@@ -72,14 +72,14 @@ scipy_color = "gray"
 REF_LINESTYLE = "-"
 MATCH_STYLE = {
     "KroneckerEK0": (EK0_color, "dotted", "o", 0.9, THICK),
-    "GPUKroneckerEK0": (EK0_color, "dashed", "v", 0.9, THICK),
-    "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^", 0.9, THICK),
-    "DiagonalEK0": (EK0_color, "-.", "s", 0.9, THICK),
-    "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d", 0.9, THICK),
-    "DiagonalEK1": (EK1_color, "-.", "s", 0.9, THICK),
-    "TruncationEK1": (EK1_color, "dashed", "p", 0.9, THICK),
-    "EarlyTruncationEK1": (EK1_color, "dotted", "^", 0.9, THICK),
-    "EnK1": (EnK_color, "dashed", "s", 0.9, THICK),
+    "GPUKroneckerEK0": (EK0_color, "dashed", "v", 0.8, THICK),
+    "ReferenceEK0": (EK0_color, REF_LINESTYLE, "^", 0.8, THICK),
+    "DiagonalEK0": (EK0_color, "-.", "s", 0.8, THICK),
+    "ReferenceEK1": (EK1_color, REF_LINESTYLE, "d", 0.8, THICK),
+    "DiagonalEK1": (EK1_color, "-.", "s", 0.8, THICK),
+    "TruncationEK1": (EK1_color, "dashed", "p", 0.8, THICK),
+    "EarlyTruncationEK1": (EK1_color, "dotted", "^", 0.8, THICK),
+    "EnK1": (EnK_color, "dashed", "s", 0.8, THICK),
     "RK45": (scipy_color, "dashed", "P", 0.5, 2 * THICK),
     "DOP853": (scipy_color, "dashed", "P", 0.5, 2 * THICK),
     "Radau": (scipy_color, "dashed", "X", 0.5, 2 * THICK),
@@ -96,6 +96,11 @@ def plot_exp_1(run_path):
     dataframe_complete = pd.read_csv(file_path, sep=";")
     dataframe = dataframe_complete.loc[~dataframe_complete["jit"]]
 
+    path = "./results/1_sterilised_problem/"
+    T_lorenz = jnp.load(path + "T.npy")
+    X_lorenz = jnp.load(path + "X.npy")
+    Y_lorenz = jnp.load(path + "Y.npy")
+
     # Read derivative and method parameters
     nus = dataframe["nu"].unique()
     methods = [
@@ -109,14 +114,23 @@ def plot_exp_1(run_path):
     # Create figure
     figure_size = (
         AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 0.85,
     )
     figure, axes = plt.subplots(
-        ncols=3, nrows=1, figsize=figure_size, sharey=True, sharex=True, dpi=300
+        ncols=5,
+        nrows=1,
+        figsize=figure_size,
+        dpi=300,
+        gridspec_kw=dict(width_ratios=[4, 1, 4, 4, 4]),
     )
 
+    axes[2].get_shared_x_axes().join(axes[1], axes[2])
+    axes[3].get_shared_x_axes().join(axes[2], axes[3])
+    axes[2].get_shared_y_axes().join(axes[1], axes[2])
+    axes[3].get_shared_y_axes().join(axes[2], axes[3])
+
     # One prior per figure
-    for nu, ax, letter in zip(reversed(nus), axes, ["a", "b", "c"]):
+    for nu, ax, letter in zip(reversed(nus), axes[2:], ["b", "c", "d"]):
 
         # Extract data for given nu
         nu_dataframe = dataframe.loc[dataframe["nu"] == nu]
@@ -130,9 +144,13 @@ def plot_exp_1(run_path):
         for method in methods:
             res_dataframe = nu_dataframe.loc[nu_dataframe["method"] == method]
             color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+            if "Reference" in method:
+                stride = 1
+            else:
+                stride = 2
             ax.loglog(
-                res_dataframe["d"],
-                res_dataframe["time_attempt_step"],
+                res_dataframe["d"][::stride],
+                res_dataframe["time_attempt_step"][::stride],
                 label=NICER_METHOD_NAME[method],
                 marker=marker,
                 markersize=5,
@@ -150,10 +168,44 @@ def plot_exp_1(run_path):
 
             # Unify the x-ticks for all plots
             ax.set_xticks((1e1, 1e3, 1e5, 1e7))
-            # ax.set_xlim((0.5 * 1e1, 2e4))
+            ax.set_xlim((0.5 * 1e1, 2e4))
+            ax.set_yticks((1e-1, 1e-2, 1e-3, 1e-4))
 
     # The leftmost plot gets a y-label -- the others share the y-axis-description
-    axes[0].set_ylabel("Wall time [sec]")
+    axes[2].set_ylabel("Wall time [sec]")
+    axes[3].set_yticklabels(())
+    axes[4].set_yticklabels(())
+
+    axes[1].axis("off")
+
+    axes[2].set_xticks((1e1, 1e3, 1e5, 1e7))
+    axes[3].set_xticks((1e1, 1e3, 1e5, 1e7))
+    axes[4].set_xticks((1e1, 1e3, 1e5, 1e7))
+    axes[2].set_yticks((1e0, 1e-2, 1e-4))
+    axes[3].set_yticks((1e0, 1e-2, 1e-4))
+    axes[4].set_yticks((1e0, 1e-2, 1e-4))
+
+    vmin = jnp.amin(Y_lorenz)
+    vmax = jnp.amax(Y_lorenz)
+
+    axes[0].contour(
+        X_lorenz.T,
+        T_lorenz.T,
+        Y_lorenz.T,
+        cmap="Greys",
+        vmin=vmin,
+        vmax=0.1 * vmax,
+        linewidths=0.01,
+        alpha=0.7,
+    )
+    axes[0].contourf(
+        X_lorenz.T, T_lorenz.T, Y_lorenz.T, cmap="bone", vmin=vmin, vmax=vmax, alpha=0.9
+    )
+    axes[0].set_xlabel("State compartment")
+    axes[0].set_ylabel("Time $t$")
+    axes[0].set_title(rf"$\bf a.$" + rf"Lorenz96 system", loc="left", fontsize="medium")
+    axes[0].set_xticks((0, len(Y_lorenz) // 2, len(Y_lorenz) - 1))
+    axes[0].set_xticklabels((1, len(Y_lorenz) // 2, len(Y_lorenz)))
 
     # Tighten up the plot -- adjust_bottom (below) does not work with constrained layout...
     plt.tight_layout()
@@ -169,9 +221,11 @@ def plot_exp_1(run_path):
         fancybox=False,
         edgecolor="black",
         fontsize="medium",
-        handlelength=4,
+        handlelength=3,
     ).get_frame().set_linewidth(MEDIUM)
-    figure.subplots_adjust(bottom=0.28)
+    figure.subplots_adjust(bottom=0.35, wspace=0.1)
+
+    # plt.subplots_adjust(wspace=0.1, hspace=0.01)
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
@@ -371,6 +425,8 @@ def plot_vdp_stiffness_comparison(path):
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
     df = pd.read_csv(path, sep=";")
 
+    y = jnp.load("./results/vdp_stiffness_comparison/Y.npy")
+
     # (key, label, color, linestyle)
     SOLVERS_TO_PLOT = [
         ("ReferenceEK0", "ReferenceEK0", EK0_color, "-"),
@@ -382,10 +438,8 @@ def plot_vdp_stiffness_comparison(path):
     ]
 
     figure_size = (
-        AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE,
-        # AISTATS_TEXTWIDTH_SINGLE,
-        # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
     def plot_quantity(ax, quantity, ylabel):
@@ -403,45 +457,58 @@ def plot_vdp_stiffness_comparison(path):
             )
         ax.set_ylabel(ylabel)
         ax.set_xlabel("Stiffness constant")
-        plt.tight_layout()
+        # plt.tight_layout()
 
     def add_legend(ax, fig):
         handles, labels = ax.get_legend_handles_labels()
-        fig.legend(
+        ax.legend(
             handles,
             labels,
             # loc="lower center", ncol=3,
-            loc="center right",
+            loc="lower right",
             fancybox=False,
             edgecolor="black",
             fontsize="small",
         ).get_frame().set_linewidth(MEDIUM)
         # fig.subplots_adjust(bottom=0.28)
-        fig.subplots_adjust(right=0.82)
+        # fig.subplots_adjust(right=0.82)
 
     ####################################################################################
     # Plot 1: Number of Steps vs Stiffness Constant
-    fig = plt.figure(figsize=figure_size)
-    ax = fig.add_subplot()
+    fig, ax = plt.subplots(figsize=figure_size, dpi=200, constrained_layout=True)
+    # ax = fig.add_subplot()
     plot_quantity(ax, "nsteps", "Number of steps")
     add_legend(ax, fig)
+    ax.grid(which="both", linewidth=THIN, alpha=0.3, color="darkgray")
+
+    ax1 = ax.inset_axes([0.05, 0.6, 0.22, 0.3])
+    ax1.plot(y[0], y[1], linewidth=1.0, color="black")
+    ax1.set_xticklabels(())
+    ax1.set_yticklabels(())
+
+    ax.set_title(rf"$\bf a.$ Some title", loc="left", fontsize="medium")
+    ax1.set_title(rf"$\bf b.$ Van der Pol", loc="left", fontsize="small")
+
     fig.savefig(path.parent / f"nsteps_plot.pdf")
 
-    ####################################################################################
-    # Plot 2: Error vs Stiffness Constant
-    fig = plt.figure(figsize=figure_size)
-    ax = fig.add_subplot()
-    plot_quantity(ax, "errors", "Error")
-    add_legend(ax, fig)
-    fig.savefig(path.parent / f"error_plot.pdf")
+    # ####################################################################################
+    # # Plot 2: Error vs Stiffness Constant
+    # fig = plt.figure(figsize=figure_size)
+    # ax = fig.add_subplot()
+    # plot_quantity(ax, "errors", "Error")
+    # add_legend(ax, fig)
+    # fig.savefig(path.parent / f"error_plot.pdf")
 
-    ####################################################################################
-    # Plot 3: Seconds vs Stiffness Constant
-    fig = plt.figure(figsize=figure_size)
-    ax = fig.add_subplot()
-    plot_quantity(ax, "seconds", "Seconds")
-    add_legend(ax, fig)
-    fig.savefig(path.parent / f"seconds_plot.pdf")
+    # ####################################################################################
+    # # Plot 3: Seconds vs Stiffness Constant
+    # fig = plt.figure(figsize=figure_size)
+    # ax = fig.add_subplot()
+    # plot_quantity(ax, "seconds", "Seconds")
+
+    # add_legend(ax, fig)
+    # fig.savefig(path.parent / f"seconds_plot.pdf")
+
+    plt.show()
 
 
 def plot_figure1(result_dir):
