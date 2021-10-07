@@ -43,7 +43,7 @@ LINESTYLES = ["-", "--", ":", "-.", "-", "--", ":", "-."]
 # Paper-readi(er) legend entries. The paper should not read like code?!
 NICER_METHOD_NAME = {
     "KroneckerEK0": "EK0 (Kron.)",
-    "GPUKroneckerEK0": "EK0 (Kron.) (GPU)",
+    "GPUKroneckerEK0": "EK0 (Kron., GPU)",
     "ReferenceEK0": "EK0 (Trad.)",
     "DiagonalEK0": "EK0 (Diag.)",
     "ReferenceEK1": "EK1 (Trad.)",
@@ -52,7 +52,7 @@ NICER_METHOD_NAME = {
     "EarlyTruncationEK1": "EK1 (early Trunc.)",
     "EnK1": "EnK1",  # Can we get the ensemble size in here somehow?
     "RK45": "RK45 (SciPy)",
-    "DOP853": "DOP853\n (SciPy)",
+    "DOP853": "DOP853",
     "Radau": "Radau (SciPy)",
 }
 
@@ -115,7 +115,7 @@ def plot_exp_1(run_path):
     # Create figure
     figure_size = (
         AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 0.85,
+        AISTATS_TEXTWIDTH_SINGLE * 0.7,
     )
     figure, axes = plt.subplots(
         ncols=5,
@@ -139,7 +139,7 @@ def plot_exp_1(run_path):
         # Description for the figure
         # ax.set_title(r"$\bf a.$" + "  ",  fontweight="bold", ha="right")
         ax.set_title(rf"$\bf {letter}.$" + rf"IWP({nu})", loc="left", fontsize="medium")
-        ax.set_xlabel("ODE dimension")
+        ax.set_xlabel("ODE dimension", fontsize="small")
 
         # One line/curve per method
         for method in methods:
@@ -173,7 +173,7 @@ def plot_exp_1(run_path):
             ax.set_yticks((1e-1, 1e-2, 1e-3, 1e-4))
 
     # The leftmost plot gets a y-label -- the others share the y-axis-description
-    axes[2].set_ylabel("Wall time [sec]")
+    axes[2].set_ylabel("Run time [s]", fontsize="small")
     axes[3].set_yticklabels(())
     axes[4].set_yticklabels(())
 
@@ -202,11 +202,14 @@ def plot_exp_1(run_path):
     axes[0].contourf(
         X_lorenz.T, T_lorenz.T, Y_lorenz.T, cmap="bone", vmin=vmin, vmax=vmax, alpha=0.9
     )
-    axes[0].set_xlabel("State compartment")
-    axes[0].set_ylabel("Time $t$")
+    axes[0].set_xlabel("State compartment", fontsize="medium")
+    axes[0].set_ylabel("Time $t$", fontsize="medium")
     axes[0].set_title(rf"$\bf a.$" + rf"Lorenz96 system", loc="left", fontsize="medium")
     axes[0].set_xticks((0, len(Y_lorenz) // 2, len(Y_lorenz) - 1))
     axes[0].set_xticklabels((1, len(Y_lorenz) // 2, len(Y_lorenz)))
+
+    for ax in axes:
+        ax.tick_params(labelsize="small")
 
     # Tighten up the plot -- adjust_bottom (below) does not work with constrained layout...
     plt.tight_layout()
@@ -221,10 +224,10 @@ def plot_exp_1(run_path):
         ncol=5,
         fancybox=False,
         edgecolor="black",
-        fontsize="medium",
+        fontsize="small",
         handlelength=3,
     ).get_frame().set_linewidth(MEDIUM)
-    figure.subplots_adjust(bottom=0.35, wspace=0.1)
+    figure.subplots_adjust(bottom=0.28, wspace=0.1)
 
     # plt.subplots_adjust(wspace=0.1, hspace=0.01)
 
@@ -276,13 +279,14 @@ def plot_exp_2(run_path):
     ax_results.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
     # ax_1.set_title("Pleiades", fontsize="medium")
-    ax_results.set_xlabel("RMSE at final state", fontsize="small")
-    ax_results.set_ylabel("Run time [s]", fontsize="small")
+    ax_results.set_xlabel("RMSE at final state", fontsize="medium")
+    ax_results.set_ylabel("Run time [s]", fontsize="medium")
     _inject_dataframe_exp_2(ax_results, dataframe, all_methods=all_methods)
 
     ax_results.set_xlim((1e-10, 1e4))
+    # ax_results.set_ylim((1e-3, 1e2))
 
-    ax_odesol = ax_results.inset_axes([0.669, 0.54, 0.315, 0.38])
+    ax_odesol = ax_results.inset_axes([0.661, 0.55, 0.322, 0.36])
 
     for i, color in enumerate(
         ["black", "black", "black", "black", "black", "black", "black"]
@@ -368,7 +372,7 @@ def _inject_dataframe_exp_2(_ax, _dataframe, all_methods):
     for spine in _ax.spines:
         _ax.spines[spine].set_linewidth(MEDIUM)
 
-    _ax.tick_params(labelsize="x-small")
+    _ax.tick_params(labelsize="small")
 
 
 def plot_exp_3(run_path):
@@ -377,7 +381,9 @@ def plot_exp_3(run_path):
     # Load results
     file_path = pathlib.Path(run_path)
     df = pd.read_csv(file_path, sep=";", index_col=False)
-    print(df)
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
+
+    means = jnp.load("results/0_figure1_diagonalek1_pdesolution/means.npy")
 
     methods = [
         "DiagonalEK0",
@@ -388,13 +394,31 @@ def plot_exp_3(run_path):
     ]
 
     figure_size = (
+        # AISTATS_TEXTWIDTH_SINGLE,
+        # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE,
-        AISTATS_TEXTWIDTH_SINGLE * 2 * HEIGHT_WIDTH_RATIO_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.75,
     )
-    fig, ax = plt.subplots(figsize=figure_size)
+
+    fig, ax_results = plt.subplots(
+        figsize=figure_size, constrained_layout=True, dpi=200
+    )
+    # spec = gridspec.GridSpec(ncols=4, nrows=4, figure=fig)
+    # ax_results = fig.add_subplot(spec[:, :3])
+    # ax_odesol = fig.add_subplot(spec[:2, -1])
+    # ax_legend = fig.add_subplot(spec[2:, -1])
+
+    # Axis 1 parameters
+    ax_results.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    ax_results.grid(which="major", linewidth=MEDIUM, color="dimgray")
+
+    # ax_1.set_title("Pleiades", fontsize="medium")
+    ax_results.set_xlabel("ODE dimension", fontsize="medium")
+    ax_results.set_ylabel("Run time [s]", fontsize="medium")
+
     for method in methods:
         color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
-        ax.loglog(
+        ax_results.loglog(
             df["dimensions"],
             df[f"{method}_runtime"],
             label=NICER_METHOD_NAME[method],
@@ -406,65 +430,146 @@ def plot_exp_3(run_path):
             markeredgewidth=0.3,
             alpha=alpha,
         )
-    ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
-    ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
-    ax.set_xlabel("Dimension")
-    ax.set_ylabel("Run time [sec]")
-    fig.tight_layout()
 
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(
-        handles,
-        labels,
-        loc="lower center",
-        ncol=3,
+    ax_results.set_xlim((3e1, 2e7))
+    ax_results.set_ylim((0.9 * 1e0, 1e5))
+
+    ax_odesol = ax_results.inset_axes([0.025, 0.63, 0.25, 0.28])
+
+    D = len(means[0])
+    num_pts = D // 2
+    num_x_points = int(num_pts ** (1 / 2))
+
+    ax_odesol.contourf(
+        means[-1, :num_pts].reshape((num_x_points, num_x_points)),
+        cmap="Greys",
+        alpha=0.7,
+    )
+    # for i, color in enumerate(
+    #     ["black", "black", "black", "black", "black", "black", "black"]
+    # ):
+    #     ax_odesol.plot(Y.T[:, i], Y.T[:, i + 7], alpha=0.75, color=color)
+    #     ax_odesol.plot(
+    #         Y.T[-1, i],
+    #         Y.T[-1, i + 7],
+    #         marker="*",
+    #         markersize=3,
+    #         color=color,
+    #         alpha=0.75,
+    #     )
+    #     ax_odesol.plot(
+    #         Y.T[0, i], Y.T[0, i + 7], marker=".", markersize=2, color=color, alpha=0.75
+    #     )
+
+    # ax_odesol.set_xlim((-4.0, 4.0))
+    # ax_odesol.set_ylim((-6.0, 6.0))
+    ax_odesol.set_yticklabels(())
+    ax_odesol.set_xticklabels(())
+
+    ax_results.legend(
+        loc="lower right",
         fancybox=False,
         edgecolor="black",
         fontsize="x-small",
-        # handlelength=5,
+        handlelength=2,
     ).get_frame().set_linewidth(MEDIUM)
-    fig.subplots_adjust(bottom=0.41)
+
+    ax_results.set_title(
+        rf"$\bf a.$" + rf"Run time vs. ODE dimension",
+        loc="left",
+        fontsize="medium",
+    )
+    ax_odesol.set_title(rf"$\bf b.$" + rf"FHN", loc="left", fontsize="small", pad=3)
+    ax_results.tick_params(labelsize="small")
+
+    # plt.legend(
+    #     fancybox=False,
+    #     edgecolor="black",
+    #     fontsize="small",
+    # ).get_frame().set_linewidth(MEDIUM)
+
+    # Legend
+    # handles, labels = ax_1.get_legend_handles_labels()
+
+    # figure_size = (
+    #     AISTATS_TEXTWIDTH_SINGLE,
+    #     AISTATS_TEXTWIDTH_SINGLE * 2 * HEIGHT_WIDTH_RATIO_SINGLE,
+    # )
+    # fig, ax = plt.subplots(figsize=figure_size, dpi=300)
+    # for method in methods:
+    #     color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+    #     ax.loglog(
+    #         df["dimensions"],
+    #         df[f"{method}_runtime"],
+    #         label=NICER_METHOD_NAME[method],
+    #         color=color,
+    #         linestyle=ls,
+    #         marker=marker,
+    #         linewidth=linewidth,
+    #         markeredgecolor="black",
+    #         markeredgewidth=0.3,
+    #         alpha=alpha,
+    #     )
+    # ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    # ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    # ax.set_xlabel("Dimension")
+    # ax.set_ylabel("Run time [sec]")
+    # fig.tight_layout()
+
+    # handles, labels = ax.get_legend_handles_labels()
+    # fig.legend(
+    #     handles,
+    #     labels,
+    #     loc="lower center",
+    #     ncol=3,
+    #     fancybox=False,
+    #     edgecolor="black",
+    #     fontsize="x-small",
+    #     # handlelength=5,
+    # ).get_frame().set_linewidth(MEDIUM)
+    # fig.subplots_adjust(bottom=0.41)
 
     fig.savefig(run_path.parent / "plot.pdf")
-    plt.close("all")
+    # plt.show()
 
-    # Plot the #steps, just to be able to check that the results were reasonable
-    fig, ax = plt.subplots(figsize=figure_size)
-    for method in methods:
-        color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
-        ax.loglog(
-            df["dimensions"],
-            df[f"{method}_nf"],
-            label=NICER_METHOD_NAME[method],
-            color=color,
-            linestyle=ls,
-            marker=marker,
-            linewidth=linewidth,
-            markeredgecolor="black",
-            markeredgewidth=0.3,
-            alpha=alpha,
-        )
-    ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
-    ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
-    ax.set_xlabel("Dimension")
-    ax.set_ylabel("#fevals")
-    fig.tight_layout()
+    # # Plot the #steps, just to be able to check that the results were reasonable
+    # fig, ax = plt.subplots(figsize=figure_size)
+    # for method in methods:
+    #     color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
+    #     ax.loglog(
+    #         df["dimensions"],
+    #         df[f"{method}_nf"],
+    #         label=NICER_METHOD_NAME[method],
+    #         color=color,
+    #         linestyle=ls,
+    #         marker=marker,
+    #         linewidth=linewidth,
+    #         markeredgecolor="black",
+    #         markeredgewidth=0.3,
+    #         alpha=alpha,
+    #     )
+    # ax.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
+    # ax.grid(which="major", linewidth=MEDIUM, color="dimgray")
+    # ax.set_xlabel("Dimension")
+    # ax.set_ylabel("#fevals")
+    # fig.tight_layout()
 
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(
-        handles,
-        labels,
-        loc="lower center",
-        ncol=3,
-        fancybox=False,
-        edgecolor="black",
-        fontsize="x-small",
-        # handlelength=5,
-    ).get_frame().set_linewidth(MEDIUM)
-    fig.subplots_adjust(bottom=0.31)
+    # handles, labels = ax.get_legend_handles_labels()
+    # fig.legend(
+    #     handles,
+    #     labels,
+    #     loc="lower center",
+    #     ncol=3,
+    #     fancybox=False,
+    #     edgecolor="black",
+    #     fontsize="x-small",
+    #     # handlelength=5,
+    # ).get_frame().set_linewidth(MEDIUM)
+    # fig.subplots_adjust(bottom=0.31)
 
-    fig.savefig(run_path.parent / "nf.pdf")
-    plt.close("all")
+    # fig.savefig(run_path.parent / "nf.pdf")
+    # plt.close("all")
+    plt.show()
 
 
 def plot_vdp_stiffness_comparison(path):
@@ -485,7 +590,7 @@ def plot_vdp_stiffness_comparison(path):
 
     figure_size = (
         AISTATS_TEXTWIDTH_SINGLE,
-        AISTATS_TEXTWIDTH_SINGLE * 0.8,
+        AISTATS_TEXTWIDTH_SINGLE * 0.7,
     )
 
     def plot_quantity(ax, quantity, ylabel):
@@ -514,7 +619,7 @@ def plot_vdp_stiffness_comparison(path):
             loc="lower right",
             fancybox=False,
             edgecolor="black",
-            fontsize="small",
+            fontsize="x-small",
         ).get_frame().set_linewidth(MEDIUM)
         # fig.subplots_adjust(bottom=0.28)
         # fig.subplots_adjust(right=0.82)
@@ -526,13 +631,15 @@ def plot_vdp_stiffness_comparison(path):
     plot_quantity(ax, "nsteps", "Number of steps")
     add_legend(ax, fig)
     ax.grid(which="both", linewidth=THIN, alpha=0.3, color="darkgray")
-    # ax.set_xlim((1e0, 1e7))
-    ax.set_ylim((0.2 * 1e1, 5 * 1e6))
+    ax.set_xlim((5e-1, 2e6))
+    ax.set_ylim((2e1, 2 * 1e6))
 
     ax1 = ax.inset_axes([0.025, 0.6, 0.22, 0.3])
     ax1.plot(y[0], y[1], linewidth=1.0, color="black")
     ax1.set_xticklabels(())
     ax1.set_yticklabels(())
+
+    ax.tick_params(labelsize="small")
 
     ax.set_title(
         rf"$\bf a.$ Number of steps vs. stiffness", loc="left", fontsize="medium"
