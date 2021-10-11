@@ -52,7 +52,7 @@ NICER_METHOD_NAME = {
     "EarlyTruncationEK1": "EK1 (early Trunc.)",
     "EnK1": "EnK1",  # Can we get the ensemble size in here somehow?
     "RK45": "RK45 (SciPy)",
-    "DOP853": "DOP853",
+    "DOP853": "DOP853 (SciPy)",
     "Radau": "Radau (SciPy)",
 }
 
