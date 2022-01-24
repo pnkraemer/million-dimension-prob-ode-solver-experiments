@@ -565,11 +565,11 @@ def plot_exp_3(run_path):
     # plt.show()
 
 
-def plot_vdp_stiffness_comparison(path):
+def plot_4_vdp_stiffness_comparison(path):
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
     df = pd.read_csv(path, sep=";")
 
-    y = jnp.load("./results/vdp_stiffness_comparison/Y.npy")
+    y = jnp.load("./results/4_vdp_stiffness_comparison/Y.npy")
 
     # (key, label, color, linestyle)
     SOLVERS_TO_PLOT = [
