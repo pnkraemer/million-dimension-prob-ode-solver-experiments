@@ -1,10 +1,8 @@
 import pathlib
 
 import jax.numpy as jnp
-import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.colors import LogNorm
 
 # Extract from the paper template:
 #
@@ -138,8 +136,8 @@ def plot_exp_1(run_path):
 
         # Description for the figure
         # ax.set_title(r"$\bf a.$" + "  ",  fontweight="bold", ha="right")
-        ax.set_title(rf"$\bf {letter}.$" + rf"IWP({nu})", loc="left", fontsize="medium")
-        ax.set_xlabel("ODE dimension", fontsize="small")
+        ax.set_title(rf"$\bf {letter}.$" + rf"IWP({nu})", loc="left")
+        ax.set_xlabel("ODE dimension")
 
         # One line/curve per method
         for method in methods:
@@ -173,7 +171,7 @@ def plot_exp_1(run_path):
             ax.set_yticks((1e-1, 1e-2, 1e-3, 1e-4))
 
     # The leftmost plot gets a y-label -- the others share the y-axis-description
-    axes[2].set_ylabel("Run time [s]", fontsize="small")
+    axes[2].set_ylabel("Run time [s]")
     axes[3].set_yticklabels(())
     axes[4].set_yticklabels(())
 
@@ -202,9 +200,9 @@ def plot_exp_1(run_path):
     axes[0].contourf(
         X_lorenz.T, T_lorenz.T, Y_lorenz.T, cmap="bone", vmin=vmin, vmax=vmax, alpha=0.9
     )
-    axes[0].set_xlabel("State compartment", fontsize="medium")
-    axes[0].set_ylabel("Time $t$", fontsize="medium")
-    axes[0].set_title(rf"$\bf a.$" + rf"Lorenz96 system", loc="left", fontsize="medium")
+    axes[0].set_xlabel("State compartment")
+    axes[0].set_ylabel("Time $t$")
+    axes[0].set_title(rf"$\bf a.$" + rf"Lorenz96 system", loc="left")
     axes[0].set_xticks((0, len(Y_lorenz) // 2, len(Y_lorenz) - 1))
     axes[0].set_xticklabels((1, len(Y_lorenz) // 2, len(Y_lorenz)))
 
@@ -224,7 +222,6 @@ def plot_exp_1(run_path):
         ncol=5,
         fancybox=False,
         edgecolor="black",
-        fontsize="small",
         handlelength=3,
     ).get_frame().set_linewidth(MEDIUM)
     figure.subplots_adjust(bottom=0.28, wspace=0.1)
@@ -278,9 +275,9 @@ def plot_exp_2(run_path):
     ax_results.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_results.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
-    # ax_1.set_title("Pleiades", fontsize="medium")
-    ax_results.set_xlabel("RMSE at final state", fontsize="medium")
-    ax_results.set_ylabel("Run time [s]", fontsize="medium")
+    # ax_1.set_title("Pleiades")
+    ax_results.set_xlabel("RMSE at final state")
+    ax_results.set_ylabel("Run time [s]")
     _inject_dataframe_exp_2(ax_results, dataframe, all_methods=all_methods)
 
     ax_results.set_xlim((1e-10, 1e4))
@@ -314,23 +311,20 @@ def plot_exp_2(run_path):
         loc="lower right",
         fancybox=False,
         edgecolor="black",
-        fontsize="x-small",
         handlelength=2,
     ).get_frame().set_linewidth(MEDIUM)
 
     ax_results.set_title(
         rf"$\bf a.$" + rf"Run time vs. RMSE at final state",
         loc="left",
-        fontsize="medium",
     )
     ax_odesol.set_title(
-        rf"$\bf b.$" + rf"Pleiades", loc="left", fontsize="small", pad=3
+        rf"$\bf b.$" + rf"Pleiades", loc="left", pad=3
     )
 
     # plt.legend(
     #     fancybox=False,
     #     edgecolor="black",
-    #     fontsize="small",
     # ).get_frame().set_linewidth(MEDIUM)
 
     # Legend
@@ -412,9 +406,9 @@ def plot_exp_3(run_path):
     ax_results.grid(which="both", linewidth=THIN, alpha=0.25, color="darkgray")
     ax_results.grid(which="major", linewidth=MEDIUM, color="dimgray")
 
-    # ax_1.set_title("Pleiades", fontsize="medium")
-    ax_results.set_xlabel("ODE dimension", fontsize="medium")
-    ax_results.set_ylabel("Run time [s]", fontsize="medium")
+    # ax_1.set_title("Pleiades")
+    ax_results.set_xlabel("ODE dimension")
+    ax_results.set_ylabel("Run time [s]")
 
     for method in methods:
         color, ls, marker, alpha, linewidth = MATCH_STYLE[method]
@@ -470,22 +464,19 @@ def plot_exp_3(run_path):
         loc="lower right",
         fancybox=False,
         edgecolor="black",
-        fontsize="x-small",
         handlelength=2,
     ).get_frame().set_linewidth(MEDIUM)
 
     ax_results.set_title(
         rf"$\bf a.$" + rf"Run time vs. ODE dimension",
         loc="left",
-        fontsize="medium",
     )
-    ax_odesol.set_title(rf"$\bf b.$" + rf"FHN", loc="left", fontsize="small", pad=3)
+    ax_odesol.set_title(rf"$\bf b.$" + rf"FHN", loc="left", pad=3)
     ax_results.tick_params(labelsize="small")
 
     # plt.legend(
     #     fancybox=False,
     #     edgecolor="black",
-    #     fontsize="small",
     # ).get_frame().set_linewidth(MEDIUM)
 
     # Legend
@@ -524,7 +515,6 @@ def plot_exp_3(run_path):
     #     ncol=3,
     #     fancybox=False,
     #     edgecolor="black",
-    #     fontsize="x-small",
     #     # handlelength=5,
     # ).get_frame().set_linewidth(MEDIUM)
     # fig.subplots_adjust(bottom=0.41)
@@ -562,7 +552,6 @@ def plot_exp_3(run_path):
     #     ncol=3,
     #     fancybox=False,
     #     edgecolor="black",
-    #     fontsize="x-small",
     #     # handlelength=5,
     # ).get_frame().set_linewidth(MEDIUM)
     # fig.subplots_adjust(bottom=0.31)
@@ -619,7 +608,6 @@ def plot_vdp_stiffness_comparison(path):
             loc="lower right",
             fancybox=False,
             edgecolor="black",
-            fontsize="x-small",
         ).get_frame().set_linewidth(MEDIUM)
         # fig.subplots_adjust(bottom=0.28)
         # fig.subplots_adjust(right=0.82)
@@ -642,9 +630,9 @@ def plot_vdp_stiffness_comparison(path):
     ax.tick_params(labelsize="small")
 
     ax.set_title(
-        rf"$\bf a.$ Number of steps vs. stiffness", loc="left", fontsize="medium"
+        rf"$\bf a.$ Number of steps vs. stiffness", loc="left"
     )
-    ax1.set_title(rf"$\bf b.$ VdP", loc="left", fontsize="small", pad=4)
+    ax1.set_title(rf"$\bf b.$ VdP", loc="left", pad=4)
 
     fig.savefig(path.parent / f"nsteps_plot.pdf")
 
@@ -668,7 +656,7 @@ def plot_vdp_stiffness_comparison(path):
     plt.show()
 
 
-def plot_figure1(result_dir):
+def plot_figure1_high_dimensional_ode(result_dir):
 
     # Load data
     ts = jnp.load(result_dir / "times.npy")
@@ -728,7 +716,7 @@ def plot_figure1(result_dir):
 
     # Set the titles
     for (t, y, ax) in zip(ts, y_means, axes[0]):
-        ax.set_title(f"$t={t}$", fontsize="medium")
+        ax.set_title(f"$t={t}$")
 
     # Some global configs
     for ax, letter in zip(
@@ -737,17 +725,17 @@ def plot_figure1(result_dir):
         ax.set_xticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
         ax.set_yticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
         ax.set_aspect("equal")
-        ax.set_title(rf"$\bf {letter}.$", loc="left", fontsize="small", ha="right")
+        ax.set_title(rf"$\bf {letter}.$", loc="left", ha="right")
 
     # Left column configs
     for axes_row in axes:
-        axes_row[0].set_yticklabels((1.0, 0.5, 0.0), fontsize="small")
-        axes_row[0].set_ylabel("$x_2$-coord.", fontsize="medium")
+        axes_row[0].set_yticklabels((1.0, 0.5, 0.0))
+        axes_row[0].set_ylabel("$x_2$-coord.")
 
     # Bottom row
     for axis in axes[1]:
-        axis.set_xticklabels((0.0, 0.5, 1.0), fontsize="small")
-        axis.set_xlabel("$x_1$-coord.", fontsize="medium")
+        axis.set_xticklabels((0.0, 0.5, 1.0))
+        axis.set_xlabel("$x_1$-coord.")
     mean_cb = fig.colorbar(
         mean_map, ax=axes[0, -1], extend="both", aspect=10, shrink=0.9
     )
@@ -761,5 +749,5 @@ def plot_figure1(result_dir):
     std_cb.set_ticks((0.0, 4e-6, 8e-6))
     std_cb.set_ticklabels((0.0, r"$4 \cdot 10^{-5}$", r"$8 \cdot 10^{-6}$"))
 
-    fig.savefig(result_dir / "figure1.pdf")
+    fig.savefig(result_dir / "figure1_high_dimensional_ode.pdf")
     plt.show()

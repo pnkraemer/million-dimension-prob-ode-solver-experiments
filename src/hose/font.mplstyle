@@ -53,8 +53,17 @@
 
 
 
+# Choose font size
+font.size           : 8.0   # ICML caption font-size is 9. We go one smaller.
+axes.labelsize      : medium
+axes.titlesize      : medium
+legend.fontsize     : small
+xtick.labelsize     : small
+ytick.labelsize     : small
+
+
+
 # Choose font style
-font.size           : 9.0
 font.family         : sans-serif
 font.style          : normal
 font.variant        : normal
