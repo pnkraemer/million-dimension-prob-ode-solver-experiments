@@ -159,12 +159,12 @@ def plot_0_diagonalek1_pdesolution(result_dir):
     # Left column configs
     for axes_row in axes:
         axes_row[0].set_yticklabels((1.0, 0.5, 0.0))
-        axes_row[0].set_ylabel("$x_2$-coord.")
+        axes_row[0].set_ylabel("$x_2$-coordinate")
 
     # Bottom row
     for axis in axes[1]:
         axis.set_xticklabels((0.0, 0.5, 1.0))
-        axis.set_xlabel("$x_1$-coord.")
+        axis.set_xlabel("$x_1$-coordinate")
     mean_cb = fig.colorbar(
         mean_map, ax=axes[0, -1], extend="both", aspect=10, shrink=0.9
     )
@@ -318,7 +318,7 @@ def plot_1_sterilised_problem(run_path):
         ncol=5,
         fancybox=False,
         edgecolor="black",
-        handlelength=3,
+        handlelength=5,
     ).get_frame().set_linewidth(MEDIUM)
     figure.subplots_adjust(bottom=0.28, wspace=0.1)
 
@@ -401,7 +401,7 @@ def plot_2_medium_scale_problem(run_path):
         loc="lower right",
         fancybox=False,
         edgecolor="black",
-        handlelength=2,
+        handlelength=3.5,
     ).get_frame().set_linewidth(MEDIUM)
 
     ax_results.set_title(
@@ -414,7 +414,6 @@ def plot_2_medium_scale_problem(run_path):
 
     # Save and done.
     fig.savefig(file_path.parent / f"2_medium_scale_problem.pdf")
-
 
 def _inject_dataframe_exp_2(_ax, _dataframe, all_methods):
     """Provided axes and dataframe, plot the exp 1 data into the axis."""
@@ -459,7 +458,7 @@ def plot_3_dimension_vs_runtime(run_path):
     df = pd.read_csv(file_path, sep=";", index_col=False)
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
-    means = jnp.load("results/0_figure1_diagonalek1_pdesolution/means.npy")
+    means = jnp.load("results/0_diagonalek1_pdesolution/means.npy")
 
     methods = [
         "DiagonalEK0",
