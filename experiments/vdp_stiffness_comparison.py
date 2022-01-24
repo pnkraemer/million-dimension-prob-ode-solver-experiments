@@ -45,7 +45,7 @@ def myvanderpol(t0=0.0, tmax=6.3, y0=None, stiffness_constant=1e1):
     )
 
 
-MUS = 10 ** jnp.arange(6)
+MUS = 10 ** jnp.arange(7)
 
 ATOL, RTOL = 1e-6, 1e-3
 STEPRULE = tornadox.step.AdaptiveSteps(abstol=ATOL, reltol=RTOL, min_step=1e-10)
@@ -57,7 +57,7 @@ SOLVERS = [
     ("DiagonalEK0", DiagonalEK0(num_derivatives=ORDER, steprule=STEPRULE)),
     ("ReferenceEK1", ReferenceEK1(num_derivatives=ORDER, steprule=STEPRULE)),
     ("DiagonalEK1", DiagonalEK1(num_derivatives=ORDER, steprule=STEPRULE)),
-    ("ETruncationEK1", EarlyTruncationEK1(num_derivatives=ORDER, steprule=STEPRULE)),
+    # ("ETruncationEK1", EarlyTruncationEK1(num_derivatives=ORDER, steprule=STEPRULE)),
 ]
 
 
@@ -81,9 +81,10 @@ def solve_vdp_and_save_results(
         try:
             start = time.time()
             solution = solver.solve(vdp)
+            state, info = solver.simulate_final_state(vdp, progressbar=True)
             seconds = time.time() - start
-            nsteps = len(solution.t)
-            error = jnp.linalg.norm(solution.mean[-1][0] - reference_solution.y[:, -1])
+            nsteps = info["num_steps"]
+            error = jnp.linalg.norm(state.y.mean[0] - reference_solution.y[:, -1])
             pbar.write(f"[DONE] ({nsteps} steps)")
         except ValueError:
             pbar.write("[FAILED]")
