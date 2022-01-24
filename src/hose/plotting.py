@@ -85,7 +85,7 @@ MATCH_STYLE = {
 }
 
 
-def plot_exp_1(run_path):
+def plot_1_sterilised_problem(run_path):
     """Plot the results from the first experiment."""
     # Open sans font with fontsize=8; default lines are thin.
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
@@ -229,16 +229,14 @@ def plot_exp_1(run_path):
     # plt.subplots_adjust(wspace=0.1, hspace=0.01)
 
     # Save and done.
-    figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
-    # plt.show()
+    figure.savefig(file_path.parent / f"1_sterilised_problem.pdf")
 
 
-def plot_exp_2(run_path):
+def plot_2_medium_scale_problem(run_path):
     """Plot the results from the second experiment."""
 
     file_path = pathlib.Path(run_path)
     dataframe = pd.read_csv(file_path, sep=";")
-    print(dataframe)
 
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
@@ -331,7 +329,7 @@ def plot_exp_2(run_path):
     # handles, labels = ax_1.get_legend_handles_labels()
 
     # Save and done.
-    fig.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
+    fig.savefig(file_path.parent / f"2_medium_scale_problem.pdf")
 
 
 def _inject_dataframe_exp_2(_ax, _dataframe, all_methods):
