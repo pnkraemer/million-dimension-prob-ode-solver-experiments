@@ -408,12 +408,11 @@ def plot_2_medium_scale_problem(run_path):
         rf"$\bf a.$" + rf"Run time vs. RMSE at final state",
         loc="left",
     )
-    ax_odesol.set_title(
-        rf"$\bf b.$" + rf"Pleiades", loc="left", pad=3
-    )
+    ax_odesol.set_title(rf"$\bf b.$" + rf"Pleiades", loc="left", pad=3)
 
     # Save and done.
     fig.savefig(file_path.parent / f"2_medium_scale_problem.pdf")
+
 
 def _inject_dataframe_exp_2(_ax, _dataframe, all_methods):
     """Provided axes and dataframe, plot the exp 1 data into the axis."""
@@ -609,9 +608,7 @@ def plot_4_vdp_stiffness_comparison(path):
 
     ax.tick_params()
 
-    ax.set_title(
-        rf"$\bf a.$ Number of steps vs. stiffness", loc="left"
-    )
+    ax.set_title(rf"$\bf a.$ Number of steps vs. stiffness", loc="left")
     ax1.set_title(rf"$\bf b.$ VdP", loc="left", pad=4)
 
     fig.savefig(path.parent / f"4_vdp_stiffness_comparison_nsteps.pdf")
@@ -626,4 +623,3 @@ def plot_4_vdp_stiffness_comparison(path):
     fig.savefig(path.parent / f"4_vdp_stiffness_comparison_seconds.pdf")
 
     # plt.show()
-
