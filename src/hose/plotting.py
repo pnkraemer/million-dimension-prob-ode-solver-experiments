@@ -640,7 +640,7 @@ def plot_4_vdp_stiffness_comparison(path):
     )
     ax1.set_title(rf"$\bf b.$ VdP", loc="left", pad=4)
 
-    fig.savefig(path.parent / f"nsteps_plot.pdf")
+    fig.savefig(path.parent / f"4_vdp_stiffness_comparison_nsteps.pdf")
 
     # ####################################################################################
     # # Plot 2: Error vs Stiffness Constant
@@ -657,7 +657,7 @@ def plot_4_vdp_stiffness_comparison(path):
     plot_quantity(ax, "seconds", "Seconds")
 
     add_legend(ax, fig)
-    fig.savefig(path.parent / f"seconds_plot.pdf")
+    fig.savefig(path.parent / f"4_vdp_stiffness_comparison_seconds.pdf")
 
     # plt.show()
 
