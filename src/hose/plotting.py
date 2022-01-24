@@ -560,6 +560,10 @@ def plot_4_vdp_stiffness_comparison(path):
         AISTATS_TEXTWIDTH_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
+    )
 
     def plot_quantity(ax, quantity, ylabel):
         for (s, l, c, ls) in SOLVERS_TO_PLOT:
