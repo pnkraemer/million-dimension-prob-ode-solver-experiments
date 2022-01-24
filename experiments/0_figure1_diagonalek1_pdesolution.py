@@ -49,4 +49,4 @@ jnp.save(result_dir / "means.npy", y_means)
 jnp.save(result_dir / "stddevs.npy", y_stds)
 
 # Plot the results
-plotting.plot_figure1(result_dir)
+plotting.plot_0_figure1_diagonalek1_pdesolution(result_dir)

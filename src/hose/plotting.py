@@ -664,7 +664,7 @@ def plot_4_vdp_stiffness_comparison(path):
     # plt.show()
 
 
-def plot_figure1_high_dimensional_ode(result_dir):
+def plot_0_figure1_diagonalek1_pdesolution(result_dir):
 
     # Load data
     ts = jnp.load(result_dir / "times.npy")
@@ -757,5 +757,5 @@ def plot_figure1_high_dimensional_ode(result_dir):
     std_cb.set_ticks((0.0, 4e-6, 8e-6))
     std_cb.set_ticklabels((0.0, r"$4 \cdot 10^{-5}$", r"$8 \cdot 10^{-6}$"))
 
-    fig.savefig(result_dir / "figure1_high_dimensional_ode.pdf")
+    fig.savefig(result_dir / "0_figure1_diagonalek1_pdesolution.pdf")
     plt.show()
