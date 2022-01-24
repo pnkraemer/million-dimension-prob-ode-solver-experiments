@@ -367,7 +367,7 @@ def _inject_dataframe_exp_2(_ax, _dataframe, all_methods):
     _ax.tick_params(labelsize="small")
 
 
-def plot_exp_3(run_path):
+def plot_3_dimension_vs_runtime(run_path):
     """Plot the results from the first experiment."""
 
     # Load results
@@ -521,7 +521,7 @@ def plot_exp_3(run_path):
     # ).get_frame().set_linewidth(MEDIUM)
     # fig.subplots_adjust(bottom=0.41)
 
-    fig.savefig(run_path.parent / "plot.pdf")
+    fig.savefig(run_path.parent / "3_dimension_vs_runtime.pdf")
     # plt.show()
 
     # # Plot the #steps, just to be able to check that the results were reasonable

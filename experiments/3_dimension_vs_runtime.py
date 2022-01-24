@@ -105,4 +105,4 @@ result_file = result_dir / "results.csv"
 df.to_csv(result_file, sep=";", index=False)
 
 # Plotting
-plotting.plot_exp_3(result_file)
+plotting.plot_3_dimension_vs_runtime(result_file)
