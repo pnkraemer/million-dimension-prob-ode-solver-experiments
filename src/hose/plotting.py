@@ -230,7 +230,7 @@ def plot_exp_1(run_path):
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
-    plt.show()
+    # plt.show()
 
 
 def plot_exp_2(run_path):
@@ -392,6 +392,10 @@ def plot_exp_3(run_path):
         # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE * 0.75,
+    )
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
     fig, ax_results = plt.subplots(
@@ -558,7 +562,7 @@ def plot_exp_3(run_path):
 
     # fig.savefig(run_path.parent / "nf.pdf")
     # plt.close("all")
-    plt.show()
+    # plt.show()
 
 
 def plot_vdp_stiffness_comparison(path):
@@ -580,6 +584,10 @@ def plot_vdp_stiffness_comparison(path):
     figure_size = (
         AISTATS_TEXTWIDTH_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE * 0.7,
+    )
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
     def plot_quantity(ax, quantity, ylabel):
@@ -646,14 +654,14 @@ def plot_vdp_stiffness_comparison(path):
 
     # ####################################################################################
     # # Plot 3: Seconds vs Stiffness Constant
-    # fig = plt.figure(figsize=figure_size)
-    # ax = fig.add_subplot()
-    # plot_quantity(ax, "seconds", "Seconds")
+    fig = plt.figure(figsize=figure_size)
+    ax = fig.add_subplot()
+    plot_quantity(ax, "seconds", "Seconds")
 
-    # add_legend(ax, fig)
-    # fig.savefig(path.parent / f"seconds_plot.pdf")
+    add_legend(ax, fig)
+    fig.savefig(path.parent / f"seconds_plot.pdf")
 
-    plt.show()
+    # plt.show()
 
 
 def plot_figure1_high_dimensional_ode(result_dir):
