@@ -114,7 +114,7 @@ def main():
 
         pbar = tqdm(SOLVERS)
         for name, solver in pbar:
-            if "EK0" in name and mu > 100:
+            if "EK0" in name and mu > 1000:
                 result_dict[f"{name}_nsteps"].append(None)
                 result_dict[f"{name}_errors"].append(None)
                 result_dict[f"{name}_seconds"].append(None)

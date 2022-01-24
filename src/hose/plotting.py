@@ -139,7 +139,7 @@ def plot_exp_1(run_path):
         # Description for the figure
         # ax.set_title(r"$\bf a.$" + "  ",  fontweight="bold", ha="right")
         ax.set_title(rf"$\bf {letter}.$" + rf"IWP({nu})", loc="left", fontsize="medium")
-        ax.set_xlabel("ODE dimension", fontsize="small")
+        ax.set_xlabel("ODE dimension", fontsize="medium")
 
         # One line/curve per method
         for method in methods:
@@ -173,7 +173,7 @@ def plot_exp_1(run_path):
             ax.set_yticks((1e-1, 1e-2, 1e-3, 1e-4))
 
     # The leftmost plot gets a y-label -- the others share the y-axis-description
-    axes[2].set_ylabel("Run time [s]", fontsize="small")
+    axes[2].set_ylabel("Run time [s]", fontsize="medium")
     axes[3].set_yticklabels(())
     axes[4].set_yticklabels(())
 
@@ -233,7 +233,7 @@ def plot_exp_1(run_path):
 
     # Save and done.
     figure.savefig(file_path.parent / f"{file_path.stem}_plot.pdf")
-    plt.show()
+    # plt.show()
 
 
 def plot_exp_2(run_path):
@@ -398,6 +398,10 @@ def plot_exp_3(run_path):
         # AISTATS_TEXTWIDTH_SINGLE * HEIGHT_WIDTH_RATIO_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE * 0.75,
+    )
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
     fig, ax_results = plt.subplots(
@@ -569,7 +573,7 @@ def plot_exp_3(run_path):
 
     # fig.savefig(run_path.parent / "nf.pdf")
     # plt.close("all")
-    plt.show()
+    # plt.show()
 
 
 def plot_vdp_stiffness_comparison(path):
@@ -591,6 +595,10 @@ def plot_vdp_stiffness_comparison(path):
     figure_size = (
         AISTATS_TEXTWIDTH_SINGLE,
         AISTATS_TEXTWIDTH_SINGLE * 0.7,
+    )
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
     def plot_quantity(ax, quantity, ylabel):
@@ -658,14 +666,14 @@ def plot_vdp_stiffness_comparison(path):
 
     # ####################################################################################
     # # Plot 3: Seconds vs Stiffness Constant
-    # fig = plt.figure(figsize=figure_size)
-    # ax = fig.add_subplot()
-    # plot_quantity(ax, "seconds", "Seconds")
+    fig = plt.figure(figsize=figure_size)
+    ax = fig.add_subplot()
+    plot_quantity(ax, "seconds", "Seconds")
 
-    # add_legend(ax, fig)
-    # fig.savefig(path.parent / f"seconds_plot.pdf")
+    add_legend(ax, fig)
+    fig.savefig(path.parent / f"seconds_plot.pdf")
 
-    plt.show()
+    # plt.show()
 
 
 def plot_figure1(result_dir):
@@ -762,4 +770,4 @@ def plot_figure1(result_dir):
     std_cb.set_ticklabels((0.0, r"$4 \cdot 10^{-5}$", r"$8 \cdot 10^{-6}$"))
 
     fig.savefig(result_dir / "figure1.pdf")
-    plt.show()
+    # plt.show()
