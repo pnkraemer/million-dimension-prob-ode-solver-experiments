@@ -85,6 +85,102 @@ MATCH_STYLE = {
 }
 
 
+def plot_0_diagonalek1_pdesolution(result_dir):
+
+    # Load data
+    ts = jnp.load(result_dir / "times.npy")
+    y_means = jnp.load(result_dir / "means.npy")
+    y_stds = jnp.load(result_dir / "stddevs.npy")
+
+    # Read off some useful quantities
+    D = len(y_means[0])
+    num_pts = D // 2
+    num_x_points = int(num_pts ** (1 / 2))
+
+    # Choose colormaps
+    cmap_means, cmap_stds = "copper", "copper"
+
+    # Create 2x3 image
+    figure_size = (
+        AISTATS_LINEWIDTH_DOUBLE,
+        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 1.2,
+    )
+
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
+
+    fig, axes = plt.subplots(
+        figsize=figure_size,
+        nrows=2,
+        ncols=5,
+        dpi=200,
+        sharex=True,
+        sharey=True,
+        constrained_layout=True,
+    )
+
+    # First row: plot means
+    for (t, y, ax) in zip(ts[1:], y_means[1:], axes[0]):
+        mean = y[:num_pts].reshape(num_x_points, num_x_points)
+
+        # Plot the interior
+        mean_map = ax.imshow(
+            mean,
+            cmap=cmap_means,
+            vmin=-1,
+            vmax=1,
+            interpolation=None,
+        )
+
+    # Second row: plot standard deviations
+    vmin, vmax = 0.0, 8e-6
+    for (t, s, ax) in zip(ts, y_stds, axes[1]):
+        std = s[:num_pts].reshape(num_x_points, num_x_points)
+        std_map = ax.imshow(
+            std,
+            cmap=cmap_stds,
+            vmin=vmin,
+            vmax=vmax,
+            interpolation=None,
+        )
+
+    # Set the titles
+    for (t, y, ax) in zip(ts, y_means, axes[0]):
+        ax.set_title(f"$t={t}$")
+
+    # Some global configs
+    for ax, letter in zip(
+        axes.flatten(), ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
+    ):
+        ax.set_xticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
+        ax.set_yticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
+        ax.set_aspect("equal")
+        ax.set_title(rf"$\bf {letter}.$", loc="left", ha="right")
+
+    # Left column configs
+    for axes_row in axes:
+        axes_row[0].set_yticklabels((1.0, 0.5, 0.0))
+        axes_row[0].set_ylabel("$x_2$-coord.")
+
+    # Bottom row
+    for axis in axes[1]:
+        axis.set_xticklabels((0.0, 0.5, 1.0))
+        axis.set_xlabel("$x_1$-coord.")
+    mean_cb = fig.colorbar(
+        mean_map, ax=axes[0, -1], extend="both", aspect=10, shrink=0.9
+    )
+    std_cb = fig.colorbar(std_map, ax=axes[1, -1], extend="max", aspect=10, shrink=0.9)
+
+    # Format the colorbars
+    mean_cb.ax.tick_params()
+    mean_cb.set_ticks((-1.0, 0.0, 1.0))
+    std_cb.ax.tick_params()
+    # std_cb.set_ticks((0.0, 1e-5, 2e-5, 3e-5))
+    std_cb.set_ticks((0.0, 4e-6, 8e-6))
+    std_cb.set_ticklabels((0.0, r"$4 \cdot 10^{-5}$", r"$8 \cdot 10^{-6}$"))
+
+    fig.savefig(result_dir / "0_diagonalek1_pdesolution.pdf")
+
+
 def plot_1_sterilised_problem(run_path):
     """Plot the results from the first experiment."""
     # Open sans font with fontsize=8; default lines are thin.
@@ -528,98 +624,3 @@ def plot_4_vdp_stiffness_comparison(path):
 
     # plt.show()
 
-
-def plot_0_figure1_diagonalek1_pdesolution(result_dir):
-
-    # Load data
-    ts = jnp.load(result_dir / "times.npy")
-    y_means = jnp.load(result_dir / "means.npy")
-    y_stds = jnp.load(result_dir / "stddevs.npy")
-
-    # Read off some useful quantities
-    D = len(y_means[0])
-    num_pts = D // 2
-    num_x_points = int(num_pts ** (1 / 2))
-
-    # Choose colormaps
-    cmap_means, cmap_stds = "copper", "copper"
-
-    # Create 2x3 image
-    figure_size = (
-        AISTATS_LINEWIDTH_DOUBLE,
-        AISTATS_LINEWIDTH_DOUBLE * HEIGHT_WIDTH_RATIO_SINGLE * 1.2,
-    )
-
-    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
-
-    fig, axes = plt.subplots(
-        figsize=figure_size,
-        nrows=2,
-        ncols=5,
-        dpi=200,
-        sharex=True,
-        sharey=True,
-        constrained_layout=True,
-    )
-
-    # First row: plot means
-    for (t, y, ax) in zip(ts[1:], y_means[1:], axes[0]):
-        mean = y[:num_pts].reshape(num_x_points, num_x_points)
-
-        # Plot the interior
-        mean_map = ax.imshow(
-            mean,
-            cmap=cmap_means,
-            vmin=-1,
-            vmax=1,
-            interpolation=None,
-        )
-
-    # Second row: plot standard deviations
-    vmin, vmax = 0.0, 8e-6
-    for (t, s, ax) in zip(ts, y_stds, axes[1]):
-        std = s[:num_pts].reshape(num_x_points, num_x_points)
-        std_map = ax.imshow(
-            std,
-            cmap=cmap_stds,
-            vmin=vmin,
-            vmax=vmax,
-            interpolation=None,
-        )
-
-    # Set the titles
-    for (t, y, ax) in zip(ts, y_means, axes[0]):
-        ax.set_title(f"$t={t}$")
-
-    # Some global configs
-    for ax, letter in zip(
-        axes.flatten(), ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"]
-    ):
-        ax.set_xticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
-        ax.set_yticks((0, (num_x_points - 1) // 2, (num_x_points - 1)))
-        ax.set_aspect("equal")
-        ax.set_title(rf"$\bf {letter}.$", loc="left", ha="right")
-
-    # Left column configs
-    for axes_row in axes:
-        axes_row[0].set_yticklabels((1.0, 0.5, 0.0))
-        axes_row[0].set_ylabel("$x_2$-coord.")
-
-    # Bottom row
-    for axis in axes[1]:
-        axis.set_xticklabels((0.0, 0.5, 1.0))
-        axis.set_xlabel("$x_1$-coord.")
-    mean_cb = fig.colorbar(
-        mean_map, ax=axes[0, -1], extend="both", aspect=10, shrink=0.9
-    )
-    std_cb = fig.colorbar(std_map, ax=axes[1, -1], extend="max", aspect=10, shrink=0.9)
-
-    # Format the colorbars
-    mean_cb.ax.tick_params()
-    mean_cb.set_ticks((-1.0, 0.0, 1.0))
-    std_cb.ax.tick_params()
-    # std_cb.set_ticks((0.0, 1e-5, 2e-5, 3e-5))
-    std_cb.set_ticks((0.0, 4e-6, 8e-6))
-    std_cb.set_ticklabels((0.0, r"$4 \cdot 10^{-5}$", r"$8 \cdot 10^{-6}$"))
-
-    fig.savefig(result_dir / "0_figure1_diagonalek1_pdesolution.pdf")

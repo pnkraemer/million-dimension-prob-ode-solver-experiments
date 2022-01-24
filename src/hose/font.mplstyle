@@ -57,7 +57,7 @@
 font.size           : 8.0   # ICML caption font-size is 9. We go one smaller.
 axes.labelsize      : medium
 axes.titlesize      : medium
-legend.fontsize     : small
+legend.fontsize     : x-small
 xtick.labelsize     : small
 ytick.labelsize     : small
 
