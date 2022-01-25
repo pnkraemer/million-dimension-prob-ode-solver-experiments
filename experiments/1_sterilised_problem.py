@@ -248,4 +248,4 @@ MERGED_DATA_FRAME.to_csv(RESULT_FILE, sep=";", index=False)
 dict_to_dataframe(HYPER_PARAM_DICT).to_json(RESULT_DIR / "hparams.json", indent=2)
 
 # Plot results
-plotting.plot_exp_1(RESULT_FILE)
+plotting.plot_1_sterilised_problem(RESULT_FILE)

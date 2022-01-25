@@ -42,11 +42,11 @@ y_stds = jnp.stack(y_stds)
 
 
 # Save the solution
-result_dir = pathlib.Path("./results/0_figure1_diagonalek1_pdesolution")
+result_dir = pathlib.Path("./results/0_diagonalek1_pdesolution")
 result_dir.mkdir(parents=True, exist_ok=True)
 jnp.save(result_dir / "times.npy", ts)
 jnp.save(result_dir / "means.npy", y_means)
 jnp.save(result_dir / "stddevs.npy", y_stds)
 
 # Plot the results
-plotting.plot_figure1(result_dir)
+plotting.plot_0_diagonalek1_pdesolution(result_dir)

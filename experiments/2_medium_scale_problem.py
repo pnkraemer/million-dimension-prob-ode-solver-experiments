@@ -236,4 +236,4 @@ merged_data_frame.to_csv(result_file, sep=";", index=False)
 
 
 # Plot results
-plotting.plot_exp_2(result_file)
+plotting.plot_2_medium_scale_problem(result_file)
