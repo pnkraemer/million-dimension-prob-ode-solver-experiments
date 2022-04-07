@@ -8,28 +8,33 @@ from tornadox import ek0, ek1, init, step, ivp, enkf
 
 from functools import partial
 
+
 def time_fun(fun):
     t0 = time.time()
     fun()
     fun()
     tmax = time.time() - t0
     print(f"Run time: \n\tt={tmax / 2.}")
-    return tmax / 2.
+    return tmax / 2.0
+
 
 def peakmem_fun(fun):
     mem_usage = memory_usage(fun)
 
     # print('Memory usage (in chunks of .1 seconds): %s' % mem_usage)
-    print(f'Maximum memory usage: \n\tm={max(mem_usage)}')
+    print(f"Maximum memory usage: \n\tm={max(mem_usage)}")
     return max(mem_usage)
 
 
 def initialize(routine, ode, num_derivatives):
 
-    a, b = routine(f=ode.f, df=ode.df, y0=ode.y0, t0=ode.t0, num_derivatives=num_derivatives)
+    a, b = routine(
+        f=ode.f, df=ode.df, y0=ode.y0, t0=ode.t0, num_derivatives=num_derivatives
+    )
     a.block_until_ready()
     b.block_until_ready()
     return a, b
+
 
 print()
 num_derivatives = 6
@@ -46,8 +51,18 @@ for dx in DXs:
         t0 = time.time()
 
         ode = ivp.fhn_2d(dx=dx)
-        taylor_dx = partial(initialize, routine=init.TaylorMode(), ode=ode, num_derivatives=num_derivatives)
-        runge_dx = partial(initialize, routine=init.CompiledRungeKutta(dt=1e-4, use_df=False), ode=ode, num_derivatives=num_derivatives)
+        taylor_dx = partial(
+            initialize,
+            routine=init.TaylorMode(),
+            ode=ode,
+            num_derivatives=num_derivatives,
+        )
+        runge_dx = partial(
+            initialize,
+            routine=init.CompiledRungeKutta(dt=1e-4, use_df=False),
+            ode=ode,
+            num_derivatives=num_derivatives,
+        )
 
         # taylor_dx()
 
