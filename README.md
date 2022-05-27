@@ -8,20 +8,14 @@ Before running anything, install the package with
 pip install -e .
 ```
 
-To reproduce an experiment and create the corresponding figure, two scripts need to be run:
-1. The actual experiment script is located in `./experiments/`.
-   This generates the results, stored in `./results`.
-2. The plotting scripts are located in `./plotting_scripts`.
-
-
-For example, to reproduce figure 0, first run
+`./experiments/` contains the scripts to run the experiments and create the corresponding figure.
+They can be run directly from the root directory.
+For example, to fully reproduce figure 0, run
 ```
 python experiments/0_diagonalek1_pdesolution.py
 ```
-and then
-```
-python plotting_scripts/0_diagonalek1_pdesolution.py
-```
+
+`./plotting_scripts/` contains scripts to only create figures without running the actual experiments; they plot the data stored in the corresponding `./results/` folder.
 
 
 ## Reference
