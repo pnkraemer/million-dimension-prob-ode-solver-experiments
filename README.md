@@ -1,6 +1,27 @@
 # "Probabilistic ODE Solvers in Millions of Dimensions" - Experiments
 
-Short: "hose".## Reference
+This repo contains the experiment code for the paper "Probabilistic ODE Solvers in Millions of Dimensions", which is accepted at ICML 2022, currently avaiable on [arXiv](https://arxiv.org/abs/2110.11812).
+
+## Run Experiments
+Before running anything, install the package with
+```
+pip install -e .
+```
+
+To reproduce an experiment and create the corresponding figure, two scripts need to be run:
+1. The actual experiment script is located in `./experiments/`.
+   This generates the results, stored in `./results`.
+2. The plotting scripts are located in `./plotting_scripts`.
+
+
+For example, to reproduce figure 0, first run
+```
+python experiments/0_diagonalek1_pdesolution.py
+```
+and then
+```
+python plotting_scripts/0_diagonalek1_pdesolution.py
+```
 
 
 ## Reference
