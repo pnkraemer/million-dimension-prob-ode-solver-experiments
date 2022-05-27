@@ -20,6 +20,8 @@ from tornadox.ek0 import *
 from tornadox.ek1 import *
 from tqdm import tqdm
 
+from hose import plotting
+
 
 def myvanderpol(t0=0.0, tmax=6.3, y0=None, stiffness_constant=1e1):
 
@@ -134,7 +136,10 @@ def main():
     if not RESULT_DIR.is_dir():
         RESULT_DIR.mkdir(parents=True)
     df = pd.DataFrame(result_dict)
-    df.to_csv(RESULT_DIR / "results.csv", sep=";", index=False)
+    result_file = RESULT_DIR / "results.csv"
+    df.to_csv(result_file, sep=";", index=False)
+
+    plotting.plot_4_vdp_stiffness_comparison(result_file)
 
 
 if __name__ == "__main__":
