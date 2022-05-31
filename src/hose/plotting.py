@@ -3,7 +3,6 @@ import pathlib
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 import pandas as pd
-
 import scipy.stats
 
 
@@ -675,10 +674,16 @@ def plot_5_extra_experiments():
         AISTATS_TEXTWIDTH_SINGLE * 0.8,
     )
 
-    fig, ax = plt.subplots(ncols=2, nrows=1, figsize=figure_size, sharey=True, dpi=400, constrained_layout=True)
+    fig, ax = plt.subplots(
+        ncols=2,
+        nrows=1,
+        figsize=figure_size,
+        sharey=True,
+        dpi=400,
+        constrained_layout=True,
+    )
 
-    ax[0].set_title(rf"$\bf a.$" + rf"Precision vs. Work",
-        loc="left")
+    ax[0].set_title(rf"$\bf a.$" + rf"Precision vs. Work", loc="left")
     ax[0].loglog(
         times_reference_ek0[::2],
         errors_reference_ek0[::2],
@@ -729,9 +734,7 @@ def plot_5_extra_experiments():
     ax[0].grid(which="both", linewidth=MEDIUM, alpha=0.3, color="darkgray")
     # ax[0].set_xlim((1e-3, 1e0))
 
-
-    ax[1].set_title(rf"$\bf b.$" + rf"Precision vs. Calibration",
-        loc="left")
+    ax[1].set_title(rf"$\bf b.$" + rf"Precision vs. Calibration", loc="left")
     ax[1].loglog(
         chi2s_reference_ek0[::2],
         errors_reference_ek0[::2],
@@ -787,11 +790,9 @@ def plot_5_extra_experiments():
     ).get_frame().set_linewidth(MEDIUM)
     ax[1].set_xlabel(r"$\chi^2$-value at final state")
 
-
     lower, upper = chi2_confidence_intervals(dim=2, perc=0.99)
     ax[1].axvspan(lower, upper, alpha=0.5, color="darkgray")
     ax[1].axvline(2.0, color="k", linewidth=MEDIUM)
-
 
     ax[1].grid(which="both", linewidth=MEDIUM, alpha=0.3, color="darkgray")
     fig.savefig(path + f"figure.pdf")

@@ -76,7 +76,7 @@ for width in widths:
     for solver in solvers:
         solvername = solver.__class__.__name__
         # if dx < 0.02 and not isinstance(solver, tornadox.ek0.KroneckerEK0):
-        if dim > 10 ** 5 and not isinstance(solver, tornadox.ek0.KroneckerEK0):
+        if dim > 10**5 and not isinstance(solver, tornadox.ek0.KroneckerEK0):
             print(f"Skipping: {solver}")
             results[f"{solvername}_runtime"].append(None)
             results[f"{solvername}_errors"].append(None)
