@@ -635,6 +635,111 @@ def plot_4_vdp_stiffness_comparison(path):
     # plt.show()
 
 
+def plot_5_calibration():
+    plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
+
+    path = "./results/5_calibraion/"
+    num_derivatives = 4
+
+    errors_diagonal_ek0 = jnp.load(path + f"errors_ek0_diagonal_{num_derivatives}.npy")
+    chi2s_diagonal_ek0 = jnp.load(path + f"chi2s_ek0_diagonal_{num_derivatives}.npy")
+    times_diagonal_ek0 = jnp.load(path + f"times_ek0_diagonal_{num_derivatives}.npy")
+
+    errors_reference_ek0 = jnp.load(
+        path + f"errors_ek0_reference_{num_derivatives}.npy"
+    )
+    chi2s_reference_ek0 = jnp.load(path + f"chi2s_ek0_reference_{num_derivatives}.npy")
+    times_reference_ek0 = jnp.load(path + f"times_ek0_reference_{num_derivatives}.npy")
+
+    errors_diagonal_ek1 = jnp.load(path + f"errors_ek1_diagonal_{num_derivatives}.npy")
+    chi2s_diagonal_ek1 = jnp.load(path + f"chi2s_ek1_diagonal_{num_derivatives}.npy")
+    times_diagonal_ek1 = jnp.load(path + f"times_ek1_diagonal_{num_derivatives}.npy")
+
+    errors_reference_ek1 = jnp.load(
+        path + f"errors_ek1_reference_{num_derivatives}.npy"
+    )
+    chi2s_reference_ek1 = jnp.load(path + f"chi2s_ek1_reference_{num_derivatives}.npy")
+    times_reference_ek1 = jnp.load(path + f"times_ek1_reference_{num_derivatives}.npy")
+
+    figure_size = (
+        AISTATS_TEXTWIDTH_SINGLE,
+        AISTATS_TEXTWIDTH_SINGLE * 0.8,
+    )
+
+    fig, ax = plt.subplots(
+        ncols=1,
+        nrows=1,
+        figsize=figure_size,
+        sharey=True,
+        dpi=400,
+        constrained_layout=True,
+    )
+
+    ax.set_title(rf"$\bf b.$" + rf"Precision vs. Calibration", loc="left")
+    ax.loglog(
+        chi2s_reference_ek0[::2],
+        errors_reference_ek0[::2],
+        marker="^",
+        color=EK0_color,
+        linestyle="solid",
+        label=rf"ReferenceEK0 ($\nu={num_derivatives}$)",
+        linewidth=THICK,
+        markeredgecolor="black",
+        markeredgewidth=0.3,
+    )
+    ax.loglog(
+        chi2s_diagonal_ek0[::2],
+        errors_diagonal_ek0[::2],
+        marker="s",
+        color=EK0_color,
+        linestyle="dashed",
+        label=rf"DiagonalEK0 ($\nu={num_derivatives}$)",
+        linewidth=THICK,
+        markeredgecolor="black",
+        markeredgewidth=0.3,
+    )
+    ax.loglog(
+        chi2s_reference_ek1[::2],
+        errors_reference_ek1[::2],
+        marker="^",
+        color=EK1_color,
+        linestyle="solid",
+        label=rf"ReferenceEK1 ($\nu={num_derivatives}$)",
+        linewidth=THICK,
+        markeredgecolor="black",
+        markeredgewidth=0.3,
+    )
+    ax.loglog(
+        chi2s_diagonal_ek1[::2],
+        errors_diagonal_ek1[::2],
+        marker="s",
+        color=EK1_color,
+        linestyle="dotted",
+        label=rf"DiagonalEK1 ($\nu={num_derivatives}$)",
+        linewidth=THICK,
+        markeredgecolor="black",
+        markeredgewidth=0.3,
+    )
+    ax.set_xlim((1e-4, 1e3))
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(
+        handles,
+        labels,
+        loc="upper left",
+        fancybox=False,
+        edgecolor="black",
+    ).get_frame().set_linewidth(MEDIUM)
+    ax.set_ylabel("Relative RMSE at final state")
+    ax.set_xlabel(r"$\chi^2$-value at final state")
+
+    lower, upper = chi2_confidence_intervals(dim=2, perc=0.99)
+    ax.axvspan(lower, upper, alpha=0.5, color="darkgray")
+    ax.axvline(2.0, color="k", linewidth=MEDIUM)
+
+    ax.grid(which="both", linewidth=MEDIUM, alpha=0.3, color="darkgray")
+    fig.savefig(path + f"figure.pdf")
+
+
 def plot_5_extra_experiments():
     plt.style.use(["./src/hose/font.mplstyle", "./src/hose/lines_and_ticks.mplstyle"])
 
