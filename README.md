@@ -3,7 +3,7 @@
 This repo contains the experiment code for the paper "Probabilistic ODE Solvers in Millions of Dimensions", which is accepted at ICML 2022, and currently available on [arXiv](https://arxiv.org/abs/2110.11812).
 
 ## Run Experiments
-Before running anything, install the package with
+Before running the scripts, install the package with
 ```
 pip install -e .
 ```
