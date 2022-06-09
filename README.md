@@ -8,7 +8,7 @@ Before running the scripts, install the package with
 pip install -e .
 ```
 
-`./experiments/` contains the scripts to run the experiments and create the corresponding figure.
+`./experiments/` contains the scripts to run the experiments and create the corresponding figures.
 They can be run directly from the root directory.
 For example, to fully reproduce figure 0, run
 ```
