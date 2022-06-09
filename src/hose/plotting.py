@@ -576,14 +576,16 @@ def plot_4_vdp_stiffness_comparison(path):
 
     def plot_quantity(ax, quantity, ylabel):
         for (s, l, c, ls) in SOLVERS_TO_PLOT:
+            l = NICER_METHOD_NAME[s]
+            c, ls, m, _, linewidth = MATCH_STYLE[s]
             ax.loglog(
                 df.mu,
                 df[f"{s}_{quantity}"],
                 label=l,
                 color=c,
-                marker="o",
+                marker=m,
                 linestyle=ls,
-                linewidth=THICK,
+                linewidth=linewidth,
                 markeredgecolor="black",
                 markeredgewidth=0.3,
             )
