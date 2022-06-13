@@ -137,12 +137,12 @@ chi2s_reference = jnp.asarray(chi2s_reference)
 times_reference = jnp.asarray(times_reference)
 
 
-RESULT_DIR = pathlib.Path("./results/5_extra_experiments")
+RESULT_DIR = pathlib.Path("./results/5_calibration")
 if not RESULT_DIR.is_dir():
     RESULT_DIR.mkdir(parents=True)
 
 
-path = "./results/5_extra_experiments/"
+path = "./results/5_calibration/"
 jnp.save(path + f"errors_ek1_diagonal_{NUM_DERIVATIVES}.npy", errors_diagonal)
 jnp.save(path + f"chi2s_ek1_diagonal_{NUM_DERIVATIVES}.npy", chi2s_diagonal)
 jnp.save(path + f"times_ek1_diagonal_{NUM_DERIVATIVES}.npy", times_diagonal)
